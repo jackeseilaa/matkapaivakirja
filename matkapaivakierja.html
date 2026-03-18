@@ -1,0 +1,478 @@
+<!DOCTYPE html>
+<html lang="fi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Matkapäiväkirja 2026 — Jarmo Aaltonen</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=DM+Mono:ital,wght@0,300;0,400;0,500;1,300&family=Syne:wght@400;600;700;800&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#0c0e13;--sf:#13161e;--sf2:#191d28;--bd:#22273a;--ac:#e8c547;--ac2:#5bc4a0;--ac3:#e8795a;--ac4:#7c9ef5;--tx:#e8eaf2;--tx2:#8892aa;--tx3:#50596e;--rh:#171b27;--r:8px;--sh:0 8px 32px rgba(0,0,0,.5)}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'DM Mono',monospace;background:var(--bg);color:var(--tx);min-height:100vh;overflow-x:hidden}
+header{display:flex;align-items:center;justify-content:space-between;padding:18px 28px;border-bottom:1px solid var(--bd);background:var(--sf);position:sticky;top:0;z-index:100;gap:16px}
+.logo-title{font-family:'Syne',sans-serif;font-weight:800;font-size:17px;letter-spacing:-.5px}
+.logo-sub{font-size:9px;color:var(--tx3);letter-spacing:2px;text-transform:uppercase;margin-top:2px}
+.hkpis{display:flex;gap:24px;flex:1;justify-content:center}
+.kpi{text-align:center}.kpi-v{font-family:'Syne',sans-serif;font-weight:700;font-size:20px;line-height:1}.kpi-l{font-size:9px;color:var(--tx3);letter-spacing:1.5px;text-transform:uppercase;margin-top:3px}
+.c-oy .kpi-v{color:var(--ac)}.c-tmi .kpi-v{color:var(--ac2)}.c-oma .kpi-v{color:var(--tx2)}.c-pvr .kpi-v{color:var(--ac3)}.c-tot .kpi-v{color:var(--tx)}
+.hbtns{display:flex;gap:8px;flex-shrink:0}
+.btn{display:inline-flex;align-items:center;gap:6px;padding:8px 14px;border-radius:var(--r);border:none;font-family:'DM Mono',monospace;font-size:11px;cursor:pointer;transition:all .15s;white-space:nowrap}
+.bp{background:var(--ac);color:#0d0f14;font-weight:500}.bp:hover{background:#f5d55e;transform:translateY(-1px)}
+.bs{background:var(--sf2);color:var(--tx);border:1px solid var(--bd)}.bs:hover{background:var(--bd)}
+.bd-btn{background:transparent;color:var(--ac3);border:1px solid var(--ac3);padding:5px 9px;font-size:10px}.bd-btn:hover{background:rgba(232,121,90,.12)}
+.be-btn{background:transparent;color:var(--ac4);border:1px solid var(--ac4);padding:5px 9px;font-size:10px}.be-btn:hover{background:rgba(124,158,245,.12)}
+.bcal{background:rgba(91,196,160,.1);color:var(--ac2);border:1px solid rgba(91,196,160,.3)}.bcal:hover{background:rgba(91,196,160,.2)}
+.bsm{padding:5px 10px;font-size:10px}
+.main{max-width:1500px;margin:0 auto;padding:24px 28px;display:flex;flex-direction:column;gap:20px}
+.panel{background:var(--sf);border:1px solid var(--bd);border-radius:12px;overflow:hidden}
+.ph{display:flex;align-items:center;justify-content:space-between;padding:14px 20px;border-bottom:1px solid var(--bd)}
+.pt{font-family:'Syne',sans-serif;font-weight:700;font-size:13px;display:flex;align-items:center;gap:10px}
+.badge{display:inline-block;padding:2px 8px;border-radius:4px;font-size:9px;font-weight:500;letter-spacing:1px;text-transform:uppercase}
+.bn{background:var(--ac);color:#0d0f14}.be{background:var(--ac3);color:#fff}
+.fg{padding:18px 20px;display:grid;grid-template-columns:130px 100px 100px 72px 72px 1fr 88px 116px auto;gap:10px;align-items:end}
+.fi{display:flex;flex-direction:column;gap:5px}
+.fi label{font-size:9px;letter-spacing:1.5px;text-transform:uppercase;color:var(--tx3)}
+.fi input,.fi select{background:var(--bg);border:1px solid var(--bd);color:var(--tx);border-radius:6px;padding:8px 10px;font-family:'DM Mono',monospace;font-size:12px;width:100%;transition:border-color .15s;-webkit-appearance:none}
+.fi input:focus,.fi select:focus{outline:none;border-color:var(--ac)}
+.fi select option{background:var(--sf)}
+.fw{grid-column:span 2}
+.chips{display:flex;gap:5px;flex-wrap:wrap;align-items:center;height:36px}
+.chip{padding:6px 10px;border-radius:5px;border:1px solid var(--bd);font-size:10px;cursor:pointer;transition:all .12s;background:var(--bg);color:var(--tx2);font-family:'DM Mono',monospace}
+.chip:hover{border-color:var(--tx3);color:var(--tx)}
+.a-oy{border-color:var(--ac)!important;color:var(--ac)!important;background:rgba(232,197,71,.08)!important}
+.a-tmi{border-color:var(--ac2)!important;color:var(--ac2)!important;background:rgba(91,196,160,.08)!important}
+.a-oma{border-color:var(--tx2)!important;color:var(--tx2)!important;background:rgba(136,146,170,.08)!important}
+.a-muu{border-color:var(--ac3)!important;color:var(--ac3)!important;background:rgba(232,121,90,.08)!important}
+.frow{display:flex;gap:10px;align-items:center;flex-wrap:wrap;padding:12px 20px;border-bottom:1px solid var(--bd)}
+.frow input,.frow select{background:var(--bg);border:1px solid var(--bd);color:var(--tx);border-radius:6px;padding:7px 10px;font-family:'DM Mono',monospace;font-size:11px}
+.frow input:focus,.frow select:focus{outline:none;border-color:var(--ac)}
+.fsp{flex:1}
+.tw{overflow-x:auto}
+table{width:100%;border-collapse:collapse;min-width:1200px}
+thead th{padding:9px 14px;text-align:left;font-size:9px;letter-spacing:1.5px;text-transform:uppercase;color:var(--tx3);border-bottom:1px solid var(--bd);font-weight:400;white-space:nowrap;cursor:pointer;user-select:none}
+thead th:hover{color:var(--tx2)}.sorted{color:var(--ac)!important}
+tbody tr{border-bottom:1px solid var(--bd);transition:background .1s}
+tbody tr:hover{background:var(--rh)}
+tbody tr:last-child{border-bottom:none}
+td{padding:10px 14px;font-size:11px;color:var(--tx2);white-space:nowrap}
+.td-date{color:var(--tx);font-weight:500;font-size:12px}.td-dest{color:var(--tx);max-width:220px;overflow:hidden;text-overflow:ellipsis;font-size:11px}
+.tb{display:inline-block;padding:2px 8px;border-radius:4px;font-size:10px;font-weight:500}
+.t-oy{background:rgba(232,197,71,.12);color:var(--ac)}.t-tmi{background:rgba(91,196,160,.12);color:var(--ac2)}.t-oma{background:rgba(136,146,170,.12);color:var(--tx2)}.t-muu{background:rgba(232,121,90,.12);color:var(--ac3)}
+.vkm{color:var(--tx);font-weight:500}.vpvr{color:var(--ac3);font-weight:500}.veur{color:var(--ac2)}
+.ra{display:flex;gap:5px;opacity:0;transition:opacity .15s;justify-content:flex-end}
+tbody tr:hover .ra{opacity:1}
+.cal-ok{display:inline-flex;align-items:center;gap:4px;font-size:10px;color:var(--ac2)}
+.cal-ok::before{content:'';width:6px;height:6px;border-radius:50%;background:var(--ac2);display:inline-block}
+.cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(155px,1fr));gap:14px}
+.card{background:var(--sf);border:1px solid var(--bd);border-radius:10px;padding:16px 18px;display:flex;flex-direction:column;gap:6px}
+.card-label{font-size:9px;letter-spacing:1.5px;text-transform:uppercase;color:var(--tx3)}
+.card-val{font-family:'Syne',sans-serif;font-weight:700;font-size:26px;line-height:1}
+.card-sub{font-size:10px;color:var(--tx3)}
+.c-oy .card-val{color:var(--ac)}.c-tmi .card-val{color:var(--ac2)}.c-oma .card-val{color:var(--tx2)}.c-tot .card-val{color:var(--tx)}.c-pvr .card-val{color:var(--ac3)}
+.ov{position:fixed;inset:0;background:rgba(0,0,0,.72);z-index:200;display:flex;align-items:center;justify-content:center;opacity:0;pointer-events:none;transition:opacity .2s}
+.ov.vis{opacity:1;pointer-events:all}
+.modal{background:var(--sf);border:1px solid var(--bd);border-radius:14px;width:580px;max-width:95vw;max-height:82vh;display:flex;flex-direction:column;box-shadow:var(--sh);transform:translateY(24px);transition:transform .2s}
+.ov.vis .modal{transform:translateY(0)}
+.mh{display:flex;align-items:center;justify-content:space-between;padding:16px 22px;border-bottom:1px solid var(--bd)}
+.mht{font-family:'Syne',sans-serif;font-weight:700;font-size:15px}
+.mx{background:none;border:none;color:var(--tx2);cursor:pointer;font-size:18px;padding:4px;line-height:1}.mx:hover{color:var(--tx)}
+.mb{padding:18px 22px;overflow-y:auto;flex:1}
+.mf{padding:14px 22px;border-top:1px solid var(--bd);display:flex;justify-content:flex-end;gap:10px}
+.ci-list{display:flex;flex-direction:column;gap:8px}
+.ci{background:var(--bg);border:1px solid var(--bd);border-radius:8px;padding:12px 14px;display:flex;align-items:center;justify-content:space-between;gap:10px}
+.ci-t{font-size:12px;color:var(--tx);margin-bottom:3px}.ci-m{font-size:10px;color:var(--tx3)}
+.toast{position:fixed;bottom:24px;right:24px;background:var(--sf2);border:1px solid var(--bd);border-radius:10px;padding:12px 18px;font-size:12px;color:var(--tx);z-index:999;transform:translateY(80px);opacity:0;transition:all .3s;display:flex;align-items:center;gap:9px;max-width:340px;box-shadow:var(--sh)}
+.toast.show{transform:translateY(0);opacity:1}.toast.ok{border-color:rgba(91,196,160,.4)}.toast.err{border-color:rgba(232,121,90,.4)}
+.empty{text-align:center;padding:50px 20px;color:var(--tx3)}.empty-icon{font-size:36px;margin-bottom:10px}.empty-t{font-family:'Syne',sans-serif;font-size:15px;color:var(--tx2);margin-bottom:5px}
+.spin{display:inline-block;width:14px;height:14px;border:2px solid var(--bd);border-top-color:var(--ac2);border-radius:50%;animation:spin .7s linear infinite;vertical-align:middle;margin-right:6px}
+@keyframes spin{to{transform:rotate(360deg)}}
+::-webkit-scrollbar{width:5px;height:5px}::-webkit-scrollbar-track{background:var(--bg)}::-webkit-scrollbar-thumb{background:var(--bd);border-radius:3px}::-webkit-scrollbar-thumb:hover{background:var(--tx3)}
+tbody tr.erow{background:rgba(124,158,245,.05)}
+@media(max-width:1200px){.fg{grid-template-columns:1fr 1fr 1fr 1fr}.hkpis{display:none}}
+@media(max-width:768px){header{padding:12px 14px}.main{padding:12px 14px}.fg{grid-template-columns:1fr 1fr}}
+</style>
+</head>
+<body>
+<header>
+  <div><div class="logo-title">Matkapäiväkirja 2026</div><div class="logo-sub">Jarmo Aaltonen · AJarmo Oy / Tmi</div></div>
+  <div class="hkpis">
+    <div class="kpi c-tot"><div class="kpi-v" id="h-km">0</div><div class="kpi-l">km yht</div></div>
+    <div class="kpi c-oy"><div class="kpi-v" id="h-oy">0</div><div class="kpi-l">Oy km</div></div>
+    <div class="kpi c-tmi"><div class="kpi-v" id="h-tmi">0</div><div class="kpi-l">Tmi km</div></div>
+    <div class="kpi c-pvr"><div class="kpi-v" id="h-pvr">0 €</div><div class="kpi-l">päivärahat</div></div>
+    <div class="kpi c-tot"><div class="kpi-v" id="h-eur">0 €</div><div class="kpi-l">km-korv</div></div>
+  </div>
+  <div class="hbtns">
+    <button class="btn bcal" onclick="openCalImport()">⇩ Kalenteri</button>
+    <button class="btn bs" onclick="exportCSV()">↓ CSV</button>
+  </div>
+</header>
+<div class="main">
+  <div class="cards">
+    <div class="card c-tot"><div class="card-label">Kaikki km</div><div class="card-val" id="s-km">0</div><div class="card-sub" id="s-km-e">0,00 €</div></div>
+    <div class="card c-oy"><div class="card-label">AJarmo Oy km</div><div class="card-val" id="s-oy">0</div><div class="card-sub" id="s-oy-e">0,00 €</div></div>
+    <div class="card c-tmi"><div class="card-label">Tmi km</div><div class="card-val" id="s-tmi">0</div><div class="card-sub" id="s-tmi-e">0,00 €</div></div>
+    <div class="card c-oma"><div class="card-label">Oma km</div><div class="card-val" id="s-oma">0</div><div class="card-sub" id="s-oma-e">—</div></div>
+    <div class="card c-pvr"><div class="card-label">Päivärahat (Oy)</div><div class="card-val" id="s-pvr">0 €</div><div class="card-sub" id="s-pvr-n">0 matkaa</div></div>
+    <div class="card c-tot"><div class="card-label">Km-korvaukset</div><div class="card-val" id="s-kmkorv">0 €</div><div class="card-sub" id="s-total">Yht. 0 €</div></div>
+  </div>
+
+  <div class="panel">
+    <div class="ph">
+      <div class="pt"><span id="form-lbl">Uusi kirjaus</span><span class="badge bn" id="form-badge">SYÖTÄ</span></div>
+      <button class="btn bs" id="cancel-btn" style="display:none" onclick="cancelEdit()">✕ Peruuta</button>
+    </div>
+    <div class="fg">
+      <div class="fi"><label>Päivä</label><input type="date" id="f-date"></div>
+      <div class="fi"><label>Lähtö</label><input type="time" id="f-start"></div>
+      <div class="fi"><label>Paluu</label><input type="time" id="f-end"></div>
+      <div class="fi"><label>Alo.km</label><input type="number" id="f-os" placeholder="509551" step="1" min="0"></div>
+      <div class="fi"><label>Lop.km</label><input type="number" id="f-oe" placeholder="509692" step="1" min="0"></div>
+      <div class="fi fw"><label>Reitti / selite</label><input type="text" id="f-dest" placeholder="Kontiontie 55 RMK – Viipirinkatu 1 HKI – Kontiontie 55 RMK"></div>
+      <div class="fi"><label>Tyyppi</label>
+        <div class="chips">
+          <div class="chip a-oy" data-type="Oy" onclick="pickType(this)">Oy</div>
+          <div class="chip" data-type="Tmi" onclick="pickType(this)">Tmi</div>
+          <div class="chip" data-type="Oma" onclick="pickType(this)">Oma</div>
+          <div class="chip" data-type="Muu" onclick="pickType(this)">Muu</div>
+        </div>
+      </div>
+      <div class="fi"><label>Päiväraha</label>
+        <select id="f-pvr"><option value="0">Ei</option><option value="25">Osapv 25 €</option><option value="54">Kokopv 54 €</option></select>
+      </div>
+      <div class="fi"><label>&nbsp;</label>
+        <button class="btn bp" id="save-btn" onclick="saveEntry()" style="width:100%;padding:9px 12px">＋ Tallenna</button>
+      </div>
+    </div>
+    <div style="padding:0 20px 14px;font-size:10px;color:var(--tx3)">
+      km lasketaan automaattisesti Lop.km − Alo.km · 0,55 €/km · Kokopv 54 € (≥10h) · Osapv 25 € (6–10h)
+      <span id="f-auto" style="margin-left:12px;color:var(--ac2)"></span>
+    </div>
+  </div>
+
+  <div class="panel">
+    <div class="frow">
+      <input type="month" id="fil-m" onchange="af()" style="width:140px">
+      <select id="fil-t" onchange="af()" style="width:110px">
+        <option value="">Kaikki</option><option value="Oy">Oy</option><option value="Tmi">Tmi</option><option value="Oma">Oma</option><option value="Muu">Muu</option>
+      </select>
+      <input type="text" id="fil-s" placeholder="Hae reitistä..." oninput="af()" style="width:190px">
+      <span class="fsp"></span>
+      <span id="row-cnt" style="font-size:10px;color:var(--tx3)">0 kirjausta</span>
+      <span style="font-family:'Syne',sans-serif;font-weight:700;font-size:13px">Kirjaukset</span>
+    </div>
+    <div class="tw">
+      <table>
+        <thead><tr>
+          <th onclick="sb('date')" id="th-date">Päivä ↕</th>
+          <th>Lähtö</th><th>Paluu</th>
+          <th onclick="sb('dest')" id="th-dest">Reitti / selite ↕</th>
+          <th>Tyyppi</th>
+          <th onclick="sb('km')" style="text-align:right" id="th-km">km ↕</th>
+          <th style="text-align:right">Alo.km</th>
+          <th style="text-align:right">Lop.km</th>
+          <th style="text-align:right">Km-korv</th>
+          <th style="text-align:right">PV-raha</th>
+          <th style="text-align:right">Yhteensä</th>
+          <th>Huom</th>
+          <th>Kalenteri</th>
+          <th></th>
+        </tr></thead>
+        <tbody id="tbody"></tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<div class="ov" id="cal-ov">
+  <div class="modal">
+    <div class="mh"><div class="mht">⇩ Tuo Google Kalenterista</div><button class="mx" onclick="closeM()">✕</button></div>
+    <div class="mb">
+      <div style="display:flex;gap:10px;margin-bottom:14px;align-items:center">
+        <input type="month" id="cal-m" style="background:var(--bg);border:1px solid var(--bd);color:var(--tx);border-radius:6px;padding:7px 10px;font-family:'DM Mono',monospace;font-size:11px">
+        <button class="btn bs" onclick="fetchCal()">Hae tapahtumat</button>
+      </div>
+      <div class="ci-list" id="ci-list"><div style="color:var(--tx3);font-size:11px;text-align:center;padding:20px">Valitse kuukausi ja hae tapahtumat</div></div>
+    </div>
+    <div class="mf"><button class="btn bs" onclick="closeM()">Sulje</button></div>
+  </div>
+</div>
+
+<div class="toast" id="toast"><span id="ti"></span><span id="tm"></span></div>
+
+<script>
+const KMR=0.55,KEY='mpk2026_v4';
+
+const SEED=[
+  {id:'s1',date:'2026-01-14',start:'05:30',end:'16:30',os:null,oe:null,km:141,dest:'Kontiontie 55, RMK – Viipirinkatu 1, HKI – Kontiontie 55, RMK',type:'Oy',pvr:54,huom:'Taksi',calSynced:false,calEventId:null},
+  {id:'s2',date:'2026-01-15',start:'05:30',end:'16:30',os:null,oe:null,km:141,dest:'Kontiontie 55, RMK – Viipirinkatu 1, HKI – Kontiontie 55, RMK',type:'Oy',pvr:54,huom:'Taksi',calSynced:false,calEventId:null},
+  {id:'s3',date:'2026-01-19',start:'07:30',end:'19:00',os:null,oe:null,km:141,dest:'Kontiontie 55, RMK – Viipirinkatu 1, HKI – Kontiontie 55, RMK',type:'Oy',pvr:54,huom:'Taksi',calSynced:false,calEventId:null},
+  {id:'s4',date:'2026-01-20',start:'10:30',end:'17:00',os:null,oe:null,km:214,dest:'Kontiontie 55, RMK – Huoltolux Oy, TRE – Kontiontie 55, RMK',type:'Tmi',pvr:25,huom:'Vakuutus',calSynced:false,calEventId:null},
+  {id:'s5',date:'2026-01-23',start:'05:30',end:'14:30',os:null,oe:null,km:141,dest:'Kontiontie 55, RMK – Viipirinkatu 1, HKI – Kontiontie 55, RMK',type:'Oy',pvr:25,huom:'Taksi',calSynced:false,calEventId:null},
+  {id:'s6',date:'2026-01-26',start:'06:10',end:'16:50',os:null,oe:null,km:141,dest:'Kontiontie 55, RMK – Viipirinkatu 1, HKI – Kontiontie 55, RMK',type:'Oy',pvr:54,huom:'Taksi',calSynced:false,calEventId:null},
+  {id:'s7',date:'2026-02-02',start:'06:30',end:'19:30',os:509551,oe:509692,km:142,dest:'Kontiontie 55, RMK – Viipirinkatu 1, HKI – Kontiontie 55, RMK',type:'Oy',pvr:54,huom:'Taksi',calSynced:false,calEventId:null},
+  {id:'s8',date:'2026-02-03',start:'',end:'',os:509692,oe:509965,km:273,dest:'Kontiontie 55, RMK – Nokia Arena, TRE – Kontiontie 55, RMK',type:'Tmi',pvr:0,huom:'IF/meklaritilaisuus',calSynced:false,calEventId:null},
+  {id:'s9',date:'2026-02-04',start:'',end:'',os:509965,oe:510190,km:225,dest:'Kontiontie 55, RMK – Padasjoki/Humppi – Kontiontie 55, RMK',type:'Tmi',pvr:0,huom:'Padasjoki/Agentti',calSynced:false,calEventId:null},
+  {id:'s10',date:'2026-02-06',start:'',end:'',os:510190,oe:510409,km:219,dest:'',type:'Oma',pvr:0,huom:'',calSynced:false,calEventId:null},
+  {id:'s11',date:'2026-02-07',start:'',end:'',os:510409,oe:510526,km:117,dest:'',type:'Oma',pvr:0,huom:'',calSynced:false,calEventId:null},
+  {id:'s12',date:'2026-02-08',start:'',end:'',os:510526,oe:510736,km:210,dest:'',type:'Oma',pvr:0,huom:'',calSynced:false,calEventId:null},
+  {id:'s13',date:'2026-02-09',start:'06:00',end:'18:15',os:510736,oe:510877,km:142,dest:'Kontiontie 55, RMK – Viipirinkatu 1, HKI – Kontiontie 55, RMK',type:'Oy',pvr:54,huom:'Taksi',calSynced:false,calEventId:null},
+  {id:'s14',date:'2026-02-10',start:'05:15',end:'18:10',os:510877,oe:511018,km:142,dest:'Kontiontie 55, RMK – Viipirinkatu 1, HKI – Kontiontie 55, RMK',type:'Oy',pvr:54,huom:'Taksi',calSynced:false,calEventId:null},
+  {id:'s15',date:'2026-02-11',start:'10:00',end:'17:00',os:511018,oe:511251,km:233,dest:'Kontiontie 55, RMK – Heinola – Kontiontie 55, RMK',type:'Tmi',pvr:25,huom:'Heinola/Agentti',calSynced:false,calEventId:null},
+  {id:'s16',date:'2026-02-12',start:'',end:'',os:511251,oe:511346,km:95,dest:'',type:'Oma',pvr:0,huom:'',calSynced:false,calEventId:null},
+  {id:'s17',date:'2026-02-13',start:'05:50',end:'16:00',os:511346,oe:511488,km:142,dest:'Kontiontie 55, RMK – Viipirinkatu 1, HKI – Kontiontie 55, RMK',type:'Oy',pvr:54,huom:'Taksi',calSynced:false,calEventId:null},
+  {id:'s18',date:'2026-02-14',start:'09:00',end:'19:30',os:511488,oe:511630,km:142,dest:'Kontiontie 55, RMK – Messukeskus, HKI – Kontiontie 55, RMK',type:'Oy',pvr:54,huom:'Venemessut / Oy',calSynced:false,calEventId:null},
+  {id:'s19',date:'2026-02-15',start:'09:00',end:'19:30',os:511630,oe:511771,km:141,dest:'Kontiontie 55, RMK – Messukeskus, HKI – Kontiontie 55, RMK',type:'Oma',pvr:0,huom:'Venemessut / SNOP',calSynced:false,calEventId:null},
+  {id:'s20',date:'2026-02-16',start:'',end:'',os:511771,oe:512019,km:248,dest:'',type:'Oma',pvr:0,huom:'',calSynced:false,calEventId:null},
+  {id:'s21',date:'2026-02-17',start:'05:50',end:'18:00',os:512019,oe:512161,km:142,dest:'Kontiontie 55, RMK – Viipirinkatu 1, HKI – Kontiontie 55, RMK',type:'Oy',pvr:54,huom:'Taksi',calSynced:false,calEventId:null},
+  {id:'s22',date:'2026-02-18',start:'04:50',end:'18:00',os:512161,oe:512303,km:142,dest:'Kontiontie 55, RMK – Viipirinkatu 1, HKI – Kontiontie 55, RMK',type:'Oy',pvr:54,huom:'Taksi',calSynced:false,calEventId:null},
+  {id:'s23',date:'2026-02-19',start:'04:00',end:'17:10',os:512303,oe:512495,km:192,dest:'',type:'Oma',pvr:54,huom:'',calSynced:false,calEventId:null},
+  {id:'s24',date:'2026-02-20',start:'',end:'',os:512495,oe:512592,km:97,dest:'',type:'Oma',pvr:0,huom:'',calSynced:false,calEventId:null},
+  {id:'s25',date:'2026-03-02',start:'05:00',end:'18:00',os:513079,oe:513221,km:142,dest:'Kontiontie 55, RMK – Helsinki – Kontiontie 55, RMK',type:'Oy',pvr:54,huom:'Taksi',calSynced:false,calEventId:null},
+  {id:'s26',date:'2026-03-04',start:'',end:'',os:513221,oe:513408,km:187,dest:'Kontiontie 55, RMK – asiakaskäynti – Kontiontie 55, RMK',type:'Tmi',pvr:0,huom:'',calSynced:false,calEventId:null},
+  {id:'s27',date:'2026-03-05',start:'07:15',end:'17:30',os:513408,oe:513408,km:0,dest:'',type:'Oy',pvr:54,huom:'',calSynced:false,calEventId:null},
+  {id:'s28',date:'2026-03-10',start:'',end:'',os:614458,oe:614610,km:152,dest:'',type:'Oma',pvr:0,huom:'',calSynced:false,calEventId:null},
+  {id:'s29',date:'2026-03-11',start:'07:20',end:'17:30',os:514610,oe:514610,km:0,dest:'Kontiontie 55 – Lahti / Agentti – Koti',type:'Oy',pvr:54,huom:'',calSynced:false,calEventId:null},
+];
+
+let entries=[],editId=null,selType='Oy',sk='date',sd=1,filtered=[];
+
+document.addEventListener('DOMContentLoaded',()=>{
+  try{const r=localStorage.getItem(KEY);entries=r?JSON.parse(r):null;}catch{entries=null;}
+  if(!entries){entries=SEED.map(e=>({...e,cAt:Date.now()}));save();}
+  const t=new Date().toISOString().slice(0,10);
+  document.getElementById('f-date').value=t;
+  document.getElementById('f-start').value=new Date().toTimeString().slice(0,5);
+  document.getElementById('fil-m').value=t.slice(0,7);
+  document.getElementById('cal-m').value=t.slice(0,7);
+  const os=document.getElementById('f-os'),oe=document.getElementById('f-oe'),al=document.getElementById('f-auto');
+  function upd(){const s=parseInt(os.value),e=parseInt(oe.value);al.textContent=(s>0&&e>s)?`→ ${e-s} km`:''}
+  os.addEventListener('input',upd);oe.addEventListener('input',upd);
+  af();
+});
+
+function save(){localStorage.setItem(KEY,JSON.stringify(entries));rs();}
+
+function pickType(el){
+  document.querySelectorAll('.chips .chip').forEach(c=>{c.className='chip';});
+  selType=el.dataset.type;el.classList.add('a-'+selType.toLowerCase());
+}
+
+function saveEntry(){
+  const date=document.getElementById('f-date').value;
+  if(!date){t2('Valitse päivä','err');return;}
+  const start=document.getElementById('f-start').value;
+  const end=document.getElementById('f-end').value;
+  const os=parseInt(document.getElementById('f-os').value)||null;
+  const oe=parseInt(document.getElementById('f-oe').value)||null;
+  const km=(os&&oe&&oe>os)?oe-os:0;
+  const dest=document.getElementById('f-dest').value.trim();
+  const pvr=parseInt(document.getElementById('f-pvr').value)||0;
+  const entry={id:editId||Date.now().toString(),date,start,end,os,oe,km,dest,type:selType,pvr,huom:'',calSynced:false,calEventId:null,cAt:Date.now()};
+  if(editId){
+    const ix=entries.findIndex(e=>e.id===editId);
+    if(ix!==-1){entry.huom=entries[ix].huom;entry.calSynced=entries[ix].calSynced;entry.calEventId=entries[ix].calEventId;entries[ix]=entry;}
+    cancelEdit();t2('Kirjaus päivitetty ✓','ok');
+  } else {
+    entries.unshift(entry);t2('Tallennettu ✓','ok');clearForm();
+  }
+  save();af();
+}
+
+function clearForm(){
+  ['f-start','f-end','f-dest'].forEach(id=>document.getElementById(id).value='');
+  ['f-os','f-oe'].forEach(id=>document.getElementById(id).value='');
+  document.getElementById('f-pvr').value='0';
+  document.getElementById('f-auto').textContent='';
+  document.getElementById('f-date').value=new Date().toISOString().slice(0,10);
+  pickType(document.querySelector('.chips .chip[data-type="Oy"]'));
+}
+
+function editEntry(id){
+  const e=entries.find(x=>x.id===id);if(!e)return;
+  editId=id;
+  document.getElementById('f-date').value=e.date;
+  document.getElementById('f-start').value=e.start||'';
+  document.getElementById('f-end').value=e.end||'';
+  document.getElementById('f-os').value=e.os||'';
+  document.getElementById('f-oe').value=e.oe||'';
+  document.getElementById('f-dest').value=e.dest;
+  document.getElementById('f-pvr').value=e.pvr||0;
+  const ch=document.querySelector(`.chips .chip[data-type="${e.type}"]`);if(ch)pickType(ch);
+  document.getElementById('form-lbl').textContent='Muokkaa kirjausta';
+  document.getElementById('form-badge').className='badge be';
+  document.getElementById('form-badge').textContent='MUOKKAA';
+  document.getElementById('save-btn').textContent='✓ Päivitä';
+  document.getElementById('cancel-btn').style.display='inline-flex';
+  document.querySelectorAll('tbody tr').forEach(r=>r.classList.remove('erow'));
+  const row=document.querySelector(`tr[data-id="${id}"]`);if(row)row.classList.add('erow');
+  window.scrollTo({top:0,behavior:'smooth'});
+  document.getElementById('f-dest').focus();
+}
+
+function cancelEdit(){
+  editId=null;
+  document.getElementById('form-lbl').textContent='Uusi kirjaus';
+  document.getElementById('form-badge').className='badge bn';
+  document.getElementById('form-badge').textContent='SYÖTÄ';
+  document.getElementById('save-btn').textContent='＋ Tallenna';
+  document.getElementById('cancel-btn').style.display='none';
+  document.querySelectorAll('tbody tr').forEach(r=>r.classList.remove('erow'));
+  clearForm();
+}
+
+function deleteEntry(id){
+  const e=entries.find(x=>x.id===id);
+  if(!confirm(`Poistetaanko:\n${e?.date} – ${e?.dest||'(tyhjä reitti)'}`))return;
+  entries=entries.filter(x=>x.id!==id);save();af();t2('Poistettu','ok');
+}
+
+function editHuom(id,val){const ix=entries.findIndex(e=>e.id===id);if(ix!==-1){entries[ix].huom=val;save();}}
+
+function sb(key){
+  if(sk===key)sd*=-1;else{sk=key;sd=1;}
+  ['date','dest','km'].forEach(k=>{const th=document.getElementById('th-'+k);if(th)th.classList.toggle('sorted',k===key);});
+  render(filtered);
+}
+
+function af(){
+  const m=document.getElementById('fil-m').value;
+  const tp=document.getElementById('fil-t').value;
+  const s=document.getElementById('fil-s').value.toLowerCase();
+  filtered=entries.filter(e=>{
+    if(m&&!e.date.startsWith(m))return false;
+    if(tp&&e.type!==tp)return false;
+    if(s&&!((e.dest||'').toLowerCase().includes(s)||(e.huom||'').toLowerCase().includes(s)))return false;
+    return true;
+  });
+  render(filtered);rs();
+}
+
+function render(list){
+  const tb=document.getElementById('tbody');
+  document.getElementById('row-cnt').textContent=list.length+' kirjausta';
+  if(!list.length){tb.innerHTML=`<tr><td colspan="14"><div class="empty"><div class="empty-icon">🗺️</div><div class="empty-t">Ei kirjauksia</div><div>Lisää uusi kirjaus yllä</div></div></td></tr>`;return;}
+  const srt=[...list].sort((a,b)=>{
+    let av=a[sk],bv=b[sk];
+    if(typeof av==='string')av=av.toLowerCase();if(typeof bv==='string')bv=bv.toLowerCase();
+    return av<bv?-sd:av>bv?sd:0;
+  });
+  tb.innerHTML=srt.map(e=>{
+    const kmE=(e.km*KMR).toFixed(2).replace('.',',');
+    const tot=((e.km*KMR)+(e.pvr||0)).toFixed(2).replace('.',',');
+    const tc='t-'+e.type.toLowerCase();
+    const cal=e.calSynced?`<span class="cal-ok">Synkronoitu</span>`:`<button class="btn bcal bsm" onclick="syncCal('${e.id}')">↑ Kal.</button>`;
+    return `<tr data-id="${e.id}">
+      <td class="td-date">${fd(e.date)}</td>
+      <td>${e.start||'—'}</td><td>${e.end||'—'}</td>
+      <td class="td-dest" title="${esc(e.dest)}">${esc(e.dest)||'<span style="color:var(--tx3)">—</span>'}</td>
+      <td><span class="tb ${tc}">${e.type}</span></td>
+      <td style="text-align:right" class="vkm">${e.km}</td>
+      <td style="text-align:right;color:var(--tx3);font-size:10px">${e.os||'—'}</td>
+      <td style="text-align:right;color:var(--tx3);font-size:10px">${e.oe||'—'}</td>
+      <td style="text-align:right" class="veur">${kmE} €</td>
+      <td style="text-align:right" class="vpvr">${e.pvr>0?e.pvr+' €':'—'}</td>
+      <td style="text-align:right;font-weight:500;color:var(--tx)">${tot} €</td>
+      <td><input value="${esc(e.huom||'')}" onchange="editHuom('${e.id}',this.value)" style="background:transparent;border:none;border-bottom:1px solid var(--bd);color:var(--tx2);font-family:'DM Mono',monospace;font-size:10px;width:88px;padding:2px 4px" placeholder="—"></td>
+      <td>${cal}</td>
+      <td><div class="ra">
+        <button class="btn be-btn" onclick="editEntry('${e.id}')" title="Muokkaa">✏</button>
+        <button class="btn bd-btn" onclick="deleteEntry('${e.id}')" title="Poista">✕</button>
+      </div></td>
+    </tr>`;
+  }).join('');
+}
+
+function rs(){
+  const src=filtered.length?filtered:entries;
+  const tot=src.reduce((s,e)=>s+e.km,0);
+  const oy=src.filter(e=>e.type==='Oy').reduce((s,e)=>s+e.km,0);
+  const tmi=src.filter(e=>e.type==='Tmi').reduce((s,e)=>s+e.km,0);
+  const oma=src.filter(e=>e.type==='Oma').reduce((s,e)=>s+e.km,0);
+  const pvr=src.filter(e=>e.type==='Oy').reduce((s,e)=>s+(e.pvr||0),0);
+  const pvrN=src.filter(e=>e.type==='Oy'&&e.pvr>0).length;
+  const kmK=tot*KMR;const totE=kmK+pvr;
+  const f=v=>v.toFixed(2).replace('.',',')+' €';const fi=v=>v.toLocaleString('fi-FI');
+  document.getElementById('s-km').textContent=fi(tot);document.getElementById('s-km-e').textContent=f(kmK);
+  document.getElementById('s-oy').textContent=fi(oy);document.getElementById('s-oy-e').textContent=f(oy*KMR);
+  document.getElementById('s-tmi').textContent=fi(tmi);document.getElementById('s-tmi-e').textContent=f(tmi*KMR);
+  document.getElementById('s-oma').textContent=fi(oma);document.getElementById('s-oma-e').textContent='(ei korvausta)';
+  document.getElementById('s-pvr').textContent=pvr+' €';document.getElementById('s-pvr-n').textContent=pvrN+' matkaa';
+  document.getElementById('s-kmkorv').textContent=f(kmK);document.getElementById('s-total').textContent='Yht. '+f(totE);
+  document.getElementById('h-km').textContent=fi(tot);document.getElementById('h-oy').textContent=fi(oy);
+  document.getElementById('h-tmi').textContent=fi(tmi);document.getElementById('h-pvr').textContent=pvr+' €';
+  document.getElementById('h-eur').textContent=f(kmK);
+}
+
+async function syncCal(id){
+  const e=entries.find(x=>x.id===id);if(!e)return;
+  t2('Lähetetään...','ok');
+  const d=e.date,s=e.start?`${d}T${e.start}:00+02:00`:`${d}T08:00:00+02:00`,en=e.end?`${d}T${e.end}:00+02:00`:`${d}T17:00:00+02:00`;
+  const title=`🚗 ${e.dest||'Ajomatka'} [${e.type}] ${e.km} km`;
+  const desc=`Matkapäiväkirja 2026\nTyyppi: ${e.type}\nkm: ${e.km} (${(e.km*KMR).toFixed(2)} €)\nPäiväraha: ${e.pvr||0} €\nMittari: ${e.os||'?'}–${e.oe||'?'}`;
+  try{
+    const r=await fetch('https://api.anthropic.com/v1/messages',{method:'POST',headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({model:'claude-sonnet-4-20250514',max_tokens:500,
+        mcp_servers:[{type:'url',url:'https://gcal.mcp.claude.com/mcp',name:'gcal'}],
+        messages:[{role:'user',content:`Create Google Calendar event: Title="${title}", Start=${s}, End=${en}, Description="${desc}". Reply ONLY JSON: {"success":true,"eventId":"..."}`}]})});
+    const data=await r.json();const txt=data.content?.find(b=>b.type==='text')?.text||'';
+    let ok=false,evId=null;
+    try{const j=JSON.parse(txt.replace(/```json|```/g,'').trim());ok=j.success;evId=j.eventId;}catch{}
+    const ix=entries.findIndex(x=>x.id===id);
+    if(ix!==-1){entries[ix].calSynced=ok;entries[ix].calEventId=evId;save();af();}
+    t2(ok?'Lisätty kalenteriin ✓':'Kalenterivirhe',ok?'ok':'err');
+  }catch{t2('Kalenteriin ei yhteyttä','err');}
+}
+
+function openCalImport(){document.getElementById('cal-ov').classList.add('vis');}
+function closeM(){document.getElementById('cal-ov').classList.remove('vis');}
+
+async function fetchCal(){
+  const m=document.getElementById('cal-m').value;if(!m)return;
+  const[yr,mo]=m.split('-').map(Number);
+  const s=`${m}-01T00:00:00+02:00`,last=new Date(yr,mo,0).getDate(),en=`${m}-${String(last).padStart(2,'0')}T23:59:59+02:00`;
+  const list=document.getElementById('ci-list');
+  list.innerHTML=`<div style="text-align:center;color:var(--tx3);padding:20px"><span class="spin"></span> Haetaan...</div>`;
+  try{
+    const r=await fetch('https://api.anthropic.com/v1/messages',{method:'POST',headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({model:'claude-sonnet-4-20250514',max_tokens:2000,
+        mcp_servers:[{type:'url',url:'https://gcal.mcp.claude.com/mcp',name:'gcal'}],
+        messages:[{role:'user',content:`List Google Calendar events from ${s} to ${en}. Reply ONLY JSON array: [{"id":"","title":"","start":"YYYY-MM-DDTHH:mm","end":"YYYY-MM-DDTHH:mm","location":""}]. If none: [].`}]})});
+    const data=await r.json();const txt=data.content?.find(b=>b.type==='text')?.text||'[]';
+    let evs=[];try{evs=JSON.parse(txt.replace(/```json|```/g,'').trim());}catch{}
+    if(!evs.length){list.innerHTML='<div style="color:var(--tx3);text-align:center;padding:20px;font-size:11px">Ei tapahtumia</div>';return;}
+    list.innerHTML=evs.map(ev=>{
+      const d=ev.start?.slice(0,10)||'',st=ev.start?.slice(11,16)||'',et=ev.end?.slice(11,16)||'';
+      const imp=entries.some(e=>e.calEventId===ev.id);
+      return `<div class="ci"><div><div class="ci-t">${esc(ev.title)}</div><div class="ci-m">${d} · ${st}–${et}${ev.location?' · '+esc(ev.location):''}</div></div>
+        ${imp?'<span style="font-size:10px;color:var(--ac2)">✓ Tuotu</span>':`<button class="btn bcal bsm" onclick='importCal(${JSON.stringify(ev)})'>Tuo</button>`}</div>`;
+    }).join('');
+  }catch{list.innerHTML='<div style="color:var(--ac3);text-align:center;padding:20px;font-size:11px">Kalenteriin ei yhteyttä</div>';}
+}
+
+function importCal(ev){
+  entries.unshift({id:Date.now().toString(),date:ev.start?.slice(0,10)||'',start:ev.start?.slice(11,16)||'',end:ev.end?.slice(11,16)||'',os:null,oe:null,km:0,dest:ev.title+(ev.location?' — '+ev.location:''),type:'Oy',pvr:0,huom:'Kalenterista',calSynced:true,calEventId:ev.id,cAt:Date.now()});
+  save();af();t2('Tuotu: '+ev.title,'ok');fetchCal();
+}
+
+function exportCSV(){
+  const h=['Päivä','Lähtö','Paluu','Reitti','Tyyppi','km','Alo.km','Lop.km','Km-korv €','PV-raha €','Yhteensä €','Huom','Kalenteri'];
+  const rows=[...entries].sort((a,b)=>a.date.localeCompare(b.date)).map(e=>[
+    e.date,e.start||'',e.end||'',`"${(e.dest||'').replace(/"/g,'""')}"`,e.type,e.km,e.os||'',e.oe||'',
+    (e.km*KMR).toFixed(2),e.pvr||0,((e.km*KMR)+(e.pvr||0)).toFixed(2),
+    `"${(e.huom||'').replace(/"/g,'""')}"`,e.calSynced?'Kyllä':'Ei'
+  ].join(';'));
+  const a=document.createElement('a');
+  a.href=URL.createObjectURL(new Blob(['\uFEFF'+h.join(';')+'\n'+rows.join('\n')],{type:'text/csv;charset=utf-8'}));
+  a.download=`Matkapaivakierja_2026_${new Date().toISOString().slice(0,10)}.csv`;a.click();
+  t2('CSV ladattu ✓','ok');
+}
+
+function fd(d){if(!d)return'';const dt=new Date(d+'T12:00:00');const wd=['su','ma','ti','ke','to','pe','la'];const[,m,day]=d.split('-');return`${wd[dt.getDay()]} ${parseInt(day)}.${parseInt(m)}.`;}
+function esc(s){return(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');}
+let tT;
+function t2(msg,type='ok'){const el=document.getElementById('toast');el.className='toast '+type;document.getElementById('ti').textContent=type==='ok'?'✓':'⚠';document.getElementById('tm').textContent=msg;el.classList.add('show');clearTimeout(tT);tT=setTimeout(()=>el.classList.remove('show'),3000);}
+</script>
+</body>
+</html>
