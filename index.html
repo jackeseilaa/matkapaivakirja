@@ -3,39 +3,30 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Ajopäiväkirja Pro 2026</title>
+    <title>Ajopäiväkirja Pro v3 — Jarmo Aaltonen</title>
     <style>
-        :root { --primary: #1a73e8; --accent: #fbbc04; --bg: #f8f9fa; --text: #202124; }
-        body { font-family: 'Segoe UI', sans-serif; background: var(--bg); color: var(--text); margin: 0; padding: 20px; }
+        :root { --primary: #1a73e8; --danger: #d93025; --bg: #f8f9fa; --text: #202124; }
+        body { font-family: 'Segoe UI', sans-serif; background: var(--bg); color: var(--text); padding: 15px; margin: 0; }
         .container { max-width: 1100px; margin: auto; background: white; padding: 25px; border-radius: 12px; box-shadow: 0 4px 12px rgba(0,0,0,0.1); }
         
-        /* Koosteet */
-        .summary-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 15px; margin-bottom: 25px; }
-        .card { background: #fff; padding: 15px; border-radius: 8px; border: 1px solid #dadce0; border-top: 4px solid var(--primary); }
-        .card h3 { margin: 0; font-size: 13px; color: #5f6368; text-transform: uppercase; }
-        .card p { margin: 10px 0 0; font-size: 22px; font-weight: bold; color: var(--primary); }
+        /* Koosteosio */
+        .summary-box { background: #e8f0fe; padding: 20px; border-radius: 8px; margin-bottom: 25px; border: 1px solid #1a73e8; }
+        .controls { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 10px; margin-bottom: 15px; }
+        .stat-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 15px; }
+        .stat-card { background: white; padding: 15px; border-radius: 6px; box-shadow: 0 2px 4px rgba(0,0,0,0.05); }
 
-        /* Haku ja työkalut */
-        .toolbar { display: flex; gap: 10px; margin-bottom: 20px; align-items: center; background: #e8f0fe; padding: 15px; border-radius: 8px; }
-        .toolbar input { padding: 8px; border: 1px solid #dadce0; border-radius: 4px; }
-
-        /* Lomake */
-        .entry-form { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 10px; margin-bottom: 30px; padding: 20px; border: 1px solid #eee; border-radius: 8px; }
-        .entry-form textarea { grid-column: 1 / -1; height: 60px; }
-        .btn-add { background: var(--primary); color: white; border: none; padding: 10px; border-radius: 4px; cursor: pointer; font-weight: bold; grid-column: 1 / -1; }
-
-        /* Taulukko */
-        table { width: 100%; border-collapse: collapse; }
+        /* Taulukko ja lomake */
+        .entry-form { display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 10px; margin-bottom: 30px; padding: 15px; border: 1px solid #ddd; border-radius: 8px; }
+        table { width: 100%; border-collapse: collapse; margin-top: 20px; }
         th, td { padding: 12px; text-align: left; border-bottom: 1px solid #eee; cursor: pointer; }
         tr:hover { background: #f1f3f4; }
-        .tag { padding: 4px 8px; border-radius: 4px; font-size: 11px; font-weight: bold; }
-        .oy { background: #e8f0fe; color: #1967d2; }
-        .tmi { background: #e6f4ea; color: #137333; }
-
-        /* Modal (Tapahtuman tiedot) */
-        .modal { display: none; position: fixed; z-index: 100; left: 0; top: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); }
-        .modal-content { background: white; margin: 10% auto; padding: 30px; width: 50%; border-radius: 12px; position: relative; }
-        .close { position: absolute; right: 20px; top: 15px; font-size: 24px; cursor: pointer; }
+        
+        /* Modal */
+        .modal { display: none; position: fixed; z-index: 100; left:0; top:0; width:100%; height:100%; background:rgba(0,0,0,0.6); }
+        .modal-content { background:white; margin:5% auto; padding:25px; width:90%; max-width:500px; border-radius:10px; }
+        .btn { padding: 10px; cursor: pointer; border: none; border-radius: 4px; font-weight: bold; }
+        .btn-save { background: var(--primary); color: white; }
+        .btn-del { background: var(--danger); color: white; float: right; }
     </style>
 </head>
 <body>
@@ -43,61 +34,74 @@
 <div class="container">
     <h1>Matka- ja ajopäiväkirja 2026</h1>
 
-    <div class="summary-grid" id="summary"></div>
-
-    <div class="toolbar">
-        <strong>Hae päivämäärällä:</strong>
-        <input type="date" id="searchDate" onchange="render()">
-        <button onclick="document.getElementById('searchDate').value=''; render();">Näytä kaikki</button>
+    <div class="summary-box">
+        <h3>Kuukausikooste & Suodatus</h3>
+        <div class="controls">
+            <select id="selMonth" onchange="render()">
+                <option value="0">Tammikuu</option>
+                <option value="1">Helmikuu</option>
+                <option value="2" selected>Maaliskuu</option>
+            </select>
+            <select id="selType" onchange="render()">
+                <option value="Kaikki">Kaikki tyypit</option>
+                <option value="Oy">Vain Oy</option>
+                <option value="Tmi">Vain Tmi</option>
+                <option value="Oma">Vain Oma</option>
+            </select>
+        </div>
+        <div class="stat-grid" id="statsArea"></div>
     </div>
 
     <div class="entry-form">
         <input type="date" id="f-date" value="2026-03-19">
-        <input type="text" id="f-title" placeholder="Otsikko (esim. Taksi 154)">
-        <input type="text" id="f-loc" placeholder="Sijainti">
+        <input type="text" id="f-title" placeholder="Tapahtuma">
+        <input type="text" id="f-loc" placeholder="Reitti/Sijainti">
         <input type="time" id="f-start">
         <input type="time" id="f-end">
         <input type="number" id="f-km" placeholder="Km">
-        <select id="f-type">
-            <option value="Oy">Oy</option>
-            <option value="Tmi">Tmi</option>
-            <option value="Oma">Oma</option>
-        </select>
-        <textarea id="f-desc" placeholder="Tarkempi kuvaus ja muistiinpanot..."></textarea>
-        <button class="btn-add" onclick="addEntry()">Tallenna tapahtuma</button>
+        <select id="f-type"><option>Oy</option><option>Tmi</option><option>Oma</option></select>
+        <button class="btn btn-save" style="grid-column: 1/-1" onclick="addEntry()">Lisää päiväkirjaan</button>
     </div>
 
-    <table>
-        <thead>
-            <tr>
-                <th>Pvm</th>
-                <th>Tapahtuma</th>
-                <th>Tyyppi</th>
-                <th>Km</th>
-                <th>Toiminnot</th>
-            </tr>
-        </thead>
+    <table id="mainTable">
+        <thead><tr><th>Pvm</th><th>Tapahtuma</th><th>Km</th><th>Tyyppi</th><th>Kalenteri</th></tr></thead>
         <tbody id="tbody"></tbody>
     </table>
 </div>
 
-<div id="infoModal" class="modal">
+<div id="editModal" class="modal">
     <div class="modal-content">
-        <span class="close" onclick="closeModal()">&times;</span>
-        <h2 id="m-title"></h2>
-        <div id="m-body"></div>
+        <h3>Muokkaa tai poista tapahtuma</h3>
+        <input type="hidden" id="edit-id">
+        <label>Päivä</label><input type="date" id="e-date" style="width:100%"><br><br>
+        <label>Otsikko</label><input type="text" id="e-title" style="width:100%"><br><br>
+        <label>Km</label><input type="number" id="e-km" style="width:100%"><br><br>
+        <label>Kuvaus</label><textarea id="e-desc" style="width:100%"></textarea><br><br>
+        <button class="btn btn-save" onclick="saveEdit()">Tallenna muutokset</button>
+        <button class="btn btn-del" onclick="deleteEntry()">Poista tapahtuma</button>
+        <button class="btn" style="background:#ccc" onclick="closeModal()">Peruuta</button>
     </div>
 </div>
 
 <script>
+// TÄSSÄ ON KAIKKI DATASI TAMMI-HELMI-MAALIS 2026
 const initialData = [
-    { date: "2026-03-11", title: "Agentti-matka", loc: "Riihimäki - Lahti", start: "07:20", end: "17:30", type: "Oma", km: 0, desc: "Lahti / Agentti. Päiväraha 54€." },
-    { date: "2026-03-02", title: "Helsinki-ajo", loc: "RMK - HKI - RMK", start: "05:00", end: "18:00", type: "Oy", km: 142, desc: "Taksi-ajo Helsinkiin." },
-    { date: "2026-02-14", title: "Venemessut", loc: "Messukeskus, HKI", start: "09:00", end: "19:30", type: "Oy", km: 142, desc: "Edustustehtävä Venemessuilla." },
-    { date: "2026-01-20", title: "Vakuutusajo", loc: "RMK - TRE - RMK", start: "10:30", end: "17:00", type: "Tmi", km: 214, desc: "Huoltolux Oy, Tampere." }
+    // Tammikuu
+    { id: 1, date: "2026-01-14", title: "Taksi 141", loc: "HKI", start: "05:30", end: "16:30", type: "Oy", km: 141, desc: "Taksi" },
+    { id: 2, date: "2026-01-15", title: "Taksi 141", loc: "HKI", start: "05:30", end: "16:30", type: "Oy", km: 141, desc: "Taksi" },
+    { id: 3, date: "2026-01-19", title: "Taksi 141", loc: "HKI", start: "07:30", end: "19:00", type: "Oy", km: 141, desc: "Taksi" },
+    { id: 4, date: "2026-01-20", title: "Vakuutus", loc: "TRE", start: "10:30", end: "17:00", type: "Tmi", km: 214, desc: "Vakuutus" },
+    // Helmikuu
+    { id: 5, date: "2026-02-02", title: "Taksi 142", loc: "HKI", start: "06:30", end: "19:30", type: "Oy", km: 142, desc: "Taksi" },
+    { id: 6, date: "2026-02-03", title: "Meklaritilaisuus", loc: "TRE Arena", start: "09:00", end: "21:00", type: "Tmi", km: 273, desc: "IF-tilaisuus" },
+    { id: 7, date: "2026-02-04", title: "Agentti Padasjoki", loc: "Padasjoki", start: "08:00", end: "16:00", type: "Tmi", km: 225, desc: "Agentti" },
+    { id: 8, date: "2026-02-14", title: "Venemessut", loc: "Messukeskus", start: "09:00", end: "19:30", type: "Oy", km: 142, desc: "Edustus" },
+    // Maaliskuu
+    { id: 9, date: "2026-03-02", title: "Taksi Helsinki", loc: "HKI", start: "05:00", end: "18:00", type: "Oy", km: 142, desc: "Ajo" },
+    { id: 10, date: "2026-03-11", title: "Agentti Lahti", loc: "Lahti", start: "07:20", end: "17:30", type: "Oma", km: 0, desc: "Lahti" }
 ];
 
-let entries = JSON.parse(localStorage.getItem('jarmo_2026_v2')) || initialData;
+let entries = JSON.parse(localStorage.getItem('jarmo_diary_final')) || initialData;
 
 function addEntry() {
     const e = {
@@ -109,66 +113,72 @@ function addEntry() {
         end: document.getElementById('f-end').value,
         km: parseFloat(document.getElementById('f-km').value) || 0,
         type: document.getElementById('f-type').value,
-        desc: document.getElementById('f-desc').value
+        desc: ""
     };
     entries.unshift(e);
-    save();
+    update();
 }
 
-function save() {
-    localStorage.setItem('jarmo_2026_v2', JSON.stringify(entries));
+function update() {
+    localStorage.setItem('jarmo_diary_final', JSON.stringify(entries));
     render();
 }
 
 function render() {
     const tbody = document.getElementById('tbody');
-    const filterDate = document.getElementById('searchDate').value;
+    const month = parseInt(document.getElementById('selMonth').value);
+    const type = document.getElementById('selType').value;
     tbody.innerHTML = '';
     
-    let stats = { oy: 0, tmi: 0, total: 0 };
+    let totalKm = 0;
 
-    entries.filter(e => !filterDate || e.date === filterDate)
-    .forEach(e => {
-        stats.total += e.km;
-        if(e.type === 'Oy') stats.oy += e.km;
-        if(e.type === 'Tmi') stats.tmi += e.km;
-
+    entries.filter(e => {
+        const d = new Date(e.date);
+        const mMatch = d.getMonth() === month;
+        const tMatch = type === 'Kaikki' || e.type === type;
+        return mMatch && tMatch;
+    }).sort((a,b) => b.date.localeCompare(a.date)).forEach(e => {
+        totalKm += e.km;
         const tr = document.createElement('tr');
         tr.onclick = () => openModal(e);
-        tr.innerHTML = `
-            <td>${new Date(e.date).toLocaleDateString('fi-FI')}</td>
-            <td><strong>${e.title}</strong></td>
-            <td><span class="tag ${e.type.toLowerCase()}">${e.type}</span></td>
-            <td>${e.km} km</td>
-            <td><button onclick="event.stopPropagation(); window.open('${createGCal(e)}')">📅 Kalenteri</button></td>
-        `;
+        tr.innerHTML = `<td>${e.date}</td><td>${e.title}</td><td>${e.km}</td><td>${e.type}</td>
+        <td><button onclick="event.stopPropagation(); window.open('https://www.google.com/calendar/render?action=TEMPLATE&text=${encodeURIComponent(e.title)}&dates=${e.date.replace(/-/g,'')}T090000Z/${e.date.replace(/-/g,'')}T170000Z')">📅</button></td>`;
         tbody.appendChild(tr);
     });
 
-    document.getElementById('summary').innerHTML = `
-        <div class="card"><h3>Yhteensä</h3><p>${stats.total} km</p></div>
-        <div class="card"><h3>Oy Km</h3><p>${stats.oy} km</p></div>
-        <div class="card"><h3>Tmi Km</h3><p>${stats.tmi} km</p></div>
-    `;
+    document.getElementById('statsArea').innerHTML = `<div class="stat-card"><h3>Valitun tyypin kilometrit</h3><p>${totalKm} km</p></div>`;
 }
 
+// MODAL TOIMINNOT
 function openModal(e) {
-    document.getElementById('m-title').innerText = e.title;
-    document.getElementById('m-body').innerHTML = `
-        <p><strong>Päivämäärä:</strong> ${e.date}</p>
-        <p><strong>Aika:</strong> ${e.start || '--'} - ${e.end || '--'}</p>
-        <p><strong>Sijainti:</strong> ${e.loc || 'Ei merkitty'}</p>
-        <p><strong>Kilometrit:</strong> ${e.km} km (${e.type})</p>
-        <hr>
-        <p><strong>Kuvaus:</strong><br>${e.desc || 'Ei lisätietoja.'}</p>
-    `;
-    document.getElementById('infoModal').style.display = 'block';
+    document.getElementById('edit-id').value = e.id;
+    document.getElementById('e-date').value = e.date;
+    document.getElementById('e-title').value = e.title;
+    document.getElementById('e-km').value = e.km;
+    document.getElementById('e-desc').value = e.desc || "";
+    document.getElementById('editModal').style.display = 'block';
 }
 
-function closeModal() { document.getElementById('infoModal').style.display = 'none'; }
+function closeModal() { document.getElementById('editModal').style.display = 'none'; }
 
-function createGCal(e) {
-    return `https://www.google.com/calendar/render?action=TEMPLATE&text=${encodeURIComponent(e.title)}&location=${encodeURIComponent(e.loc)}&details=${encodeURIComponent(e.desc)}&dates=${e.date.replace(/-/g,'')}T${(e.start||'0800').replace(':','')}00/${e.date.replace(/-/g,'')}T${(e.end||'1600').replace(':','')}00`;
+function saveEdit() {
+    const id = parseInt(document.getElementById('edit-id').value);
+    const index = entries.findIndex(x => x.id === id);
+    entries[index].date = document.getElementById('e-date').value;
+    entries[index].title = document.getElementById('e-title').value;
+    entries[index].km = parseFloat(document.getElementById('e-km').value);
+    entries[index].desc = document.getElementById('e-desc').value;
+    update();
+    closeModal();
+}
+
+function deleteEntry() {
+    if(confirm("Poistetaanko tapahtuma?")) {
+        const id = parseInt(document.getElementById('edit-id').value);
+        entries = entries.filter(x => x.id !== id);
+        update();
+        closeModal();
+    }
 }
 
 render();
