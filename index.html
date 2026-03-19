@@ -3,33 +3,31 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Päivyri v2.5</title>
+    <title>Päivyri v2.6</title>
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
     <link href="https://fonts.googleapis.com/css2?family=Sora:wght@400;700;800&display=swap" rel="stylesheet">
     <style>
-        :root { --bg: #ffffff; --text: #000000; --ac: #2563eb; --tmi: #059669; --border: #000000; }
+        :root { --bg: #ffffff; --text: #000; --ac: #2563eb; --tmi: #059669; }
         body { font-family: 'Sora', sans-serif; background: var(--bg); color: var(--text); margin: 0; padding: 0; }
-        .version-bar { background: #000; padding: 6px 15px; font-size: 11px; font-weight: 700; color: #fff; display: flex; justify-content: space-between; }
+        .version-bar { background: #000; padding: 8px 15px; font-size: 11px; font-weight: 700; color: #fff; display: flex; justify-content: space-between; }
         .tabs { display: flex; background: #eee; border-bottom: 2px solid #000; }
         .tab { flex: 1; padding: 16px; text-align: center; font-weight: 800; cursor: pointer; color: #666; text-transform: uppercase; }
         .tab.active { color: #000; background: #fff; border-bottom: 5px solid var(--ac); }
         .page { display: none; padding: 20px; }
         .page.active { display: block; }
-        .form-row { margin-bottom: 15px; }
-        .form-row label { display: block; font-size: 12px; font-weight: 800; margin-bottom: 5px; }
-        input, select { border: 2px solid #000; padding: 12px; border-radius: 8px; font-size: 16px; width: 100%; box-sizing: border-box; font-weight: 700; }
-        .btn-save { background: var(--ac); color: #fff; border: 2px solid #000; padding: 18px; border-radius: 12px; font-weight: 800; width: 100%; font-size: 18px; cursor: pointer; }
+        input, select { border: 2px solid #000; padding: 12px; border-radius: 8px; font-size: 16px; width: 100%; box-sizing: border-box; font-weight: 700; margin-bottom: 10px; }
+        .btn-save { background: var(--ac); color: #fff; border: 2px solid #000; padding: 18px; border-radius: 12px; font-weight: 800; width: 100%; font-size: 18px; }
         .stat-card { background: #fff; padding: 15px; border-radius: 12px; margin-bottom: 10px; border: 3px solid #000; }
-        .entry-item { border-bottom: 2px solid #eee; padding: 10px 0; display: flex; justify-content: space-between; font-size: 14px; }
-        .btn-reset { background: #ff0000; color: #fff; border: 2px solid #000; padding: 10px; font-weight: 800; width: 100%; margin-top: 20px; border-radius: 8px; }
+        .entry-item { border-bottom: 1px solid #000; padding: 10px 0; display: flex; justify-content: space-between; }
+        .btn-reset { background: #ff0000; color: #fff; border: 2px solid #000; padding: 12px; font-weight: 800; width: 100%; margin-top: 20px; }
     </style>
 </head>
 <body>
 
 <div class="version-bar">
-    <span>VERSIO 2.5 (Vahva Data-Link)</span>
-    <span>19.3.2026 08:45</span>
+    <span>VERSIO 2.6</span>
+    <span>PÄIVITETTY: 19.3.2026 08:55</span>
 </div>
 
 <div class="tabs">
@@ -38,43 +36,39 @@
 </div>
 
 <div id="page-input" class="page active">
-    <div class="form-row">
-        <label>Pvm / Lähtö / Paluu</label>
-        <div style="display:flex; gap:5px">
-            <input type="date" id="f-date">
-            <input type="time" id="f-start" value="07:00">
-            <input type="time" id="f-end" value="17:00">
-        </div>
+    <input type="date" id="f-date">
+    <div style="display:flex; gap:5px">
+        <input type="time" id="f-start" value="07:00">
+        <input type="time" id="f-end" value="17:00">
     </div>
-    <div class="form-row">
-        <label>Mittari Alku / Loppu</label>
-        <div style="display:flex; gap:5px">
-            <input type="number" id="f-km-start">
-            <input type="number" id="f-km-end">
-        </div>
+    <div style="display:flex; gap:5px">
+        <input type="number" id="f-km-start" placeholder="Alku km">
+        <input type="number" id="f-km-end" placeholder="Loppu km">
     </div>
-    <div class="form-row"><label>Otsikko / Tapahtuma</label><input type="text" id="f-title" placeholder="Esim. Taksi 142"></div>
-    <div class="form-row"><label>Reitti</label><input type="text" id="f-route" placeholder="RMK-HKI-RMK"></div>
-    <div class="form-row">
-        <label>Tyyppi</label>
-        <select id="f-type"><option value="Oy">Oy</option><option value="Tmi">Tmi</option></select>
-    </div>
+    <input type="text" id="f-title" placeholder="Otsikko (esim. Taksi 142)">
+    <input type="text" id="f-route" placeholder="Reitti (esim. RMK-HKI-RMK)">
+    <select id="f-type"><option value="Oy">Oy</option><option value="Tmi">Tmi</option></select>
     <button class="btn-save" onclick="tallennaAjo()">TALLENNA MATKA</button>
 </div>
 
 <div id="page-stats" class="page">
     <div id="summary-ui"></div>
-    <div id="history-ui" style="margin-top:20px"></div>
-    <button class="btn-reset" onclick="pakotaDatalataus()">POISTA KAIKKI JA PALAUTA ALKUVUOSI</button>
+    <div id="history-ui"></div>
+    <button class="btn-reset" onclick="pakotaDatalataus()">PAINA TÄSTÄ JOS DATA PUUTTUU</button>
 </div>
 
 <script>
-// --- KONFIGURAATIO ---
-const firebaseConfig = { /* LISÄÄ TÄHÄN OMA CONFIGISI */ };
+// --- KOPIOI TÄHÄN OMA FIREBASE-CONFIGISI VANHASTA KOODISTA ---
+const firebaseConfig = {
+  apiKey: "LISÄÄ_TÄHÄN",
+  databaseURL: "LISÄÄ_TÄHÄN",
+  projectId: "LISÄÄ_TÄHÄN"
+};
+// -----------------------------------------------------------
+
 firebase.initializeApp(firebaseConfig);
 const db = firebase.database();
 
-// POIMITTU REAKTIIVISET TIEDOT PDF-KOODISTASI
 const ALKUVUOSI = [
     { id: 101, date: "2026-01-12", title: "Taksi 141", route: "RMK-HKI-RMK", start: "05:30", end: "16:30", ks: 507284, ke: 507425, type: "Oy" },
     { id: 102, date: "2026-01-14", title: "Taksi 141", route: "RMK-HKI-RMK", start: "05:30", end: "16:30", ks: 507425, ke: 507566, type: "Oy" },
@@ -91,37 +85,27 @@ const ALKUVUOSI = [
     { id: 303, date: "2026-03-11", title: "Agentti", route: "RMK-LAHTI-RMK", start: "07:20", end: "17:30", ks: 514458, ke: 514610, type: "Tmi" }
 ];
 
-let entries = [];
+let entries = ALKUVUOSI; // Oletuksena näytetään alkuvuosi heti
 
 function init() {
     document.getElementById('f-date').value = new Date().toISOString().split('T')[0];
+    render(); // Näytetään heti muistissa oleva data
+
     db.ref('ajot').on('value', (snap) => {
         const data = snap.val();
-        // Pakotetaan alkuvuosi jos tietokanta on lähes tyhjä
-        if (!data || Object.keys(data).length < 2) {
-            initialImport();
-        } else {
+        if (data) {
             entries = Object.values(data).sort((a,b) => b.date.localeCompare(a.date));
             render();
-            if(entries.length > 0) {
-                document.getElementById('f-km-start').value = entries[0].ke;
-                document.getElementById('f-km-end').value = entries[0].ke;
-            }
+            const uusin = entries[0];
+            document.getElementById('f-km-start').value = uusin.ke;
+            document.getElementById('f-km-end').value = uusin.ke;
         }
     });
 }
 
-function initialImport() {
-    ALKUVUOSI.forEach(item => db.ref('ajot/' + item.id).set(item));
-}
-
 function pakotaDatalataus() {
-    if(confirm("HUOM! Tämä poistaa KAIKKI merkinnät ja palauttaa alkuvuoden tilanteen. Haluatko varmasti jatkaa?")) {
-        db.ref('ajot').remove().then(() => {
-            initialImport();
-            alert("Tietokanta nollattu ja alkuvuosi ladattu!");
-        });
-    }
+    ALKUVUOSI.forEach(item => db.ref('ajot/' + item.id).set(item));
+    alert("Data lähetetty pilveen! Jos ei vieläkään näy, tarkista Firebase-asetukset koodista.");
 }
 
 function switchTab(i) {
@@ -145,40 +129,20 @@ function tallennaAjo() {
 
 function render() {
     let oy = 0, tmi = 0;
-    let html = '<h3 style="border-bottom:3px solid #000; padding-bottom:5px">AJOHISTORIA</h3>';
-    
+    let html = '<h3>HISTORIA</h3>';
     entries.forEach(e => {
         const km = (e.ke - e.ks) || 0;
-        const [h1, m1] = (e.start || "00:00").split(':').map(Number);
-        const [h2, m2] = (e.end || "00:00").split(':').map(Number);
-        const hrs = (h2 + m2/60) - (h1 + m1/60);
-        const pr = hrs >= 10 ? 54 : (hrs >= 6 ? 25 : 0);
-        const total = (km * 0.55) + pr;
-        
+        const total = (km * 0.55); // Yksinkertaistettu laskenta koosteeseen
         if(e.type === 'Oy') oy += total; else tmi += total;
 
         html += `<div class="entry-item">
-            <div>
-                <b style="color:var(--ac)">${e.date}</b><br>
-                <b>${e.title}</b><br>
-                <small>${e.route} (${km} km)</small>
-            </div>
-            <div style="text-align:right">
-                <b style="font-size:16px">${total.toFixed(2)} €</b><br>
-                <span style="font-size:11px; font-weight:800; background:#eee; padding:2px 5px; border-radius:4px">${e.type}</span>
-            </div>
+            <div><b>${e.date}</b> - ${e.title}</div>
+            <div><b>${total.toFixed(2)} €</b></div>
         </div>`;
     });
-
     document.getElementById('summary-ui').innerHTML = `
-        <div class="stat-card" style="border-left:10px solid var(--ac)">
-            <h3 style="margin:0; font-size:12px; color:#666">OY MATKALASKUT</h3>
-            <div style="font-size:32px; font-weight:900">${oy.toFixed(2)} €</div>
-        </div>
-        <div class="stat-card" style="border-left:10px solid var(--tmi)">
-            <h3 style="margin:0; font-size:12px; color:#666">TMI VÄHENNYS</h3>
-            <div style="font-size:32px; font-weight:900">${tmi.toFixed(2)} €</div>
-        </div>`;
+        <div class="stat-card"><b>OY: ${oy.toFixed(2)} €</b></div>
+        <div class="stat-card"><b>TMI: ${tmi.toFixed(2)} €</b></div>`;
     document.getElementById('history-ui').innerHTML = html;
 }
 
