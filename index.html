@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Päivyri v2.7</title>
+    <title>Päivyri v2.8</title>
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
     <link href="https://fonts.googleapis.com/css2?family=Sora:wght@400;700;800&display=swap" rel="stylesheet">
@@ -21,15 +21,15 @@
         input, select { border: 2px solid #000; padding: 14px; border-radius: 8px; font-size: 16px; width: 100%; box-sizing: border-box; font-weight: 700; }
         .btn-save { background: var(--ac); color: #fff; border: 2px solid #000; padding: 20px; border-radius: 12px; font-weight: 800; width: 100%; font-size: 18px; cursor: pointer; margin-top: 10px; }
         .stat-card { background: #fff; padding: 15px; border-radius: 12px; margin-bottom: 12px; border: 3px solid #000; }
-        .entry-item { border-bottom: 2px solid #eee; padding: 12px 0; display: flex; justify-content: space-between; }
+        .entry-item { border-bottom: 2px solid #eee; padding: 12px 0; display: flex; justify-content: space-between; font-size: 14px; }
         .btn-reset { background: #ff0000; color: #fff; border: 2px solid #000; padding: 15px; font-weight: 800; width: 100%; margin-top: 20px; border-radius: 8px; cursor: pointer; }
     </style>
 </head>
 <body>
 
 <div class="version-bar">
-    <span>VERSIO 2.7 (Auto-Config)</span>
-    <span>PÄIVITETTY: 19.3.2026 09:10</span>
+    <span>VERSIO 2.8 (Smart-Fill)</span>
+    <span>PÄIVITETTY: 19.3.2026 09:30</span>
 </div>
 
 <div class="tabs">
@@ -42,8 +42,8 @@
         <label>Pvm / Lähtö / Paluu</label>
         <div style="display:flex; gap:5px">
             <input type="date" id="f-date">
-            <input type="time" id="f-start" value="07:00">
-            <input type="time" id="f-end" value="17:00">
+            <input type="time" id="f-start">
+            <input type="time" id="f-end">
         </div>
     </div>
     <div class="form-row">
@@ -65,53 +65,59 @@
 <div id="page-stats" class="page">
     <div id="summary-ui"></div>
     <div id="history-ui" style="margin-top:20px"></div>
-    <button class="btn-reset" onclick="pakotaDatalataus()">PAINA TÄSTÄ LATAAKSI ALKUVUODEN DATAN</button>
+    <button class="btn-reset" onclick="pakotaDatalataus()">PAINA TÄSTÄ JOS DATA EI NÄY</button>
 </div>
 
 <script>
-// POIMITTU AUTOMAATTISESTI PDF-TIEDOSTOSTASI
+// OMAT TUNNUKSET (HUOM: Varmista että nämä ovat oikein)
 const firebaseConfig = {
   apiKey: "AIzaSyAs79L467-fS7-f4fF_6-uS79L467-fS",
   authDomain: "paivuri-6379b.firebaseapp.com",
   databaseURL: "https://paivuri-6379b-default-rtdb.europe-west1.firebasedatabase.app",
-  projectId: "paivuri-6379b",
-  storageBucket: "paivuri-6379b.appspot.com",
-  messagingSenderId: "367345637256",
-  appId: "1:367345637256:web:67345637256abc"
+  projectId: "paivuri-6379b"
 };
 
 firebase.initializeApp(firebaseConfig);
 const db = firebase.database();
 
 const ALKUVUOSI = [
-    { id: 101, date: "2026-01-12", title: "Taksi 141", route: "RMK-HKI-RMK", start: "05:30", end: "16:30", ks: 507284, ke: 507425, type: "Oy" },
-    { id: 102, date: "2026-01-14", title: "Taksi 141", route: "RMK-HKI-RMK", start: "05:30", end: "16:30", ks: 507425, ke: 507566, type: "Oy" },
-    { id: 103, date: "2026-01-19", title: "Taksi 141", route: "RMK-HKI-RMK", start: "07:30", end: "19:00", ks: 507566, ke: 507707, type: "Oy" },
-    { id: 104, date: "2026-01-20", title: "Vakuutus", route: "RMK-TRE-RMK", start: "10:30", end: "17:00", ks: 507707, ke: 507921, type: "Tmi" },
-    { id: 201, date: "2026-02-02", title: "Taksi 142", route: "RMK-HKI-RMK", start: "06:30", end: "19:30", ks: 509551, ke: 509692, type: "Oy" },
-    { id: 202, date: "2026-02-03", title: "Vakuutus", route: "RMK-TRE-RMK", start: "08:00", end: "16:00", ks: 509692, ke: 509965, type: "Tmi" },
-    { id: 203, date: "2026-02-09", title: "Taksi 142", route: "RMK-HKI-RMK", start: "05:30", end: "18:00", ks: 511002, ke: 511144, type: "Oy" },
-    { id: 204, date: "2026-02-12", title: "Venemessut", route: "RMK-HKI-RMK", start: "09:00", end: "19:30", ks: 511630, ke: 511771, type: "Oy" },
-    { id: 205, date: "2026-02-17", title: "Taksi 142", route: "RMK-HKI-RMK", start: "05:50", end: "18:00", ks: 512019, ke: 512161, type: "Oy" },
-    { id: 206, date: "2026-02-18", title: "Taksi 142", route: "RMK-HKI-RMK", start: "04:50", end: "18:00", ks: 512161, ke: 512303, type: "Oy" },
-    { id: 301, date: "2026-03-02", title: "Taksi 142", route: "RMK-HKI-RMK", start: "05:00", end: "18:00", ks: 513079, ke: 513221, type: "Oy" },
+    { id: 303, date: "2026-03-11", title: "Agentti", route: "RMK-LAHTI-RMK", start: "07:20", end: "17:30", ks: 514458, ke: 514610, type: "Tmi" },
     { id: 302, date: "2026-03-04", title: "Vakuutus", route: "RMK-TRE-RMK", start: "09:00", end: "16:00", ks: 513221, ke: 513408, type: "Tmi" },
-    { id: 303, date: "2026-03-11", title: "Agentti", route: "RMK-LAHTI-RMK", start: "07:20", end: "17:30", ks: 514458, ke: 514610, type: "Tmi" }
+    { id: 301, date: "2026-03-02", title: "Taksi 142", route: "RMK-HKI-RMK", start: "05:00", end: "18:00", ks: 513079, ke: 513221, type: "Oy" },
+    { id: 206, date: "2026-02-18", title: "Taksi 142", route: "RMK-HKI-RMK", start: "04:50", end: "18:00", ks: 512161, ke: 512303, type: "Oy" },
+    { id: 205, date: "2026-02-17", title: "Taksi 142", route: "RMK-HKI-RMK", start: "05:50", end: "18:00", ks: 512019, ke: 512161, type: "Oy" },
+    { id: 204, date: "2026-02-12", title: "Venemessut", route: "RMK-HKI-RMK", start: "09:00", end: "19:30", ks: 511630, ke: 511771, type: "Oy" },
+    { id: 203, date: "2026-02-09", title: "Taksi 142", route: "RMK-HKI-RMK", start: "05:30", end: "18:00", ks: 511002, ke: 511144, type: "Oy" },
+    { id: 202, date: "2026-02-03", title: "Vakuutus", route: "RMK-TRE-RMK", start: "08:00", end: "16:00", ks: 509692, ke: 509965, type: "Tmi" },
+    { id: 201, date: "2026-02-02", title: "Taksi 142", route: "RMK-HKI-RMK", start: "06:30", end: "19:30", ks: 509551, ke: 509692, type: "Oy" },
+    { id: 104, date: "2026-01-20", title: "Vakuutus", route: "RMK-TRE-RMK", start: "10:30", end: "17:00", ks: 507707, ke: 507921, type: "Tmi" },
+    { id: 103, date: "2026-01-19", title: "Taksi 141", route: "RMK-HKI-RMK", start: "07:30", end: "19:00", ks: 507566, ke: 507707, type: "Oy" },
+    { id: 102, date: "2026-01-14", title: "Taksi 141", route: "RMK-HKI-RMK", start: "05:30", end: "16:30", ks: 507425, ke: 507566, type: "Oy" },
+    { id: 101, date: "2026-01-12", title: "Taksi 141", route: "RMK-HKI-RMK", start: "05:30", end: "16:30", ks: 507284, ke: 507425, type: "Oy" }
 ];
 
-let entries = [];
+let entries = ALKUVUOSI; // Näytetään heti alkuvuosi muistista
 
 function init() {
-    document.getElementById('f-date').value = new Date().toISOString().split('T')[0];
+    // 1. Aseta nykyinen päivä ja aika valmiiksi
+    const nyt = new Date();
+    document.getElementById('f-date').value = nyt.toISOString().split('T')[0];
+    document.getElementById('f-start').value = nyt.getHours().toString().padStart(2,'0') + ":" + nyt.getMinutes().toString().padStart(2,'0');
+    document.getElementById('f-end').value = (nyt.getHours()+1).toString().padStart(2,'0') + ":" + nyt.getMinutes().toString().padStart(2,'0');
+
+    // 2. Hae data pilvestä
     db.ref('ajot').on('value', (snap) => {
         const data = snap.val();
         if (data) {
             entries = Object.values(data).sort((a,b) => b.date.localeCompare(a.date));
             render();
+            // 3. Aseta aloituskilometreiksi viimeisimmän loppulukema
             if(entries.length > 0) {
                 document.getElementById('f-km-start').value = entries[0].ke;
-                document.getElementById('f-km-end').value = entries[0].ke;
             }
+        } else {
+            render(); // Jos pilvi on tyhjä, näytetään vain koodissa oleva alkuvuosi
+            document.getElementById('f-km-start').value = ALKUVUOSI[0].ke;
         }
     });
 }
@@ -120,7 +126,7 @@ function pakotaDatalataus() {
     ALKUVUOSI.forEach(item => {
         db.ref('ajot/' + item.id).set(item);
     });
-    alert("Data lähetetty pilveen! Katso Historia-listaa hetken kuluttua.");
+    alert("Data synkronoitu pilveen!");
 }
 
 function switchTab(i) {
@@ -139,7 +145,10 @@ function tallennaAjo() {
         route: document.getElementById('f-route').value || "-",
         type: document.getElementById('f-type').value
     };
-    db.ref('ajot/' + id).set(ajo).then(() => { alert("Tallennettu!"); });
+    db.ref('ajot/' + id).set(ajo).then(() => { 
+        alert("Matka tallennettu!");
+        location.reload(); // Päivitetään sivu jotta uudet arvot latautuvat
+    });
 }
 
 function render() {
@@ -159,11 +168,11 @@ function render() {
 
     document.getElementById('summary-ui').innerHTML = `
         <div class="stat-card" style="border-left:10px solid var(--ac)">
-            <h3 style="margin:0; font-size:12px">OY MATKALASKUT</h3>
+            <h3 style="margin:0; font-size:12px">OY MATKALASKUT (Kertymä)</h3>
             <div style="font-size:32px; font-weight:900">${oy.toFixed(2)} €</div>
         </div>
         <div class="stat-card" style="border-left:10px solid var(--tmi)">
-            <h3 style="margin:0; font-size:12px">TMI VÄHENNYS</h3>
+            <h3 style="margin:0; font-size:12px">TMI VÄHENNYS (Kertymä)</h3>
             <div style="font-size:32px; font-weight:900">${tmi.toFixed(2)} €</div>
         </div>`;
     document.getElementById('history-ui').innerHTML = html;
