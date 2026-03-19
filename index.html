@@ -13,747 +13,135 @@
   --surface2: #f7f8fc;
   --border:   #e2e6f0;
   --border2:  #cdd2e0;
-
   --ink:      #1a1f36;
   --ink2:     #4a5278;
   --ink3:     #8b93b5;
-
   --oy:       #2563eb;
   --oy-bg:    #eff4ff;
   --oy-bd:    #bfcffd;
-
   --tmi:      #059669;
   --tmi-bg:   #ecfdf5;
   --tmi-bd:   #a7f3d0;
-
-  --oma:      #7c3aed;
-  --oma-bg:   #f5f3ff;
-  --oma-bd:   #ddd6fe;
-
-  --muu:      #d97706;
-  --muu-bg:   #fffbeb;
-  --muu-bd:   #fde68a;
-
   --pvr:      #dc2626;
-  --pvr-bg:   #fef2f2;
-
-  --accent:   #f59e0b;
-  --accent2:  #2563eb;
-
   --shadow-sm: 0 1px 3px rgba(26,31,54,.08), 0 1px 2px rgba(26,31,54,.06);
-  --shadow:    0 4px 16px rgba(26,31,54,.10), 0 2px 6px rgba(26,31,54,.06);
-  --shadow-lg: 0 12px 40px rgba(26,31,54,.14);
-
   --r: 10px;
   --mono: 'JetBrains Mono', monospace;
   --sans: 'Plus Jakarta Sans', sans-serif;
 }
 
 * { box-sizing: border-box; margin: 0; padding: 0; }
+body { font-family: var(--sans); background: var(--bg); color: var(--ink); min-height: 100vh; }
 
-body {
-  font-family: var(--sans);
-  background: var(--bg);
-  color: var(--ink);
-  min-height: 100vh;
-  overflow-x: hidden;
-}
-
-/* ── HEADER ── */
 header {
   background: var(--surface);
   border-bottom: 2px solid var(--border);
   padding: 0 28px;
   display: flex;
   align-items: stretch;
-  gap: 0;
   position: sticky;
   top: 0;
   z-index: 100;
   box-shadow: var(--shadow-sm);
 }
-
-.logo-block {
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  padding: 14px 24px 14px 0;
-  border-right: 2px solid var(--border);
-  margin-right: 24px;
-  flex-shrink: 0;
-}
-
-.logo-title {
-  font-family: var(--sans);
-  font-weight: 800;
-  font-size: 16px;
-  color: var(--ink);
-  letter-spacing: -.3px;
-}
-
-.logo-sub {
-  font-family: var(--mono);
-  font-size: 9px;
-  color: var(--ink3);
-  letter-spacing: 1.5px;
-  text-transform: uppercase;
-  margin-top: 3px;
-}
-
-.header-kpis {
-  display: flex;
-  flex: 1;
-  align-items: stretch;
-}
-
-.hkpi {
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  padding: 0 20px;
-  border-right: 1px solid var(--border);
-  min-width: 100px;
-}
-
-.hkpi-val {
-  font-family: var(--mono);
-  font-weight: 500;
-  font-size: 19px;
-  line-height: 1;
-  color: var(--ink);
-}
-
-.hkpi-lbl {
-  font-size: 9px;
-  color: var(--ink3);
-  letter-spacing: 1px;
-  text-transform: uppercase;
-  margin-top: 4px;
-  font-weight: 500;
-}
-
-.hkpi.c-oy   .hkpi-val { color: var(--oy); }
-.hkpi.c-tmi  .hkpi-val { color: var(--tmi); }
-.hkpi.c-pvr  .hkpi-val { color: var(--pvr); }
-.hkpi.c-eur  .hkpi-val { color: var(--muu); }
-
-.header-actions {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  padding-left: 20px;
-}
-
-/* ── BUTTONS ── */
-.btn {
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  padding: 8px 16px;
-  border-radius: 8px;
-  border: none;
-  font-family: var(--sans);
-  font-size: 12px;
-  font-weight: 600;
-  cursor: pointer;
-  transition: all .15s;
-  white-space: nowrap;
-  letter-spacing: .1px;
-}
-
-.btn-primary {
-  background: var(--oy);
-  color: #fff;
-  box-shadow: 0 2px 8px rgba(37,99,235,.35);
-}
-.btn-primary:hover { background: #1d4ed8; transform: translateY(-1px); box-shadow: 0 4px 12px rgba(37,99,235,.4); }
-
-.btn-ghost {
-  background: transparent;
-  color: var(--ink2);
-  border: 1.5px solid var(--border2);
-}
-.btn-ghost:hover { border-color: var(--ink3); color: var(--ink); background: var(--surface2); }
-
-.btn-cal {
-  background: var(--tmi-bg);
-  color: var(--tmi);
-  border: 1.5px solid var(--tmi-bd);
-  font-weight: 600;
-}
-.btn-cal:hover { background: #d1fae5; }
-
-.btn-del {
-  background: transparent;
-  color: var(--pvr);
-  border: 1.5px solid #fecaca;
-  padding: 5px 9px;
-  font-size: 11px;
-}
-.btn-del:hover { background: var(--pvr-bg); }
-
-.btn-edit {
-  background: transparent;
-  color: var(--oy);
-  border: 1.5px solid var(--oy-bd);
-  padding: 5px 9px;
-  font-size: 11px;
-}
-.btn-edit:hover { background: var(--oy-bg); }
-
-.btn-sm { padding: 5px 10px; font-size: 11px; }
-
-/* ── MAIN ── */
-.main {
-  max-width: 1500px;
-  margin: 0 auto;
-  padding: 24px 28px;
-  display: flex;
-  flex-direction: column;
-  gap: 20px;
-}
-
-/* ── SUMMARY CARDS ── */
-.cards {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(170px, 1fr));
-  gap: 14px;
-}
-
-.card {
-  background: var(--surface);
-  border-radius: var(--r);
-  padding: 18px 20px;
-  box-shadow: var(--shadow-sm);
-  border: 1.5px solid var(--border);
-  display: flex;
-  flex-direction: column;
-  gap: 4px;
-  position: relative;
-  overflow: hidden;
-}
-
-.card::before {
-  content: '';
-  position: absolute;
-  top: 0; left: 0; right: 0;
-  height: 3px;
-}
-
-.card.c-tot::before { background: linear-gradient(90deg, var(--ink), var(--ink2)); }
-.card.c-oy::before  { background: var(--oy); }
-.card.c-tmi::before { background: var(--tmi); }
-.card.c-oma::before { background: var(--oma); }
-.card.c-pvr::before { background: var(--pvr); }
-
-.card-label {
-  font-size: 9px;
-  font-weight: 700;
-  letter-spacing: 1.5px;
-  text-transform: uppercase;
-  color: var(--ink3);
-}
-
-.card-val {
-  font-family: var(--mono);
-  font-weight: 500;
-  font-size: 28px;
-  line-height: 1.1;
-  margin-top: 4px;
-}
-
-.card.c-tot .card-val { color: var(--ink); }
-.card.c-oy  .card-val { color: var(--oy); }
-.card.c-tmi .card-val { color: var(--tmi); }
-.card.c-oma .card-val { color: var(--oma); }
-.card.c-pvr .card-val { color: var(--pvr); }
-
-.card-sub {
-  font-family: var(--mono);
-  font-size: 11px;
-  color: var(--ink3);
-  margin-top: 2px;
-}
-
-/* ── PANEL ── */
-.panel {
-  background: var(--surface);
-  border-radius: var(--r);
-  border: 1.5px solid var(--border);
-  box-shadow: var(--shadow-sm);
-  overflow: hidden;
-}
-
-.panel-head {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 14px 20px;
-  border-bottom: 1.5px solid var(--border);
-  background: var(--surface2);
-}
-
-.panel-title {
-  font-family: var(--sans);
-  font-weight: 700;
-  font-size: 13px;
-  color: var(--ink);
-  display: flex;
-  align-items: center;
-  gap: 10px;
-}
-
-.badge {
-  display: inline-block;
-  padding: 2px 9px;
-  border-radius: 20px;
-  font-size: 9px;
-  font-weight: 700;
-  letter-spacing: 1px;
-  text-transform: uppercase;
-}
-
-.badge-new  { background: var(--oy-bg); color: var(--oy); border: 1px solid var(--oy-bd); }
-.badge-edit { background: var(--muu-bg); color: var(--muu); border: 1px solid var(--muu-bd); }
-
-/* ── FORM ── */
-.form-grid {
-  padding: 18px 20px;
-  display: grid;
-  grid-template-columns: 130px 100px 100px 75px 75px 1fr 90px 120px auto;
-  gap: 10px;
-  align-items: end;
-}
-
-.fi { display: flex; flex-direction: column; gap: 5px; }
-
-.fi label {
-  font-size: 9px;
-  font-weight: 700;
-  letter-spacing: 1.5px;
-  text-transform: uppercase;
-  color: var(--ink3);
-}
-
-.fi input, .fi select {
-  background: var(--surface);
-  border: 1.5px solid var(--border2);
-  color: var(--ink);
-  border-radius: 7px;
-  padding: 8px 10px;
-  font-family: var(--mono);
-  font-size: 12px;
-  width: 100%;
-  transition: border-color .15s, box-shadow .15s;
-}
-
-.fi input:focus, .fi select:focus {
-  outline: none;
-  border-color: var(--oy);
-  box-shadow: 0 0 0 3px rgba(37,99,235,.12);
-}
-
-.fi select option { background: white; }
-.fw { grid-column: span 2; }
-
-/* ── CHIPS ── */
-.chips { display: flex; gap: 5px; height: 36px; align-items: center; }
-
-.chip {
-  padding: 6px 11px;
-  border-radius: 6px;
-  border: 1.5px solid var(--border2);
-  font-size: 11px;
-  font-weight: 600;
-  cursor: pointer;
-  transition: all .12s;
-  background: var(--surface2);
-  color: var(--ink3);
-  font-family: var(--sans);
-}
-
-.chip:hover { border-color: var(--ink3); color: var(--ink); }
-.chip.a-oy  { border-color: var(--oy);  color: var(--oy);  background: var(--oy-bg); }
-.chip.a-tmi { border-color: var(--tmi); color: var(--tmi); background: var(--tmi-bg); }
-.chip.a-oma { border-color: var(--oma); color: var(--oma); background: var(--oma-bg); }
-.chip.a-muu { border-color: var(--muu); color: var(--muu); background: var(--muu-bg); }
-
-.form-hint {
-  padding: 0 20px 14px;
-  font-size: 10px;
-  color: var(--ink3);
-  font-family: var(--mono);
-  display: flex;
-  align-items: center;
-  gap: 12px;
-}
-
-.hint-auto { color: var(--tmi); font-weight: 500; }
-
-/* ── FILTER BAR ── */
-.filter-row {
-  display: flex;
-  gap: 10px;
-  align-items: center;
-  flex-wrap: wrap;
-  padding: 12px 20px;
-  border-bottom: 1.5px solid var(--border);
-  background: var(--surface2);
-}
-
-.filter-row input, .filter-row select {
-  background: var(--surface);
-  border: 1.5px solid var(--border2);
-  color: var(--ink);
-  border-radius: 7px;
-  padding: 7px 10px;
-  font-family: var(--mono);
-  font-size: 11px;
-}
-
-.filter-row input:focus, .filter-row select:focus {
-  outline: none;
-  border-color: var(--oy);
-}
-
-.fsp { flex: 1; }
-
-.row-cnt {
-  font-family: var(--mono);
-  font-size: 10px;
-  color: var(--ink3);
-  background: var(--oy-bg);
-  color: var(--oy);
-  padding: 3px 10px;
-  border-radius: 20px;
-  font-weight: 500;
-  border: 1px solid var(--oy-bd);
-}
-
-/* ── TABLE ── */
-.tw { overflow-x: auto; }
-
-table { width: 100%; border-collapse: collapse; min-width: 1200px; }
-
-thead { background: var(--surface2); }
-
-thead th {
-  padding: 10px 14px;
-  text-align: left;
-  font-size: 9px;
-  font-weight: 700;
-  letter-spacing: 1.5px;
-  text-transform: uppercase;
-  color: var(--ink3);
-  border-bottom: 1.5px solid var(--border);
-  white-space: nowrap;
-  cursor: pointer;
-  user-select: none;
-  font-family: var(--sans);
-}
-
-thead th:hover { color: var(--ink2); }
-thead th.sorted { color: var(--oy); }
-
-tbody tr {
-  border-bottom: 1px solid var(--border);
-  transition: background .1s;
-}
-
-tbody tr:hover { background: #f5f7ff; }
-tbody tr:last-child { border-bottom: none; }
-tbody tr.erow { background: #fffbeb; }
-
-td {
-  padding: 10px 14px;
-  font-size: 11px;
-  color: var(--ink2);
-  white-space: nowrap;
-  font-family: var(--mono);
-}
-
-.td-date { color: var(--ink); font-weight: 500; font-size: 12px; font-family: var(--sans); }
-.td-dest { color: var(--ink); max-width: 220px; overflow: hidden; text-overflow: ellipsis; font-family: var(--sans); font-size: 11px; font-weight: 500; }
-
-/* type badges */
-.tb {
-  display: inline-flex;
-  align-items: center;
-  gap: 4px;
-  padding: 3px 10px;
-  border-radius: 20px;
-  font-size: 10px;
-  font-weight: 700;
-  font-family: var(--sans);
-  border: 1.5px solid transparent;
-}
-.t-oy  { background: var(--oy-bg);  color: var(--oy);  border-color: var(--oy-bd); }
-.t-tmi { background: var(--tmi-bg); color: var(--tmi); border-color: var(--tmi-bd); }
-.t-oma { background: var(--oma-bg); color: var(--oma); border-color: var(--oma-bd); }
-.t-muu { background: var(--muu-bg); color: var(--muu); border-color: var(--muu-bd); }
-
-.vkm  { color: var(--ink); font-weight: 500; }
-.vpvr { color: var(--pvr); font-weight: 600; }
-.veur { color: var(--tmi); font-weight: 500; }
-.vtot { color: var(--oy);  font-weight: 700; }
-.vodo { color: var(--ink3); font-size: 10px; }
-
-.ra { display: flex; gap: 5px; opacity: 0; transition: opacity .15s; justify-content: flex-end; }
-tbody tr:hover .ra { opacity: 1; }
-
-.cal-ok {
-  display: inline-flex;
-  align-items: center;
-  gap: 5px;
-  font-size: 10px;
-  color: var(--tmi);
-  font-weight: 600;
-  font-family: var(--sans);
-  background: var(--tmi-bg);
-  padding: 2px 8px;
-  border-radius: 20px;
-  border: 1px solid var(--tmi-bd);
-}
-
-/* ── MODAL ── */
-.overlay {
-  position: fixed; inset: 0;
-  background: rgba(26,31,54,.5);
-  backdrop-filter: blur(4px);
-  z-index: 200;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  opacity: 0;
-  pointer-events: none;
-  transition: opacity .2s;
-}
-.overlay.vis { opacity: 1; pointer-events: all; }
-
-.modal {
-  background: var(--surface);
-  border-radius: 14px;
-  width: 580px;
-  max-width: 95vw;
-  max-height: 82vh;
-  display: flex;
-  flex-direction: column;
-  box-shadow: var(--shadow-lg);
-  border: 1.5px solid var(--border);
-  transform: translateY(20px);
-  transition: transform .2s;
-}
-.overlay.vis .modal { transform: translateY(0); }
-
-.modal-head {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 16px 22px;
-  border-bottom: 1.5px solid var(--border);
-  background: var(--surface2);
-  border-radius: 14px 14px 0 0;
-}
-
-.modal-title { font-weight: 700; font-size: 15px; color: var(--ink); }
-.modal-x { background: none; border: none; color: var(--ink3); cursor: pointer; font-size: 18px; padding: 4px; line-height: 1; border-radius: 6px; }
-.modal-x:hover { background: var(--border); color: var(--ink); }
-
-.modal-body { padding: 18px 22px; overflow-y: auto; flex: 1; }
-.modal-foot { padding: 14px 22px; border-top: 1.5px solid var(--border); display: flex; justify-content: flex-end; gap: 10px; }
-
-.ci-list { display: flex; flex-direction: column; gap: 8px; }
-.ci {
-  background: var(--surface2);
-  border: 1.5px solid var(--border);
-  border-radius: 8px;
-  padding: 12px 14px;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 10px;
-  transition: border-color .15s;
-}
-.ci:hover { border-color: var(--oy-bd); }
-.ci-t { font-size: 12px; color: var(--ink); font-weight: 600; margin-bottom: 3px; font-family: var(--sans); }
-.ci-m { font-size: 10px; color: var(--ink3); font-family: var(--mono); }
-
-/* ── TOAST ── */
-.toast {
+.logo-block { display: flex; flex-direction: column; justify-content: center; padding: 14px 24px 14px 0; border-right: 2px solid var(--border); margin-right: 24px; }
+.logo-title { font-weight: 800; font-size: 16px; }
+.logo-sub { font-family: var(--mono); font-size: 9px; color: var(--ink3); letter-spacing: 1.5px; text-transform: uppercase; }
+.version-tag { font-size: 9px; color: var(--oy); font-weight: bold; margin-top: 2px; }
+
+.header-kpis { display: flex; flex: 1; }
+.hkpi { display: flex; flex-direction: column; justify-content: center; padding: 0 20px; border-right: 1px solid var(--border); min-width: 100px; }
+.hkpi-val { font-family: var(--mono); font-weight: 500; font-size: 19px; }
+.hkpi-lbl { font-size: 9px; color: var(--ink3); text-transform: uppercase; margin-top: 4px; }
+
+#version-toast {
   position: fixed;
-  bottom: 24px;
-  right: 24px;
+  bottom: 20px;
+  right: 20px;
   background: var(--ink);
   color: #fff;
-  border-radius: 10px;
-  padding: 12px 18px;
+  padding: 12px 20px;
+  border-radius: 8px;
   font-size: 12px;
-  font-weight: 600;
-  z-index: 999;
-  transform: translateY(80px);
-  opacity: 0;
-  transition: all .3s;
-  display: flex;
-  align-items: center;
-  gap: 9px;
-  max-width: 340px;
-  box-shadow: var(--shadow-lg);
-  font-family: var(--sans);
+  display: none;
+  z-index: 1000;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+  animation: slideIn 0.3s ease-out;
 }
-.toast.show { transform: translateY(0); opacity: 1; }
-.toast.ok  { background: var(--tmi); }
-.toast.err { background: var(--pvr); }
+@keyframes slideIn { from { transform: translateY(100%); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
 
-/* ── EMPTY ── */
-.empty { text-align: center; padding: 50px 20px; color: var(--ink3); }
-.empty-icon { font-size: 40px; margin-bottom: 12px; }
-.empty-t { font-size: 16px; font-weight: 700; color: var(--ink2); margin-bottom: 6px; }
-.empty-s { font-size: 12px; font-family: var(--mono); }
+.btn { display: inline-flex; align-items: center; gap: 6px; padding: 8px 16px; border-radius: 8px; border: none; font-size: 12px; font-weight: 600; cursor: pointer; transition: all .15s; white-space: nowrap; }
+.btn-primary { background: var(--oy); color: #fff; }
+.btn-ghost { background: transparent; color: var(--ink2); border: 1.5px solid var(--border2); }
+.btn-del { color: var(--pvr); border: 1.5px solid #fecaca; padding: 5px 9px; margin-left: 5px; }
+.btn-edit { color: var(--oy); border: 1.5px solid var(--oy-bd); padding: 5px 9px; }
 
-/* ── SPINNER ── */
-.spin { display: inline-block; width: 14px; height: 14px; border: 2px solid var(--border2); border-top-color: var(--oy); border-radius: 50%; animation: spin .7s linear infinite; vertical-align: middle; margin-right: 6px; }
-@keyframes spin { to { transform: rotate(360deg); } }
+.main { max-width: 1500px; margin: 0 auto; padding: 24px 28px; display: flex; flex-direction: column; gap: 20px; }
+.panel { background: var(--surface); border-radius: var(--r); border: 1.5px solid var(--border); box-shadow: var(--shadow-sm); overflow: hidden; }
+.panel-head { display: flex; align-items: center; justify-content: space-between; padding: 14px 20px; border-bottom: 1.5px solid var(--border); background: var(--surface2); }
+.form-grid { padding: 18px 20px; display: grid; grid-template-columns: repeat(auto-fit, minmax(120px, 1fr)); gap: 10px; align-items: end; }
+.fi { display: flex; flex-direction: column; gap: 5px; }
+.fi label { font-size: 9px; font-weight: 700; text-transform: uppercase; color: var(--ink3); }
+.fi input { border: 1.5px solid var(--border2); border-radius: 7px; padding: 8px 10px; font-family: var(--mono); font-size: 12px; }
 
-::-webkit-scrollbar { width: 6px; height: 6px; }
-::-webkit-scrollbar-track { background: var(--bg); }
-::-webkit-scrollbar-thumb { background: var(--border2); border-radius: 3px; }
-::-webkit-scrollbar-thumb:hover { background: var(--ink3); }
+.tw { overflow-x: auto; }
+table { width: 100%; border-collapse: collapse; min-width: 1000px; }
+th { padding: 10px 14px; text-align: left; font-size: 9px; color: var(--ink3); border-bottom: 1.5px solid var(--border); background: var(--surface2); }
+td { padding: 10px 14px; font-size: 11px; border-bottom: 1px solid var(--border); font-family: var(--mono); }
+.ra { display: flex; justify-content: flex-end; opacity: 1; }
+.erow { background: #fffbeb !important; }
 
-@media (max-width: 1200px) { .form-grid { grid-template-columns: 1fr 1fr 1fr 1fr; } .header-kpis { display: none; } }
-@media (max-width: 768px)  { header { padding: 12px 14px; } .main { padding: 12px 14px; } .form-grid { grid-template-columns: 1fr 1fr; } }
+.chips { display: flex; gap: 5px; }
+.chip { padding: 6px 11px; border-radius: 6px; border: 1.5px solid var(--border2); font-size: 11px; cursor: pointer; transition: 0.2s; }
+.chip.active { border-color: var(--oy); background: var(--oy-bg); color: var(--oy); }
 </style>
 </head>
 <body>
 
-<!-- HEADER -->
+<div id="version-toast">Sovellus päivitetty versioon <span id="toast-v"></span>!</div>
+
 <header>
   <div class="logo-block">
     <div class="logo-title">Matkapäiväkirja 2026</div>
-    <div class="logo-sub">Jarmo Aaltonen · AJarmo Oy / Tmi</div>
+    <div class="logo-sub">Jarmo Aaltonen</div>
+    <div class="version-tag">VERSIO <span id="v-tag">1.0.1</span></div>
   </div>
   <div class="header-kpis">
-    <div class="hkpi"><div class="hkpi-val" id="h-km">0</div><div class="hkpi-lbl">km yhteensä</div></div>
-    <div class="hkpi c-oy"><div class="hkpi-val" id="h-oy">0</div><div class="hkpi-lbl">Oy km</div></div>
-    <div class="hkpi c-tmi"><div class="hkpi-val" id="h-tmi">0</div><div class="hkpi-lbl">Tmi km</div></div>
-    <div class="hkpi c-pvr"><div class="hkpi-val" id="h-pvr">0 €</div><div class="hkpi-lbl">päivärahat</div></div>
-    <div class="hkpi c-eur"><div class="hkpi-val" id="h-eur">0 €</div><div class="hkpi-lbl">km-korvaus</div></div>
-  </div>
-  <div class="header-actions">
-    <button class="btn btn-cal" onclick="openCalImport()">⇩ Kalenteri</button>
-    <button class="btn btn-ghost" onclick="exportCSV()">↓ CSV</button>
+    <div class="hkpi"><div class="hkpi-val" id="h-km">0</div><div class="hkpi-lbl">km</div></div>
+    <div class="hkpi"><div class="hkpi-val" id="h-eur">0 €</div><div class="hkpi-lbl">korvaus</div></div>
   </div>
 </header>
 
 <div class="main">
-
-  <!-- CARDS -->
-  <div class="cards">
-    <div class="card c-tot">
-      <div class="card-label">Kaikki km</div>
-      <div class="card-val" id="s-km">0</div>
-      <div class="card-sub" id="s-km-e">0,00 €</div>
-    </div>
-    <div class="card c-oy">
-      <div class="card-label">AJarmo Oy km</div>
-      <div class="card-val" id="s-oy">0</div>
-      <div class="card-sub" id="s-oy-e">0,00 €</div>
-    </div>
-    <div class="card c-tmi">
-      <div class="card-label">Tmi km</div>
-      <div class="card-val" id="s-tmi">0</div>
-      <div class="card-sub" id="s-tmi-e">0,00 €</div>
-    </div>
-    <div class="card c-oma">
-      <div class="card-label">Oma km</div>
-      <div class="card-val" id="s-oma">0</div>
-      <div class="card-sub" id="s-oma-e">(ei korvausta)</div>
-    </div>
-    <div class="card c-pvr">
-      <div class="card-label">Päivärahat (Oy)</div>
-      <div class="card-val" id="s-pvr">0 €</div>
-      <div class="card-sub" id="s-pvr-n">0 matkaa</div>
-    </div>
-    <div class="card c-tot">
-      <div class="card-label">Km-korvaukset</div>
-      <div class="card-val" id="s-kmkorv">0 €</div>
-      <div class="card-sub" id="s-total">Yht. 0 €</div>
-    </div>
-  </div>
-
-  <!-- FORM -->
   <div class="panel">
     <div class="panel-head">
-      <div class="panel-title">
-        <span id="form-lbl">Uusi kirjaus</span>
-        <span class="badge badge-new" id="form-badge">SYÖTÄ</span>
-      </div>
+      <div><span id="form-lbl">Uusi kirjaus</span></div>
       <button class="btn btn-ghost" id="cancel-btn" style="display:none" onclick="cancelEdit()">✕ Peruuta</button>
     </div>
     <div class="form-grid">
       <div class="fi"><label>Päivä</label><input type="date" id="f-date"></div>
       <div class="fi"><label>Lähtö</label><input type="time" id="f-start"></div>
       <div class="fi"><label>Paluu</label><input type="time" id="f-end"></div>
-      <div class="fi"><label>Alo.km</label><input type="number" id="f-os" placeholder="509551" step="1" min="0"></div>
-      <div class="fi"><label>Lop.km</label><input type="number" id="f-oe" placeholder="509692" step="1" min="0"></div>
-      <div class="fi fw"><label>Reitti / selite</label><input type="text" id="f-dest" placeholder="Kontiontie 55 RMK – Viipirinkatu 1 HKI – Kontiontie 55 RMK"></div>
+      <div class="fi"><label>Alo.km</label><input type="number" id="f-os"></div>
+      <div class="fi"><label>Lop.km</label><input type="number" id="f-oe"></div>
+      <div class="fi" style="grid-column: span 2;"><label>Reitti</label><input type="text" id="f-dest"></div>
       <div class="fi"><label>Tyyppi</label>
         <div class="chips">
-          <div class="chip a-oy" data-type="Oy" onclick="pickType(this)">Oy</div>
-          <div class="chip" data-type="Tmi" onclick="pickType(this)">Tmi</div>
-          <div class="chip" data-type="Oma" onclick="pickType(this)">Oma</div>
-          <div class="chip" data-type="Muu" onclick="pickType(this)">Muu</div>
+          <div class="chip active" onclick="setType('Oy', this)">Oy</div>
+          <div class="chip" onclick="setType('Tmi', this)">Tmi</div>
         </div>
       </div>
-      <div class="fi"><label>Päiväraha</label>
-        <select id="f-pvr">
-          <option value="0">Ei päivärahaa</option>
-          <option value="25">Osapv 25 €</option>
-          <option value="54">Kokopv 54 €</option>
-        </select>
+      <div class="fi">
+        <button class="btn btn-primary" id="save-btn" onclick="saveEntry()">＋ Tallenna</button>
       </div>
-      <div class="fi"><label>&nbsp;</label>
-        <button class="btn btn-primary" id="save-btn" onclick="saveEntry()" style="width:100%;padding:9px 12px">＋ Tallenna</button>
-      </div>
-    </div>
-    <div class="form-hint">
-      <span>km = Lop.km − Alo.km automaattisesti · 0,55 €/km · Kokopv 54 € (≥10h) · Osapv 25 € (6–10h)</span>
-      <span class="hint-auto" id="f-auto"></span>
     </div>
   </div>
 
-  <!-- TABLE -->
   <div class="panel">
-    <div class="filter-row">
-      <input type="month" id="fil-m" onchange="af()" style="width:140px">
-      <select id="fil-t" onchange="af()" style="width:115px">
-        <option value="">Kaikki tyypit</option>
-        <option value="Oy">Oy</option>
-        <option value="Tmi">Tmi</option>
-        <option value="Oma">Oma</option>
-        <option value="Muu">Muu</option>
-      </select>
-      <input type="text" id="fil-s" placeholder="🔍 Hae reitistä..." oninput="af()" style="width:200px">
-      <span class="fsp"></span>
-      <span class="row-cnt" id="row-cnt">0 kirjausta</span>
-      <span class="panel-title" style="font-size:13px">Kirjaukset</span>
-    </div>
     <div class="tw">
       <table>
         <thead>
           <tr>
-            <th onclick="sb('date')" id="th-date">Päivä ↕</th>
-            <th>Lähtö</th><th>Paluu</th>
-            <th onclick="sb('dest')" id="th-dest">Reitti / selite ↕</th>
-            <th>Tyyppi</th>
-            <th onclick="sb('km')" style="text-align:right" id="th-km">km ↕</th>
-            <th style="text-align:right">Alo.km</th>
-            <th style="text-align:right">Lop.km</th>
-            <th style="text-align:right">Km-korv</th>
-            <th style="text-align:right">PV-raha</th>
-            <th style="text-align:right">Yhteensä</th>
-            <th>Huom</th>
-            <th>Kalenteri</th>
-            <th></th>
+            <th>Päivä</th><th>Reitti</th><th>Tyyppi</th><th>km</th><th>Korvaus</th><th style="text-align:right">Toiminnot</th>
           </tr>
         </thead>
         <tbody id="tbody"></tbody>
@@ -762,334 +150,138 @@ tbody tr:hover .ra { opacity: 1; }
   </div>
 </div>
 
-<!-- CAL MODAL -->
-<div class="overlay" id="cal-ov">
-  <div class="modal">
-    <div class="modal-head">
-      <div class="modal-title">⇩ Tuo Google Kalenterista</div>
-      <button class="modal-x" onclick="closeM()">✕</button>
-    </div>
-    <div class="modal-body">
-      <div style="display:flex;gap:10px;margin-bottom:14px;align-items:center">
-        <input type="month" id="cal-m" style="background:var(--surface2);border:1.5px solid var(--border2);color:var(--ink);border-radius:7px;padding:7px 10px;font-family:var(--mono);font-size:11px">
-        <button class="btn btn-ghost" onclick="fetchCal()">Hae tapahtumat</button>
-      </div>
-      <div class="ci-list" id="ci-list">
-        <div style="color:var(--ink3);font-size:11px;text-align:center;padding:20px;font-family:var(--mono)">Valitse kuukausi ja hae tapahtumat</div>
-      </div>
-    </div>
-    <div class="modal-foot">
-      <button class="btn btn-ghost" onclick="closeM()">Sulje</button>
-    </div>
-  </div>
-</div>
-
-<div class="toast" id="toast">
-  <span id="ti"></span><span id="tm"></span>
-</div>
-
 <script>
-const KMR=0.55, KEY='mpk2026_v4';
+// VERSIONHALLINTA - Muuta tätä kun päivität koodia
+const APP_VERSION = "1.0.1";
 
-const SEED=[
-  {id:'s1',date:'2026-01-14',start:'05:30',end:'16:30',os:null,oe:null,km:141,dest:'Kontiontie 55, RMK – Viipirinkatu 1, HKI – Kontiontie 55, RMK',type:'Oy',pvr:54,huom:'Taksi',calSynced:false,calEventId:null},
-  {id:'s2',date:'2026-01-15',start:'05:30',end:'16:30',os:null,oe:null,km:141,dest:'Kontiontie 55, RMK – Viipirinkatu 1, HKI – Kontiontie 55, RMK',type:'Oy',pvr:54,huom:'Taksi',calSynced:false,calEventId:null},
-  {id:'s3',date:'2026-01-19',start:'07:30',end:'19:00',os:null,oe:null,km:141,dest:'Kontiontie 55, RMK – Viipirinkatu 1, HKI – Kontiontie 55, RMK',type:'Oy',pvr:54,huom:'Taksi',calSynced:false,calEventId:null},
-  {id:'s4',date:'2026-01-20',start:'10:30',end:'17:00',os:null,oe:null,km:214,dest:'Kontiontie 55, RMK – Huoltolux Oy, TRE – Kontiontie 55, RMK',type:'Tmi',pvr:25,huom:'Vakuutus',calSynced:false,calEventId:null},
-  {id:'s5',date:'2026-01-23',start:'05:30',end:'14:30',os:null,oe:null,km:141,dest:'Kontiontie 55, RMK – Viipirinkatu 1, HKI – Kontiontie 55, RMK',type:'Oy',pvr:25,huom:'Taksi',calSynced:false,calEventId:null},
-  {id:'s6',date:'2026-01-26',start:'06:10',end:'16:50',os:null,oe:null,km:141,dest:'Kontiontie 55, RMK – Viipirinkatu 1, HKI – Kontiontie 55, RMK',type:'Oy',pvr:54,huom:'Taksi',calSynced:false,calEventId:null},
-  {id:'s7',date:'2026-02-02',start:'06:30',end:'19:30',os:509551,oe:509692,km:142,dest:'Kontiontie 55, RMK – Viipirinkatu 1, HKI – Kontiontie 55, RMK',type:'Oy',pvr:54,huom:'Taksi',calSynced:false,calEventId:null},
-  {id:'s8',date:'2026-02-03',start:'',end:'',os:509692,oe:509965,km:273,dest:'Kontiontie 55, RMK – Nokia Arena, TRE – Kontiontie 55, RMK',type:'Tmi',pvr:0,huom:'IF/meklaritilaisuus',calSynced:false,calEventId:null},
-  {id:'s9',date:'2026-02-04',start:'',end:'',os:509965,oe:510190,km:225,dest:'Kontiontie 55, RMK – Padasjoki/Humppi – Kontiontie 55, RMK',type:'Tmi',pvr:0,huom:'Padasjoki/Agentti',calSynced:false,calEventId:null},
-  {id:'s10',date:'2026-02-06',start:'',end:'',os:510190,oe:510409,km:219,dest:'',type:'Oma',pvr:0,huom:'',calSynced:false,calEventId:null},
-  {id:'s11',date:'2026-02-07',start:'',end:'',os:510409,oe:510526,km:117,dest:'',type:'Oma',pvr:0,huom:'',calSynced:false,calEventId:null},
-  {id:'s12',date:'2026-02-08',start:'',end:'',os:510526,oe:510736,km:210,dest:'',type:'Oma',pvr:0,huom:'',calSynced:false,calEventId:null},
-  {id:'s13',date:'2026-02-09',start:'06:00',end:'18:15',os:510736,oe:510877,km:142,dest:'Kontiontie 55, RMK – Viipirinkatu 1, HKI – Kontiontie 55, RMK',type:'Oy',pvr:54,huom:'Taksi',calSynced:false,calEventId:null},
-  {id:'s14',date:'2026-02-10',start:'05:15',end:'18:10',os:510877,oe:511018,km:142,dest:'Kontiontie 55, RMK – Viipirinkatu 1, HKI – Kontiontie 55, RMK',type:'Oy',pvr:54,huom:'Taksi',calSynced:false,calEventId:null},
-  {id:'s15',date:'2026-02-11',start:'10:00',end:'17:00',os:511018,oe:511251,km:233,dest:'Kontiontie 55, RMK – Heinola – Kontiontie 55, RMK',type:'Tmi',pvr:25,huom:'Heinola/Agentti',calSynced:false,calEventId:null},
-  {id:'s16',date:'2026-02-12',start:'',end:'',os:511251,oe:511346,km:95,dest:'',type:'Oma',pvr:0,huom:'',calSynced:false,calEventId:null},
-  {id:'s17',date:'2026-02-13',start:'05:50',end:'16:00',os:511346,oe:511488,km:142,dest:'Kontiontie 55, RMK – Viipirinkatu 1, HKI – Kontiontie 55, RMK',type:'Oy',pvr:54,huom:'Taksi',calSynced:false,calEventId:null},
-  {id:'s18',date:'2026-02-14',start:'09:00',end:'19:30',os:511488,oe:511630,km:142,dest:'Kontiontie 55, RMK – Messukeskus, HKI – Kontiontie 55, RMK',type:'Oy',pvr:54,huom:'Venemessut / Oy',calSynced:false,calEventId:null},
-  {id:'s19',date:'2026-02-15',start:'09:00',end:'19:30',os:511630,oe:511771,km:141,dest:'Kontiontie 55, RMK – Messukeskus, HKI – Kontiontie 55, RMK',type:'Oma',pvr:0,huom:'Venemessut / SNOP',calSynced:false,calEventId:null},
-  {id:'s20',date:'2026-02-16',start:'',end:'',os:511771,oe:512019,km:248,dest:'',type:'Oma',pvr:0,huom:'',calSynced:false,calEventId:null},
-  {id:'s21',date:'2026-02-17',start:'05:50',end:'18:00',os:512019,oe:512161,km:142,dest:'Kontiontie 55, RMK – Viipirinkatu 1, HKI – Kontiontie 55, RMK',type:'Oy',pvr:54,huom:'Taksi',calSynced:false,calEventId:null},
-  {id:'s22',date:'2026-02-18',start:'04:50',end:'18:00',os:512161,oe:512303,km:142,dest:'Kontiontie 55, RMK – Viipirinkatu 1, HKI – Kontiontie 55, RMK',type:'Oy',pvr:54,huom:'Taksi',calSynced:false,calEventId:null},
-  {id:'s23',date:'2026-02-19',start:'04:00',end:'17:10',os:512303,oe:512495,km:192,dest:'',type:'Oma',pvr:54,huom:'',calSynced:false,calEventId:null},
-  {id:'s24',date:'2026-02-20',start:'',end:'',os:512495,oe:512592,km:97,dest:'',type:'Oma',pvr:0,huom:'',calSynced:false,calEventId:null},
-  {id:'s25',date:'2026-03-02',start:'05:00',end:'18:00',os:513079,oe:513221,km:142,dest:'Kontiontie 55, RMK – Helsinki – Kontiontie 55, RMK',type:'Oy',pvr:54,huom:'Taksi',calSynced:false,calEventId:null},
-  {id:'s26',date:'2026-03-04',start:'',end:'',os:513221,oe:513408,km:187,dest:'Kontiontie 55, RMK – asiakaskäynti – Kontiontie 55, RMK',type:'Tmi',pvr:0,huom:'',calSynced:false,calEventId:null},
-  {id:'s27',date:'2026-03-05',start:'07:15',end:'17:30',os:513408,oe:513408,km:0,dest:'',type:'Oy',pvr:54,huom:'',calSynced:false,calEventId:null},
-  {id:'s28',date:'2026-03-10',start:'',end:'',os:614458,oe:614610,km:152,dest:'',type:'Oma',pvr:0,huom:'',calSynced:false,calEventId:null},
-  {id:'s29',date:'2026-03-11',start:'07:20',end:'17:30',os:514610,oe:514610,km:0,dest:'Kontiontie 55 – Lahti / Agentti – Koti',type:'Oy',pvr:54,huom:'',calSynced:false,calEventId:null},
-];
-
-let entries=[],editId=null,selType='Oy',sk='date',sd=1,filtered=[];
-
-document.addEventListener('DOMContentLoaded',()=>{
-  try{const r=localStorage.getItem(KEY);entries=r?JSON.parse(r):null;}catch{entries=null;}
-  if(!entries){entries=SEED.map(e=>({...e,cAt:Date.now()}));save();}
-  const t=new Date().toISOString().slice(0,10);
-  document.getElementById('f-date').value=t;
-  document.getElementById('f-start').value=new Date().toTimeString().slice(0,5);
-  document.getElementById('fil-m').value=t.slice(0,7);
-  document.getElementById('cal-m').value=t.slice(0,7);
-  const os=document.getElementById('f-os'),oe=document.getElementById('f-oe'),al=document.getElementById('f-auto');
-  function upd(){const s=parseInt(os.value),e=parseInt(oe.value);al.textContent=(s>0&&e>s)?`→ ${e-s} km laskettu`:''}
-  os.addEventListener('input',upd);oe.addEventListener('input',upd);
-  af();
-});
-
-function save(){localStorage.setItem(KEY,JSON.stringify(entries));rs();}
-
-function pickType(el){
-  document.querySelectorAll('.chips .chip').forEach(c=>{c.className='chip';});
-  selType=el.dataset.type;el.classList.add('a-'+selType.toLowerCase());
+function checkVersion() {
+  const lastVersion = localStorage.getItem('app_version');
+  document.getElementById('v-tag').textContent = APP_VERSION;
+  if (lastVersion && lastVersion !== APP_VERSION) {
+    const toast = document.getElementById('version-toast');
+    document.getElementById('toast-v').textContent = APP_VERSION;
+    toast.style.display = 'block';
+    setTimeout(() => { toast.style.display = 'none'; }, 5000);
+  }
+  localStorage.setItem('app_version', APP_VERSION);
 }
 
-function saveEntry(){
-  const date=document.getElementById('f-date').value;
-  if(!date){t2('Valitse päivä','err');return;}
-  const start=document.getElementById('f-start').value;
-  const end=document.getElementById('f-end').value;
-  const os=parseInt(document.getElementById('f-os').value)||null;
-  const oe=parseInt(document.getElementById('f-oe').value)||null;
-  const km=(os&&oe&&oe>os)?oe-os:0;
-  const dest=document.getElementById('f-dest').value.trim();
-  const pvr=parseInt(document.getElementById('f-pvr').value)||0;
-  const entry={id:editId||Date.now().toString(),date,start,end,os,oe,km,dest,type:selType,pvr,huom:'',calSynced:false,calEventId:null,cAt:Date.now()};
-  if(editId){
-    const ix=entries.findIndex(e=>e.id===editId);
-    if(ix!==-1){entry.huom=entries[ix].huom;entry.calSynced=entries[ix].calSynced;entry.calEventId=entries[ix].calEventId;entries[ix]=entry;}
-    cancelEdit();t2('Kirjaus päivitetty ✓','ok');
+// LOGIIKKA
+let entries = JSON.parse(localStorage.getItem('mpk_2026') || '[]');
+let editId = null;
+let currentType = 'Oy';
+const KMR = 0.55;
+
+function setType(type, el) {
+  currentType = type;
+  document.querySelectorAll('.chip').forEach(c => c.classList.remove('active'));
+  el.classList.add('active');
+}
+
+function saveEntry() {
+  const os = parseInt(document.getElementById('f-os').value) || 0;
+  const oe = parseInt(document.getElementById('f-oe').value) || 0;
+  const date = document.getElementById('f-date').value;
+
+  if(!date) { alert('Valitse päivämäärä!'); return; }
+
+  const entry = {
+    id: editId || Date.now().toString(),
+    date: date,
+    start: document.getElementById('f-start').value,
+    end: document.getElementById('f-end').value,
+    os: os,
+    oe: oe,
+    dest: document.getElementById('f-dest').value,
+    type: currentType,
+    km: oe - os
+  };
+
+  if (editId) {
+    const idx = entries.findIndex(e => e.id === editId);
+    entries[idx] = entry;
   } else {
-    entries.unshift(entry);t2('Tallennettu ✓','ok');clearForm();
+    entries.unshift(entry);
   }
-  save();af();
+
+  localStorage.setItem('mpk_2026', JSON.stringify(entries));
+  cancelEdit();
+  render();
 }
 
-function clearForm(){
-  ['f-start','f-end','f-dest'].forEach(id=>document.getElementById(id).value='');
-  ['f-os','f-oe'].forEach(id=>document.getElementById(id).value='');
-  document.getElementById('f-pvr').value='0';
-  document.getElementById('f-auto').textContent='';
-  document.getElementById('f-date').value=new Date().toISOString().slice(0,10);
-  pickType(document.querySelector('.chips .chip[data-type="Oy"]'));
-}
-
-function editEntry(id){
-  const e=entries.find(x=>x.id===id);if(!e)return;
-  editId=id;
-  document.getElementById('f-date').value=e.date;
-  document.getElementById('f-start').value=e.start||'';
-  document.getElementById('f-end').value=e.end||'';
-  document.getElementById('f-os').value=e.os||'';
-  document.getElementById('f-oe').value=e.oe||'';
-  document.getElementById('f-dest').value=e.dest;
-  document.getElementById('f-pvr').value=e.pvr||0;
-  const ch=document.querySelector(`.chips .chip[data-type="${e.type}"]`);if(ch)pickType(ch);
-  document.getElementById('form-lbl').textContent='Muokkaa kirjausta';
-  document.getElementById('form-badge').className='badge badge-edit';
-  document.getElementById('form-badge').textContent='MUOKKAA';
-  document.getElementById('save-btn').textContent='✓ Päivitä';
-  document.getElementById('cancel-btn').style.display='inline-flex';
-  document.querySelectorAll('tbody tr').forEach(r=>r.classList.remove('erow'));
-  const row=document.querySelector(`tr[data-id="${id}"]`);if(row)row.classList.add('erow');
-  window.scrollTo({top:0,behavior:'smooth'});
-  document.getElementById('f-dest').focus();
-}
-
-function cancelEdit(){
-  editId=null;
-  document.getElementById('form-lbl').textContent='Uusi kirjaus';
-  document.getElementById('form-badge').className='badge badge-new';
-  document.getElementById('form-badge').textContent='SYÖTÄ';
-  document.getElementById('save-btn').textContent='＋ Tallenna';
-  document.getElementById('cancel-btn').style.display='none';
-  document.querySelectorAll('tbody tr').forEach(r=>r.classList.remove('erow'));
-  clearForm();
-}
-
-function deleteEntry(id){
-  const e=entries.find(x=>x.id===id);
-  if(!confirm(`Poistetaanko:\n${e?.date} – ${e?.dest||'(tyhjä reitti)'}`))return;
-  entries=entries.filter(x=>x.id!==id);save();af();t2('Poistettu','ok');
-}
-
-function editHuom(id,val){const ix=entries.findIndex(e=>e.id===id);if(ix!==-1){entries[ix].huom=val;save();}}
-
-function sb(key){
-  if(sk===key)sd*=-1;else{sk=key;sd=1;}
-  ['date','dest','km'].forEach(k=>{const th=document.getElementById('th-'+k);if(th)th.classList.toggle('sorted',k===key);});
-  render(filtered);
-}
-
-function af(){
-  const m=document.getElementById('fil-m').value;
-  const tp=document.getElementById('fil-t').value;
-  const s=document.getElementById('fil-s').value.toLowerCase();
-  filtered=entries.filter(e=>{
-    if(m&&!e.date.startsWith(m))return false;
-    if(tp&&e.type!==tp)return false;
-    if(s&&!((e.dest||'').toLowerCase().includes(s)||(e.huom||'').toLowerCase().includes(s)))return false;
-    return true;
+function editEntry(id) {
+  const e = entries.find(x => x.id === id);
+  if (!e) return;
+  editId = id;
+  
+  document.getElementById('f-date').value = e.date;
+  document.getElementById('f-start').value = e.start;
+  document.getElementById('f-end').value = e.end;
+  document.getElementById('f-os').value = e.os;
+  document.getElementById('f-oe').value = e.oe;
+  document.getElementById('f-dest').value = e.dest;
+  
+  // Asetetaan tyyppi-chip
+  currentType = e.type;
+  document.querySelectorAll('.chip').forEach(c => {
+    c.classList.toggle('active', c.textContent === e.type);
   });
-  render(filtered);rs();
+
+  document.getElementById('form-lbl').textContent = 'Muokkaa kirjausta';
+  document.getElementById('save-btn').textContent = '✓ Päivitä';
+  document.getElementById('cancel-btn').style.display = 'block';
+  window.scrollTo({top: 0, behavior: 'smooth'});
+  render();
 }
 
-function render(list){
-  const tb=document.getElementById('tbody');
-  document.getElementById('row-cnt').textContent=list.length+' kirjausta';
-  if(!list.length){
-    tb.innerHTML=`<tr><td colspan="14"><div class="empty"><div class="empty-icon">🗺️</div><div class="empty-t">Ei kirjauksia</div><div class="empty-s">Lisää uusi kirjaus yllä olevalla lomakkeella</div></div></td></tr>`;
-    return;
+function deleteEntry(id) {
+  if (confirm('Haluatko varmasti poistaa tämän tapahtuman?')) {
+    entries = entries.filter(e => e.id !== id);
+    localStorage.setItem('mpk_2026', JSON.stringify(entries));
+    render();
   }
-  const srt=[...list].sort((a,b)=>{
-    let av=a[sk],bv=b[sk];
-    if(typeof av==='string')av=av.toLowerCase();if(typeof bv==='string')bv=bv.toLowerCase();
-    return av<bv?-sd:av>bv?sd:0;
-  });
-  tb.innerHTML=srt.map(e=>{
-    const kmE=(e.km*KMR).toFixed(2).replace('.',',');
-    const tot=((e.km*KMR)+(e.pvr||0)).toFixed(2).replace('.',',');
-    const tc='t-'+e.type.toLowerCase();
-    const cal=e.calSynced
-      ?`<span class="cal-ok">✓ Synkronoitu</span>`
-      :`<button class="btn btn-cal btn-sm" onclick="syncCal('${e.id}')">↑ Kal.</button>`;
-    return `<tr data-id="${e.id}">
-      <td class="td-date">${fd(e.date)}</td>
-      <td>${e.start||'—'}</td>
-      <td>${e.end||'—'}</td>
-      <td class="td-dest" title="${esc(e.dest)}">${esc(e.dest)||'<span style="color:var(--ink3)">—</span>'}</td>
-      <td><span class="tb ${tc}">${e.type}</span></td>
-      <td style="text-align:right" class="vkm">${e.km}</td>
-      <td style="text-align:right" class="vodo">${e.os||'—'}</td>
-      <td style="text-align:right" class="vodo">${e.oe||'—'}</td>
-      <td style="text-align:right" class="veur">${kmE} €</td>
-      <td style="text-align:right" class="vpvr">${e.pvr>0?e.pvr+' €':'—'}</td>
-      <td style="text-align:right" class="vtot">${tot} €</td>
-      <td><input value="${esc(e.huom||'')}" onchange="editHuom('${e.id}',this.value)"
-        style="background:transparent;border:none;border-bottom:1.5px solid var(--border2);color:var(--ink2);font-family:var(--mono);font-size:10px;width:88px;padding:2px 4px;border-radius:0"
-        placeholder="—"></td>
-      <td>${cal}</td>
-      <td><div class="ra">
-        <button class="btn btn-edit" onclick="editEntry('${e.id}')" title="Muokkaa">✏</button>
-        <button class="btn btn-del" onclick="deleteEntry('${e.id}')" title="Poista">✕</button>
-      </div></td>
-    </tr>`;
+}
+
+function cancelEdit() {
+  editId = null;
+  document.getElementById('form-lbl').textContent = 'Uusi kirjaus';
+  document.getElementById('save-btn').textContent = '＋ Tallenna';
+  document.getElementById('cancel-btn').style.display = 'none';
+  ['f-date','f-start','f-end','f-os','f-oe','f-dest'].forEach(id => document.getElementById(id).value = '');
+  render();
+}
+
+function render() {
+  const tb = document.getElementById('tbody');
+  let totalKm = 0;
+  
+  // Lajitellaan päivämäärän mukaan laskevasti
+  const sorted = [...entries].sort((a,b) => b.date.localeCompare(a.date));
+
+  tb.innerHTML = sorted.map(e => {
+    totalKm += e.km;
+    return `
+      <tr class="${editId === e.id ? 'erow' : ''}">
+        <td>${e.date}</td>
+        <td>${e.dest || '-'}</td>
+        <td>${e.type}</td>
+        <td>${e.km} km</td>
+        <td>${(e.km * KMR).toFixed(2)} €</td>
+        <td>
+          <div class="ra">
+            <button class="btn btn-edit" onclick="editEntry('${e.id}')">Muokkaa</button>
+            <button class="btn btn-del" onclick="deleteEntry('${e.id}')">Poista</button>
+          </div>
+        </td>
+      </tr>`;
   }).join('');
+  
+  document.getElementById('h-km').textContent = totalKm;
+  document.getElementById('h-eur').textContent = (totalKm * KMR).toFixed(2) + ' €';
 }
 
-function rs(){
-  const src=filtered.length?filtered:entries;
-  const tot=src.reduce((s,e)=>s+e.km,0);
-  const oy=src.filter(e=>e.type==='Oy').reduce((s,e)=>s+e.km,0);
-  const tmi=src.filter(e=>e.type==='Tmi').reduce((s,e)=>s+e.km,0);
-  const oma=src.filter(e=>e.type==='Oma').reduce((s,e)=>s+e.km,0);
-  const pvr=src.filter(e=>e.type==='Oy').reduce((s,e)=>s+(e.pvr||0),0);
-  const pvrN=src.filter(e=>e.type==='Oy'&&e.pvr>0).length;
-  const kmK=tot*KMR;const totE=kmK+pvr;
-  const f=v=>v.toFixed(2).replace('.',',')+' €';const fi=v=>v.toLocaleString('fi-FI');
-  document.getElementById('s-km').textContent=fi(tot);
-  document.getElementById('s-km-e').textContent=f(kmK);
-  document.getElementById('s-oy').textContent=fi(oy);
-  document.getElementById('s-oy-e').textContent=f(oy*KMR);
-  document.getElementById('s-tmi').textContent=fi(tmi);
-  document.getElementById('s-tmi-e').textContent=f(tmi*KMR);
-  document.getElementById('s-oma').textContent=fi(oma);
-  document.getElementById('s-pvr').textContent=pvr+' €';
-  document.getElementById('s-pvr-n').textContent=pvrN+' matkaa';
-  document.getElementById('s-kmkorv').textContent=f(kmK);
-  document.getElementById('s-total').textContent='Yht. '+f(totE);
-  document.getElementById('h-km').textContent=fi(tot);
-  document.getElementById('h-oy').textContent=fi(oy);
-  document.getElementById('h-tmi').textContent=fi(tmi);
-  document.getElementById('h-pvr').textContent=pvr+' €';
-  document.getElementById('h-eur').textContent=f(kmK);
-}
-
-async function syncCal(id){
-  const e=entries.find(x=>x.id===id);if(!e)return;
-  t2('Lähetetään kalenteriin...','ok');
-  const d=e.date,s=e.start?`${d}T${e.start}:00+02:00`:`${d}T08:00:00+02:00`,en=e.end?`${d}T${e.end}:00+02:00`:`${d}T17:00:00+02:00`;
-  const title=`🚗 ${e.dest||'Ajomatka'} [${e.type}] ${e.km} km`;
-  const desc=`Matkapäiväkirja 2026\nTyyppi: ${e.type}\nkm: ${e.km} (${(e.km*KMR).toFixed(2)} €)\nPäiväraha: ${e.pvr||0} €\nMittari: ${e.os||'?'}–${e.oe||'?'}`;
-  try{
-    const r=await fetch('https://api.anthropic.com/v1/messages',{method:'POST',headers:{'Content-Type':'application/json'},
-      body:JSON.stringify({model:'claude-sonnet-4-20250514',max_tokens:500,
-        mcp_servers:[{type:'url',url:'https://gcal.mcp.claude.com/mcp',name:'gcal'}],
-        messages:[{role:'user',content:`Create Google Calendar event: Title="${title}", Start=${s}, End=${en}, Description="${desc}". Reply ONLY JSON: {"success":true,"eventId":"..."}`}]})});
-    const data=await r.json();const txt=data.content?.find(b=>b.type==='text')?.text||'';
-    let ok=false,evId=null;
-    try{const j=JSON.parse(txt.replace(/```json|```/g,'').trim());ok=j.success;evId=j.eventId;}catch{}
-    const ix=entries.findIndex(x=>x.id===id);
-    if(ix!==-1){entries[ix].calSynced=ok;entries[ix].calEventId=evId;save();af();}
-    t2(ok?'Lisätty kalenteriin ✓':'Kalenterivirhe',ok?'ok':'err');
-  }catch{t2('Kalenteriin ei yhteyttä','err');}
-}
-
-function openCalImport(){document.getElementById('cal-ov').classList.add('vis');}
-function closeM(){document.getElementById('cal-ov').classList.remove('vis');}
-
-async function fetchCal(){
-  const m=document.getElementById('cal-m').value;if(!m)return;
-  const[yr,mo]=m.split('-').map(Number);
-  const s=`${m}-01T00:00:00+02:00`,last=new Date(yr,mo,0).getDate(),en=`${m}-${String(last).padStart(2,'0')}T23:59:59+02:00`;
-  const list=document.getElementById('ci-list');
-  list.innerHTML=`<div style="text-align:center;color:var(--ink3);padding:20px"><span class="spin"></span> Haetaan...</div>`;
-  try{
-    const r=await fetch('https://api.anthropic.com/v1/messages',{method:'POST',headers:{'Content-Type':'application/json'},
-      body:JSON.stringify({model:'claude-sonnet-4-20250514',max_tokens:2000,
-        mcp_servers:[{type:'url',url:'https://gcal.mcp.claude.com/mcp',name:'gcal'}],
-        messages:[{role:'user',content:`List Google Calendar events from ${s} to ${en}. Reply ONLY JSON array: [{"id":"","title":"","start":"YYYY-MM-DDTHH:mm","end":"YYYY-MM-DDTHH:mm","location":""}]. If none: [].`}]})});
-    const data=await r.json();const txt=data.content?.find(b=>b.type==='text')?.text||'[]';
-    let evs=[];try{evs=JSON.parse(txt.replace(/```json|```/g,'').trim());}catch{}
-    if(!evs.length){list.innerHTML='<div style="color:var(--ink3);text-align:center;padding:20px;font-size:11px">Ei tapahtumia valitulle kuukaudelle</div>';return;}
-    list.innerHTML=evs.map(ev=>{
-      const d=ev.start?.slice(0,10)||'',st=ev.start?.slice(11,16)||'',et=ev.end?.slice(11,16)||'';
-      const imp=entries.some(e=>e.calEventId===ev.id);
-      return `<div class="ci"><div><div class="ci-t">${esc(ev.title)}</div><div class="ci-m">${d} · ${st}–${et}${ev.location?' · '+esc(ev.location):''}</div></div>
-        ${imp?'<span style="font-size:11px;color:var(--tmi);font-weight:600;font-family:var(--sans)">✓ Tuotu</span>'
-             :`<button class="btn btn-cal btn-sm" onclick='importCal(${JSON.stringify(ev)})'>Tuo</button>`}</div>`;
-    }).join('');
-  }catch{list.innerHTML='<div style="color:var(--pvr);text-align:center;padding:20px;font-size:11px">Kalenteriin ei yhteyttä</div>';}
-}
-
-function importCal(ev){
-  entries.unshift({id:Date.now().toString(),date:ev.start?.slice(0,10)||'',start:ev.start?.slice(11,16)||'',end:ev.end?.slice(11,16)||'',os:null,oe:null,km:0,dest:ev.title+(ev.location?' — '+ev.location:''),type:'Oy',pvr:0,huom:'Kalenterista',calSynced:true,calEventId:ev.id,cAt:Date.now()});
-  save();af();t2('Tuotu: '+ev.title,'ok');fetchCal();
-}
-
-function exportCSV(){
-  const h=['Päivä','Lähtö','Paluu','Reitti','Tyyppi','km','Alo.km','Lop.km','Km-korv €','PV-raha €','Yhteensä €','Huom','Kalenteri'];
-  const rows=[...entries].sort((a,b)=>a.date.localeCompare(b.date)).map(e=>[
-    e.date,e.start||'',e.end||'',`"${(e.dest||'').replace(/"/g,'""')}"`,e.type,e.km,e.os||'',e.oe||'',
-    (e.km*KMR).toFixed(2),e.pvr||0,((e.km*KMR)+(e.pvr||0)).toFixed(2),
-    `"${(e.huom||'').replace(/"/g,'""')}"`,e.calSynced?'Kyllä':'Ei'
-  ].join(';'));
-  const a=document.createElement('a');
-  a.href=URL.createObjectURL(new Blob(['\uFEFF'+h.join(';')+'\n'+rows.join('\n')],{type:'text/csv;charset=utf-8'}));
-  a.download=`Matkapaivakierja_2026_${new Date().toISOString().slice(0,10)}.csv`;a.click();
-  t2('CSV ladattu ✓','ok');
-}
-
-function fd(d){
-  if(!d)return'';
-  const dt=new Date(d+'T12:00:00');
-  const wd=['su','ma','ti','ke','to','pe','la'];
-  const[,m,day]=d.split('-');
-  return`${wd[dt.getDay()]} ${parseInt(day)}.${parseInt(m)}.`;
-}
-function esc(s){return(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');}
-let tT;
-function t2(msg,type='ok'){
-  const el=document.getElementById('toast');
-  el.className='toast '+type;
-  document.getElementById('ti').textContent=type==='ok'?'✓':'⚠';
-  document.getElementById('tm').textContent=msg;
-  el.classList.add('show');
-  clearTimeout(tT);
-  tT=setTimeout(()=>el.classList.remove('show'),3000);
-}
+checkVersion();
+render();
 </script>
 </body>
 </html>
