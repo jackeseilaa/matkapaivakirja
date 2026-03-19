@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Päivyri v5.80</title>
+    <title>Päivyri v6.10 PRO</title>
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
     <link href="https://fonts.googleapis.com/css2?family=Sora:wght@400;700;800&display=swap" rel="stylesheet">
@@ -19,8 +19,8 @@
         label { display: block; font-size: 10px; font-weight: 800; color: #64748b; margin-bottom: 5px; text-transform: uppercase; }
         input, select { width: 100%; padding: 12px; border: 2px solid #e2e8f0; border-radius: 10px; font-size: 15px; font-weight: 600; box-sizing: border-box; font-family: inherit; margin-bottom: 12px; }
         .btn-main { background: #000; color: #fff; border: none; padding: 16px; border-radius: 12px; font-weight: 800; width: 100%; cursor: pointer; }
-        .history-item { background: #fff; padding: 15px; border-radius: 14px; margin-bottom: 10px; border: 1px solid #e2e8f0; border-left: 5px solid #ccc; }
-        .footer { text-align: center; padding: 20px; color: #94a3b8; font-size: 9px; font-weight: 700; position: fixed; bottom: 0; width: 100%; background: var(--bg); }
+        .history-item { background: #fff; padding: 15px; border-radius: 14px; margin-bottom: 10px; border: 1px solid #e2e8f0; border-left: 5px solid var(--ac); }
+        .footer { text-align: center; padding: 20px; color: #94a3b8; font-size: 9px; font-weight: 700; position: fixed; bottom: 0; width: 100%; background: var(--bg); border-top: 1px solid #e2e8f0; }
     </style>
 </head>
 <body onkeypress="checkEnter(event)">
@@ -39,7 +39,7 @@
             <div style="flex:1"><label>Alku</label><input type="time" id="f-start"></div>
             <div style="flex:1"><label>Loppu</label><input type="time" id="f-end"></div>
         </div>
-        <label>Asiakas</label><input type="text" id="f-client" placeholder="Enter tallentaa">
+        <label>Asiakas / Yritys</label><input type="text" id="f-client" placeholder="Kirjoita ja paina Enter">
         <label>Reitti</label><input type="text" id="f-route">
         <div style="display:flex; gap:10px">
             <div style="flex:1"><label>KM Alku</label><input type="number" id="f-ks"></div>
@@ -52,22 +52,24 @@
 <div id="p-stats" class="page"><div id="history-ui">Ladataan arkistoa...</div></div>
 <div id="p-report" class="page"><div id="report-output"></div></div>
 
-<div class="footer" id="versio-info">Päivyri v5.80 | Yhteys: Haetaan...</div>
+<div class="footer" id="versio-info">Päivyri v6.10 PRO | Yhteys: Haetaan...</div>
 
 <script>
-// TÄRKEÄÄ: Kopioi tähän ne kaksi koodia sieltä Firebase-asetuksista!
+// KÄYTETÄÄN LÄHETTÄMIÄSI ASETUKSIA
 const firebaseConfig = {
-    apiKey: "KOPIOI_TÄHÄN", 
-    authDomain: "paivuri-6379b.firebaseapp.com",
-    projectId: "paivuri-6379b",
-    storageBucket: "paivuri-6379b.appspot.com",
-    messagingSenderId: "286198999823",
-    appId: "KOPIOI_TÄHÄN"
+  apiKey: "AIzaSyCjoOqjTZxYoTA0b9HN-QAUB79pqHj5uBc",
+  authDomain: "paivuri.firebaseapp.com",
+  projectId: "paivuri",
+  storageBucket: "paivuri.firebasestorage.app",
+  messagingSenderId: "602861240385",
+  appId: "1:602861240385:web:f215c3b44388ddfe9346c0"
 };
 
 // Alustus
 firebase.initializeApp(firebaseConfig);
 const db = firebase.firestore();
+
+let omatAjot = [];
 
 // ENTER-TOIMINTO
 function checkEnter(e) {
@@ -77,17 +79,36 @@ function checkEnter(e) {
 }
 
 function lataaData() {
+    // Haetaan 'ajot'-kokoelmasta
     db.collection("ajot").orderBy("date", "desc").onSnapshot((snapshot) => {
+        omatAjot = [];
         let h = "";
         let count = 0;
+        let tkm = 0;
+
         snapshot.forEach((doc) => {
             const e = doc.data();
-            const km = (e.ke || 0) - (e.ks || 0);
-            h += `<div class="history-item"><b>${e.date}</b><br>${e.client} (${km.toFixed(1)} km)</div>`;
+            e.id = doc.id;
+            omatAjot.push(e);
+            const km = (parseFloat(e.ke) || 0) - (parseFloat(e.ks) || 0);
+            tkm += km;
+            h += `<div class="history-item">
+                    <small>${e.date}</small><br>
+                    <b>${e.client || 'Nimetön'}</b> (${km.toFixed(1)} km)
+                  </div>`;
             count++;
         });
+
         document.getElementById('history-ui').innerHTML = h || "Arkisto on tyhjä.";
-        document.getElementById('versio-info').innerHTML = `Päivyri v5.80 | Arkistossa ${count} ajoa`;
+        document.getElementById('versio-info').innerHTML = `Päivyri v6.10 | Arkistossa ${count} ajoa`;
+        
+        // Päivitä raportti automaattisesti
+        document.getElementById('report-output').innerHTML = `
+            <div class="card">
+                <h3>Yhteenveto</h3>
+                <p>Ajoja yhteensä: <b>${count} kpl</b></p>
+                <p>Kilometrit: <b>${tkm.toFixed(1)} km</b></p>
+            </div>`;
     }, (error) => {
         document.getElementById('versio-info').innerHTML = "VIRHE: " + error.message;
     });
@@ -100,13 +121,16 @@ function tallennaFirestoreen() {
         client: document.getElementById('f-client').value || "Nimetön",
         route: document.getElementById('f-route').value || "-",
         ks: parseFloat(document.getElementById('f-ks').value) || 0,
-        ke: parseFloat(document.getElementById('f-ke').value) || 0
+        ke: parseFloat(document.getElementById('f-ke').value) || 0,
+        timestamp: new Date()
     };
 
     db.collection("ajot").doc(id).set(ajo).then(() => {
         alert("Tallennettu!");
+        // Tyhjennetään lomake
+        ['f-client', 'f-route', 'f-ks', 'f-ke'].forEach(f => document.getElementById(f).value = "");
         showPage('stats');
-    }).catch(err => alert("Tallennusvirhe: " + err));
+    }).catch(err => alert("Tallennusvirhe: " + err.message));
 }
 
 function showPage(p) {
@@ -115,8 +139,10 @@ function showPage(p) {
     document.getElementById('t-' + p).classList.add('active');
 }
 
-// Asetetaan pvm valmiiksi
+// Asetetaan oletuspäivä
 document.getElementById('f-date').value = new Date().toISOString().split('T')[0];
+
+// Käynnistys
 lataaData();
 </script>
 </body>
