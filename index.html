@@ -1,92 +1,145 @@
 <!DOCTYPE html>
 <html lang="fi">
 <head>
-<meta charset="UTF-8">
-<title>Matkapäiväkirja 2026 — Jarmo Aaltonen</title>
-<style>
-  body { font-family: sans-serif; background: #f0f2f7; padding: 20px; }
-  .card { background: white; padding: 20px; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
-  table { width: 100%; border-collapse: collapse; margin-top: 20px; }
-  th, td { text-align: left; padding: 10px; border-bottom: 1px solid #eee; }
-  th { background: #f7f8fc; }
-  .tag { padding: 4px 8px; border-radius: 4px; font-size: 0.8em; font-weight: bold; }
-  .oy { background: #eff4ff; color: #2563eb; }
-  .tmi { background: #ecfdf5; color: #059669; }
-  .oma { background: #f5f3ff; color: #7c3aed; }
-</style>
+    <meta charset="UTF-8">
+    <title>Ajopäiväkirja & Kalenteri 2026</title>
+    <style>
+        body { font-family: 'Segoe UI', sans-serif; background: #f4f7f6; padding: 20px; color: #333; }
+        .container { max-width: 1000px; margin: auto; background: white; padding: 25px; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); }
+        h2 { border-bottom: 2px solid #eee; padding-bottom: 10px; }
+        
+        /* Lomake */
+        .form-group { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px; margin-bottom: 20px; background: #f9f9f9; padding: 15px; border-radius: 8px; }
+        input, select, textarea { padding: 10px; border: 1px solid #ddd; border-radius: 5px; font-size: 14px; }
+        button { padding: 10px 15px; cursor: pointer; border: none; border-radius: 5px; font-weight: bold; transition: 0.3s; }
+        .btn-add { background: #2563eb; color: white; grid-column: span 3; }
+        .btn-add:hover { background: #1d4ed8; }
+        
+        /* Taulukko */
+        table { width: 100%; border-collapse: collapse; margin-top: 20px; }
+        th, td { text-align: left; padding: 12px; border-bottom: 1px solid #eee; }
+        tr:hover { background: #f1f5f9; }
+        .cal-btn { background: #4285F4; color: white; font-size: 12px; }
+        
+        /* Modal / Muokkaus */
+        .modal { display: none; position: fixed; z-index: 10; left: 0; top: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); }
+        .modal-content { background: white; margin: 10% auto; padding: 20px; width: 50%; border-radius: 10px; }
+    </style>
 </head>
 <body>
 
-<div class="card">
-  <h2>Ajosuoritteet 2026</h2>
-  <div id="summary"></div>
-  <table id="entryTable">
-    <thead>
-      <tr>
-        <th>Pvm</th>
-        <th>Reitti / Selite</th>
-        <th>Tyyppi</th>
-        <th>Km</th>
-        <th>Päiväraha</th>
-      </tr>
-    </thead>
-    <tbody id="tbody"></tbody>
-  </table>
+<div class="container">
+    <h2>Lisää uusi tapahtuma / matka</h2>
+    <div class="form-group">
+        <input type="date" id="f-date">
+        <input type="text" id="f-title" placeholder="Otsikko (esim. Taksi 154 tai Asiakas X)">
+        <input type="text" id="f-loc" placeholder="Sijainti / Osoite">
+        <input type="time" id="f-start">
+        <input type="time" id="f-end">
+        <select id="f-type">
+            <option value="Oy">Oy</option>
+            <option value="Tmi">Tmi</option>
+            <option value="Oma">Oma</option>
+        </select>
+        <input type="number" id="f-km" placeholder="Kilometrit">
+        <textarea id="f-desc" style="grid-column: span 2;" placeholder="Tapahtuman kuvaus..."></textarea>
+        <button class="btn-add" onclick="addEntry()">Lisää päiväkirjaan</button>
+    </div>
+
+    <h2>Tapahtumat</h2>
+    <table id="entryTable">
+        <thead>
+            <tr>
+                <th>Pvm</th>
+                <th>Tapahtuma</th>
+                <th>Aika</th>
+                <th>Km</th>
+                <th>Toiminnot</th>
+            </tr>
+        </thead>
+        <tbody id="tbody"></tbody>
+    </table>
+</div>
+
+<div id="editModal" class="modal">
+    <div class="modal-content">
+        <h3>Muokkaa tapahtumaa</h3>
+        <div id="editArea"></div>
+        <button onclick="closeModal()">Sulje</button>
+    </div>
 </div>
 
 <script>
-// TÄSSÄ ON POIMITTU DATA CSV-TIEDOSTOISTASI
-const entries = [
-  // Tammikuu [cite: 1]
-  { date: "14.01.2026", dest: "RMK - HKI - RMK", type: "Oy", km: 141, pvr: 54, huom: "Taksi" },
-  { date: "15.01.2026", dest: "RMK - HKI - RMK", type: "Oy", km: 141, pvr: 54, huom: "Taksi" },
-  { date: "19.01.2026", dest: "RMK - HKI - RMK", type: "Oy", km: 141, pvr: 54, huom: "Taksi" },
-  { date: "20.01.2026", dest: "RMK - TRE - RMK", type: "Tmi", km: 214, pvr: 25, huom: "Vakuutus" },
-  { date: "23.01.2026", dest: "RMK - HKI - RMK", type: "Oy", km: 141, pvr: 25, huom: "Taksi" },
-  { date: "26.01.2026", dest: "RMK - HKI - RMK", type: "Oy", km: 141, pvr: 54, huom: "Taksi" },
-  
-  // Helmikuu [cite: 2]
-  { date: "02.02.2026", dest: "RMK - HKI - RMK", type: "Oy", km: 142, pvr: 54, huom: "Taksi" },
-  { date: "03.02.2026", dest: "RMK - Nokia Arena, Tre", type: "Tmi", km: 273, pvr: 0, huom: "IF/meklaritilaisuus" },
-  { date: "04.02.2026", dest: "RMK - Padasjoki/Humppi", type: "Tmi", km: 225, pvr: 0, huom: "Agentti" },
-  { date: "09.02.2026", dest: "RMK - HKI - RMK", type: "Oy", km: 142, pvr: 54, huom: "Taksi" },
-  { date: "11.02.2026", dest: "RMK - Heinola", type: "Tmi", km: 233, pvr: 25, huom: "Agentti" },
-  { date: "14.02.2026", dest: "RMK - Messukeskus", type: "Oy", km: 142, pvr: 54, huom: "Venemessut" },
-  { date: "17.02.2026", dest: "RMK - HKI - RMK", type: "Oy", km: 142, pvr: 54, huom: "Taksi" },
-  
-  // Maaliskuu [cite: 4]
-  { date: "02.03.2026", dest: "Helsinki", type: "Oy", km: 142, pvr: 54, huom: "" },
-  { date: "04.03.2026", dest: "Työajo", type: "Tmi", km: 187, pvr: 0, huom: "" },
-  { date: "05.03.2026", dest: "Agentti-matka", type: "Oma", km: 0, pvr: 54, huom: "" },
-  { date: "11.03.2026", dest: "Lahti / Agentti", type: "Oma", km: 0, pvr: 54, huom: "" }
-];
+let entries = [];
 
-function render() {
-  const tbody = document.getElementById('tbody');
-  let totalKm = 0;
-  let totalPvr = 0;
-
-  entries.forEach(e => {
-    totalKm += e.km;
-    totalPvr += e.pvr;
-    const tr = document.createElement('tr');
-    tr.innerHTML = `
-      <td>${e.date}</td>
-      <td>${e.dest} <br><small style="color:gray">${e.huom}</small></td>
-      <td><span class="tag ${e.type.toLowerCase()}">${e.type}</span></td>
-      <td>${e.km} km</td>
-      <td>${e.pvr} €</td>
-    `;
-    tbody.appendChild(tr);
-  });
-
-  document.getElementById('summary').innerHTML = `
-    <p><strong>Yhteensä:</strong> ${totalKm} km | <strong>Päivärahat:</strong> ${totalPvr} €</p>
-    <hr>
-  `;
+function addEntry() {
+    const entry = {
+        id: Date.now(),
+        date: document.getElementById('f-date').value,
+        title: document.getElementById('f-title').value,
+        loc: document.getElementById('f-loc').value,
+        start: document.getElementById('f-start').value,
+        end: document.getElementById('f-end').value,
+        type: document.getElementById('f-type').value,
+        km: document.getElementById('f-km').value || 0,
+        desc: document.getElementById('f-desc').value
+    };
+    
+    if(!entry.date || !entry.title) return alert("Täytä vähintään päivämäärä ja otsikko!");
+    
+    entries.push(entry);
+    render();
 }
 
-render();
+function render() {
+    const tbody = document.getElementById('tbody');
+    tbody.innerHTML = '';
+    
+    entries.sort((a,b) => new Date(b.date) - new Date(a.date)).forEach(e => {
+        const tr = document.createElement('tr');
+        
+        // Google Kalenteri -linkin luonti
+        const gCalUrl = createGCalUrl(e);
+        
+        tr.innerHTML = `
+            <td>${e.date}</td>
+            <td><strong>${e.title}</strong><br><small>${e.loc}</small></td>
+            <td>${e.start} - ${e.end}</td>
+            <td>${e.km} km</td>
+            <td>
+                <button class="cal-btn" onclick="window.open('${gCalUrl}')">Lisää Kalenteriin</button>
+                <button onclick="openEdit(${e.id})">Lisätiedot</button>
+            </td>
+        `;
+        tbody.appendChild(tr);
+    });
+}
+
+function createGCalUrl(e) {
+    const baseUrl = "https://www.google.com/calendar/render?action=TEMPLATE";
+    const d = e.date.replace(/-/g, '');
+    const sT = e.start.replace(':', '') || "0900";
+    const eT = e.end.replace(':', '') || "1000";
+    
+    // Muoto: YYYYMMDDTHHMMSSZ/YYYYMMDDTHHMMSSZ
+    const dates = `${d}T${sT}00/${d}T${eT}00`;
+    
+    return `${baseUrl}&text=${encodeURIComponent(e.title)}&details=${encodeURIComponent(e.desc + " | Km: " + e.km)}&location=${encodeURIComponent(e.loc)}&dates=${dates}`;
+}
+
+function openEdit(id) {
+    const e = entries.find(x => x.id === id);
+    document.getElementById('editArea').innerHTML = `
+        <p><strong>Kuvaus:</strong> ${e.desc || 'Ei kuvausta'}</p>
+        <p><strong>Tyyppi:</strong> ${e.type}</p>
+        <p><strong>Sijainti:</strong> ${e.loc}</p>
+    `;
+    document.getElementById('editModal').style.display = 'block';
+}
+
+function closeModal() {
+    document.getElementById('editModal').style.display = 'none';
+}
 </script>
 
 </body>
