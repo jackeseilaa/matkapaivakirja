@@ -3,26 +3,27 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Päivyri v3.2</title>
+    <title>Päivyri v3.3</title>
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
     <link href="https://fonts.googleapis.com/css2?family=Sora:wght@400;700;800&display=swap" rel="stylesheet">
     <style>
         :root { --bg: #f8fafc; --text: #0f172a; --ac: #2563eb; --tmi: #059669; }
-        body { font-family: 'Sora', sans-serif; background: var(--bg); color: var(--text); margin: 0; padding-bottom: 50px; }
+        body { font-family: 'Sora', sans-serif; background: var(--bg); color: var(--text); margin: 0; padding-bottom: 60px; }
         .tabs { display: flex; background: #fff; border-bottom: 2px solid #e2e8f0; position: sticky; top: 0; z-index: 100; }
         .tab { flex: 1; padding: 16px; text-align: center; font-weight: 800; cursor: pointer; color: #64748b; text-transform: uppercase; font-size: 14px; }
         .tab.active { color: var(--ac); border-bottom: 4px solid var(--ac); background: #f1f5f9; }
         .page { display: none; padding: 20px; }
         .page.active { display: block; }
         .card { background: #fff; padding: 20px; border-radius: 16px; border: 1px solid #e2e8f0; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1); margin-bottom: 20px; }
-        .form-group { margin-bottom: 15px; }
+        .form-group { margin-bottom: 12px; }
         label { display: block; font-size: 11px; font-weight: 800; color: #64748b; margin-bottom: 5px; text-transform: uppercase; }
         input, select { width: 100%; padding: 12px; border: 2px solid #e2e8f0; border-radius: 10px; font-size: 16px; font-family: inherit; font-weight: 600; box-sizing: border-box; }
         .btn-main { background: #000; color: #fff; border: none; padding: 18px; border-radius: 12px; font-weight: 800; width: 100%; font-size: 16px; cursor: pointer; }
         .stat-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 20px; }
         .stat-item { background: #fff; padding: 15px; border-radius: 12px; border: 1px solid #e2e8f0; text-align: center; }
-        .history-item { background: #fff; padding: 12px; border-radius: 10px; margin-bottom: 8px; border: 1px solid #e2e8f0; display: flex; justify-content: space-between; align-items: center; }
+        .stat-val { font-size: 18px; font-weight: 800; display: block; margin-top: 5px; }
+        .history-item { background: #fff; padding: 12px; border-radius: 10px; margin-bottom: 8px; border: 1px solid #e2e8f0; display: flex; justify-content: space-between; align-items: center; font-size: 13px; }
     </style>
 </head>
 <body>
@@ -35,15 +36,16 @@
 <div id="page-input" class="page active">
     <div class="card">
         <div class="form-group"><label>Päivämäärä</label><input type="date" id="f-date"></div>
-        <div style="display:grid; grid-template-columns: 1fr 1fr; gap:10px" class="form-group">
-            <div><label>Lähtö</label><input type="time" id="f-start"></div>
-            <div><label>Paluu</label><input type="time" id="f-end"></div>
+        <div style="display:flex; gap:10px" class="form-group">
+            <div style="flex:1"><label>Lähtö</label><input type="time" id="f-start"></div>
+            <div style="flex:1"><label>Paluu</label><input type="time" id="f-end"></div>
         </div>
-        <div style="display:grid; grid-template-columns: 1fr 1fr; gap:10px" class="form-group">
-            <div><label>Mittari Alku</label><input type="number" id="f-km-start"></div>
-            <div><label>Mittari Loppu</label><input type="number" id="f-km-end"></div>
+        <div style="display:flex; gap:10px" class="form-group">
+            <div style="flex:1"><label>Mittari Alku</label><input type="number" id="f-km-start"></div>
+            <div style="flex:1"><label>Mittari Loppu</label><input type="number" id="f-km-end"></div>
         </div>
-        <div class="form-group"><label>Otsikko</label><input type="text" id="f-title" placeholder="Taksi 142"></div>
+        <div class="form-group"><label>Otsikko / Asiakas</label><input type="text" id="f-title" placeholder="Esim. Taksi 142"></div>
+        <div class="form-group"><label>Matka / Reitti</label><input type="text" id="f-route" placeholder="Esim. RMK-HKI-RMK"></div>
         <div class="form-group"><label>Tyyppi</label><select id="f-type"><option value="Oy">Oy</option><option value="Tmi">Tmi</option></select></div>
         <button class="btn-main" onclick="tallennaAjo()">TALLENNA MATKA</button>
     </div>
@@ -55,7 +57,7 @@
 </div>
 
 <script>
-// Oikeat Firebase-tunnuksesi
+// Firebase-asetukset (PDF:stä poimitut)
 const firebaseConfig = {
   apiKey: "AIzaSyAs79L467-fS7-f4fF_6-uS79L467-i8",
   authDomain: "paivuri-6379b.firebaseapp.com",
@@ -65,33 +67,36 @@ const firebaseConfig = {
 firebase.initializeApp(firebaseConfig);
 const db = firebase.database();
 
-// Logiikkasi mukainen alkuvuoden data (pohja)
+// Alkuvuoden data (13 ajoa) - PYSYVÄSTI KOODISSA
 const ALKUVUOSI = [
-    { id: 303, date: "2026-03-11", title: "Agentti", ks: 514458, ke: 514610, type: "Tmi" },
-    { id: 302, date: "2026-03-04", title: "Vakuutus", ks: 513221, ke: 513408, type: "Tmi" },
-    { id: 301, date: "2026-03-02", title: "Taksi 142", ks: 513079, ke: 513221, type: "Oy" },
-    { id: 206, date: "2026-02-18", title: "Taksi 142", ks: 512161, ke: 512303, type: "Oy" },
-    { id: 205, date: "2026-02-17", title: "Taksi 142", ks: 512019, ke: 512161, type: "Oy" },
-    { id: 204, date: "2026-02-12", title: "Venemessut", ks: 511630, ke: 511771, type: "Oy" },
-    { id: 203, date: "2026-02-09", title: "Taksi 142", ks: 511002, ke: 511144, type: "Oy" },
-    { id: 202, date: "2026-02-03", title: "Vakuutus", ks: 509692, ke: 509965, type: "Tmi" },
-    { id: 201, date: "2026-02-02", title: "Taksi 142", ks: 509551, ke: 509692, type: "Oy" },
-    { id: 104, date: "2026-01-20", title: "Vakuutus", ks: 507707, ke: 507921, type: "Tmi" },
-    { id: 103, date: "2026-01-19", title: "Taksi 141", ks: 507566, ke: 507707, type: "Oy" },
-    { id: 102, date: "2026-01-14", title: "Taksi 141", ks: 507425, ke: 507566, type: "Oy" },
-    { id: 101, date: "2026-01-12", title: "Taksi 141", ks: 507284, ke: 507425, type: "Oy" }
+    { id: 303, date: "2026-03-11", title: "Agentti", route: "RMK-LAHTI-RMK", ks: 514458, ke: 514610, type: "Tmi" },
+    { id: 302, date: "2026-03-04", title: "Vakuutus", route: "RMK-TRE-RMK", ks: 513221, ke: 513408, type: "Tmi" },
+    { id: 301, date: "2026-03-02", title: "Taksi 142", route: "RMK-HKI-RMK", ks: 513079, ke: 513221, type: "Oy" },
+    { id: 206, date: "2026-02-18", title: "Taksi 142", route: "RMK-HKI-RMK", ks: 512161, ke: 512303, type: "Oy" },
+    { id: 205, date: "2026-02-17", title: "Taksi 142", route: "RMK-HKI-RMK", ks: 512019, ke: 512161, type: "Oy" },
+    { id: 204, date: "2026-02-12", title: "Venemessut", route: "RMK-HKI-RMK", ks: 511630, ke: 511771, type: "Oy" },
+    { id: 203, date: "2026-02-09", title: "Taksi 142", route: "RMK-HKI-RMK", ks: 511002, ke: 511144, type: "Oy" },
+    { id: 202, date: "2026-02-03", title: "Vakuutus", route: "RMK-TRE-RMK", ks: 509692, ke: 509965, type: "Tmi" },
+    { id: 201, date: "2026-02-02", title: "Taksi 142", route: "RMK-HKI-RMK", ks: 509551, ke: 509692, type: "Oy" },
+    { id: 104, date: "2026-01-20", title: "Vakuutus", route: "RMK-TRE-RMK", ks: 507707, ke: 507921, type: "Tmi" },
+    { id: 103, date: "2026-01-19", title: "Taksi 141", route: "RMK-HKI-RMK", ks: 507566, ke: 507707, type: "Oy" },
+    { id: 102, date: "2026-01-14", title: "Taksi 141", route: "RMK-HKI-RMK", ks: 507425, ke: 507566, type: "Oy" },
+    { id: 101, date: "2026-01-12", title: "Taksi 141", route: "RMK-HKI-RMK", ks: 507284, ke: 507425, type: "Oy" }
 ];
 
 let uudetAjot = [];
 
 function init() {
-    // 1. Aseta "Tämä hetki"
+    // ASETETAAN "TÄMÄ HETKI"
     const nyt = new Date();
     document.getElementById('f-date').value = nyt.toISOString().split('T')[0];
     document.getElementById('f-start').value = nyt.getHours().toString().padStart(2,'0') + ":" + nyt.getMinutes().toString().padStart(2,'0');
     document.getElementById('f-end').value = (nyt.getHours()+1).toString().padStart(2,'0') + ":" + nyt.getMinutes().toString().padStart(2,'0');
 
-    // 2. Lataa Firebase
+    // NÄYTETÄÄN DATA HETI
+    paivitaKaikki();
+
+    // KUUNNELLAAN PILVEÄ
     db.ref('ajot').on('value', (snap) => {
         const val = snap.val();
         uudetAjot = val ? Object.values(val) : [];
@@ -100,42 +105,51 @@ function init() {
 }
 
 function paivitaKaikki() {
-    // Yhdistetään alkuvuosi ja uudet, uusimmat ensin
+    // Yhdistetään ja poistetaan duplikaatit
     const kaikki = [...uudetAjot];
     ALKUVUOSI.forEach(a => { if(!kaikki.find(k => k.id === a.id)) kaikki.push(a); });
     kaikki.sort((a,b) => b.date.localeCompare(a.date) || b.id - a.id);
 
-    // Päivitetään automaattiset kilometrit (viimeisimmän loppu -> uuden alku)
+    // AUTOMAATTISET KILOMETRIT UUDELLE SYÖTÖLLE
     if(kaikki.length > 0) {
         document.getElementById('f-km-start').value = kaikki[0].ke;
         document.getElementById('f-km-end').value = kaikki[0].ke;
     }
 
-    // Piirretään koosteet
-    let oy = 0, tmi = 0, html = "";
+    // PIIRRETÄÄN KOOSTEET
+    let oy = 0, tmi = 0, html = "<h3>HISTORIA</h3>";
     kaikki.forEach(e => {
-        const eur = (e.ke - e.ks) * 0.55;
+        const km = (e.ke - e.ks) || 0;
+        const eur = km * 0.55;
         if(e.type === 'Oy') oy += eur; else tmi += eur;
-        html += `<div class="history-item"><div><b>${e.date}</b>${e.title}</div><b>${eur.toFixed(2)}€</b></div>`;
+        html += `<div class="history-item">
+            <div><b>${e.date}</b><br>${e.title}<br><small>${e.route || '-'}</small></div>
+            <div style="text-align:right"><b>${eur.toFixed(2)}€</b><br><small>${km} km</small></div>
+        </div>`;
     });
 
     document.getElementById('summary-ui').innerHTML = `
-        <div class="stat-item"><label>Oy Yhteensä</label><span class="stat-val">${oy.toFixed(2)}€</span></div>
-        <div class="stat-item"><label>Tmi Yhteensä</label><span class="stat-val">${tmi.toFixed(2)}€</span></div>`;
+        <div class="stat-item"><label>Oy Matkalaskut</label><span class="stat-val">${oy.toFixed(2)}€</span></div>
+        <div class="stat-item"><label>Tmi Vähennys</label><span class="stat-val">${tmi.toFixed(2)}€</span></div>`;
     document.getElementById('history-ui').innerHTML = html;
 }
 
 function tallennaAjo() {
     const id = Date.now();
     const ajo = {
-        id: id, date: document.getElementById('f-date').value,
-        start: document.getElementById('f-start').value, end: document.getElementById('f-end').value,
+        id: id, 
+        date: document.getElementById('f-date').value,
+        start: document.getElementById('f-start').value, 
+        end: document.getElementById('f-end').value,
         ks: parseFloat(document.getElementById('f-km-start').value) || 0,
         ke: parseFloat(document.getElementById('f-km-end').value) || 0,
         title: document.getElementById('f-title').value || "Ajo",
+        route: document.getElementById('f-route').value || "-",
         type: document.getElementById('f-type').value
     };
-    db.ref('ajot/' + id).set(ajo).then(() => alert("Tallennettu!"));
+    db.ref('ajot/' + id).set(ajo).then(() => {
+        alert("Matka tallennettu!");
+    });
 }
 
 function showPage(p) {
