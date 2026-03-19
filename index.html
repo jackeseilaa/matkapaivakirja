@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Päivyri v4.2 PRO</title>
+    <title>Päivyri v4.3 SUPER</title>
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
     <link href="https://fonts.googleapis.com/css2?family=Sora:wght@400;700;800&display=swap" rel="stylesheet">
@@ -49,8 +49,8 @@
             <div style="flex:1"><label>KM Alku</label><input type="number" id="f-ks"></div>
             <div style="flex:1"><label>KM Loppu</label><input type="number" id="f-ke"></div>
         </div>
-        <div class="form-group"><label>Kohde / Asiakas</label><input type="text" id="f-title"></div>
-        <div class="form-group"><label>Reitti</label><input type="text" id="f-route"></div>
+        <div class="form-group"><label>Kohde / Asiakas</label><input type="text" id="f-title" placeholder="Esim. Taksi 142"></div>
+        <div class="form-group"><label>Reitti</label><input type="text" id="f-route" placeholder="RMK-HKI-RMK"></div>
         <div class="form-group">
             <label>Päiväraha (2026)</label>
             <select id="f-perdiem">
@@ -73,18 +73,19 @@
 
 <div id="p-stats" class="page">
     <div id="summary-ui" class="stat-grid"></div>
-    <div id="history-ui"></div>
+    <div id="history-ui">Välitellään historiatietoja...</div>
 </div>
 
 <script>
+// Firebase-asetukset
 const firebaseConfig = { databaseURL: "https://paivuri-6379b-default-rtdb.europe-west1.firebasedatabase.app" };
 firebase.initializeApp(firebaseConfig);
 const db = firebase.database();
 
 const KM_HINTA = 0.55;
 
-// DATAN NOUTO CSV-TIEDOSTOISTASI (Tammikuu-Maaliskuu 2026)
-const CSV_DATA = [
+// HISTORIADATA - Pakotettu muistiin
+const ALKUVUOSI_HARDCODED = [
     { id: "c1", date: "2026-01-12", title: "Taksi 141", route: "RMK-HKI-RMK", ks: 507284, ke: 507425, type: "Oy", perdiem: 54, exported: true },
     { id: "c2", date: "2026-01-14", title: "Taksi 141", route: "RMK-HKI-RMK", ks: 507425, ke: 507566, type: "Oy", perdiem: 54, exported: true },
     { id: "c3", date: "2026-01-19", title: "Taksi 141", route: "RMK-HKI-RMK", ks: 507566, ke: 507707, type: "Oy", perdiem: 54, exported: true },
@@ -99,33 +100,53 @@ const CSV_DATA = [
 
 let fireAjot = [];
 
-function init() {
-    // Kellonaikojen automaattinen asetus
+function asetaNykyhetki() {
     const nyt = new Date();
+    // Pvm
     document.getElementById('f-date').value = nyt.toISOString().split('T')[0];
-    document.getElementById('f-start').value = nyt.getHours().toString().padStart(2,'0') + ":00";
-    document.getElementById('f-end').value = (nyt.getHours()+1).toString().padStart(2,'0') + ":00";
+    // Klo
+    const h = nyt.getHours().toString().padStart(2,'0');
+    const m = nyt.getMinutes().toString().padStart(2,'0');
+    document.getElementById('f-start').value = `${h}:${m}`;
+    // Loppu +1h
+    const loppuH = (nyt.getHours() + 1).toString().padStart(2,'0');
+    document.getElementById('f-end').value = `${loppuH}:${m}`;
+}
 
-    // Lataa paikallinen varakopio jos Firebase ei vastaa
-    const local = localStorage.getItem('varmuuskopio_ajot');
+function init() {
+    asetaNykyhetki();
+
+    // Lataa selaimen muistista heti
+    const local = localStorage.getItem('varmuus_ajot');
     if(local) fireAjot = JSON.parse(local);
+    
+    // Päivitä näkymä heti hardcoded datalla + localilla
+    paivitaNakyma();
 
+    // Kuuntele Firebasea
     db.ref('ajot').on('value', (snap) => {
         const val = snap.val();
         if(val) {
             fireAjot = Object.values(val);
-            localStorage.setItem('varmuuskopio_ajot', JSON.stringify(fireAjot));
+            localStorage.setItem('varmuus_ajot', JSON.stringify(fireAjot));
+            paivitaNakyma();
         }
-        paivitaNakyma();
+    }, (err) => {
+        console.error("Firebase virhe:", err);
     });
 }
 
 function paivitaNakyma() {
+    // Yhdistä hardcoded ja dynaamiset ajot
     let kaikki = [...fireAjot];
-    CSV_DATA.forEach(c => { if(!kaikki.find(k => k.id === c.id)) kaikki.push(c); });
+    ALKUVUOSI_HARDCODED.forEach(h => {
+        if(!kaikki.find(k => k.id === h.id)) kaikki.push(h);
+    });
+
+    // Lajittele uusin ensin
     kaikki.sort((a,b) => b.date.localeCompare(a.date));
 
-    // Asetetaan seuraava mittarilukema automaattisesti
+    // Aseta mittarilukema seuraavaan (vain jos ei olla muokkaustilassa)
     if(kaikki.length > 0 && !document.getElementById('f-id').value) {
         document.getElementById('f-ks').value = kaikki[0].ke;
         document.getElementById('f-ke').value = kaikki[0].ke;
@@ -149,20 +170,16 @@ function paivitaNakyma() {
         <div class="history-item">
             <div style="display:flex; justify-content:space-between">
                 <div>
-                    <small>${e.date}</small><br>
-                    <b>${e.title}</b><br>
-                    <small>${e.route}</small>
+                    <small>${e.date}</small> | <b style="color:var(--ac)">${rahaa.toFixed(2)}€</b><br>
+                    <span style="font-weight:700; font-size:14px">${e.title}</span><br>
+                    <small>${e.route} (${km} km)</small>
                     ${e.exported ? '<br><span class="badge-cal">✓ KALENTERISSA</span>' : ''}
-                </div>
-                <div style="text-align:right">
-                    <b style="color:var(--ac)">${rahaa.toFixed(2)}€</b><br>
-                    <small>${km} km</small>
                 </div>
             </div>
             <div class="actions">
                 <button class="btn-sub" onclick="muokkaa('${e.id}')">Muokkaa</button>
                 <button class="btn-sub" style="color:var(--danger)" onclick="poista('${e.id}')">Poista</button>
-                <button class="btn-sub" onclick="vieKalenteriin('${e.id}')">Kalenteri</button>
+                <button class="btn-sub" onclick="vieKalenteriin('${e.id}')">Vie Kalenteriin</button>
             </div>
         </div>`;
     });
@@ -190,54 +207,67 @@ function tallennaMatka() {
         exported: false
     };
 
-    db.ref('ajot/' + id).set(ajo).then(() => {
-        alert("Tallennettu!");
-        resetForm();
-        showPage('stats');
-    }).catch(err => {
-        // Jos tallennus epäonnistuu (offline), tallennetaan ainakin paikallisesti
+    // 1. Tallenna heti paikallisesti jotta se näkyy
+    if (!fireAjot.find(a => a.id === id)) {
         fireAjot.push(ajo);
-        localStorage.setItem('varmuuskopio_ajot', JSON.stringify(fireAjot));
-        paivitaNakyma();
-        showPage('stats');
-    });
+    } else {
+        fireAjot = fireAjot.map(a => a.id === id ? ajo : a);
+    }
+    localStorage.setItem('varmuus_ajot', JSON.stringify(fireAjot));
+    
+    // 2. Yritä tallentaa Firebaseen
+    db.ref('ajot/' + id).set(ajo).catch(e => console.log("Offline-tila, tallennettu vain laitteelle."));
+
+    alert("Matka tallennettu!");
+    resetForm();
+    showPage('stats');
 }
 
 function muokkaa(id) {
-    let kaikki = [...fireAjot, ...CSV_DATA];
+    let kaikki = [...fireAjot, ...ALKUVUOSI_HARDCODED];
     const a = kaikki.find(x => x.id == id);
     if(!a) return;
+
     document.getElementById('f-id').value = a.id;
     document.getElementById('f-date').value = a.date;
+    document.getElementById('f-start').value = a.start || "";
+    document.getElementById('f-end').value = a.end || "";
     document.getElementById('f-ks').value = a.ks;
     document.getElementById('f-ke').value = a.ke;
     document.getElementById('f-title').value = a.title;
     document.getElementById('f-route').value = a.route;
     document.getElementById('f-perdiem').value = a.perdiem;
     document.getElementById('f-type').value = a.type;
+
     document.getElementById('save-btn').innerText = "PÄIVITÄ TIEDOT";
     document.getElementById('cancel-btn').style.display = "block";
     showPage('input');
 }
 
 function poista(id) {
-    if(confirm("Poistetaanko?")) {
+    if(confirm("Poistetaanko tapahtuma lopullisesti?")) {
         db.ref('ajot/' + id).remove();
         fireAjot = fireAjot.filter(x => x.id !== id);
-        localStorage.setItem('varmuuskopio_ajot', JSON.stringify(fireAjot));
+        localStorage.setItem('varmuus_ajot', JSON.stringify(fireAjot));
         paivitaNakyma();
     }
 }
 
 function vieKalenteriin(id) {
     db.ref('ajot/' + id).update({ exported: true });
+    // Päivitä myös paikallinen tila heti
+    fireAjot = fireAjot.map(a => a.id === id ? {...a, exported:true} : a);
+    paivitaNakyma();
 }
 
 function resetForm() {
     document.getElementById('f-id').value = "";
+    document.getElementById('f-title').value = "";
+    document.getElementById('f-route').value = "";
     document.getElementById('save-btn').innerText = "TALLENNA MATKA";
     document.getElementById('cancel-btn').style.display = "none";
-    init();
+    asetaNykyhetki();
+    paivitaNakyma();
 }
 
 function showPage(p) {
@@ -246,6 +276,7 @@ function showPage(p) {
     document.getElementById('t-' + p).classList.add('active');
 }
 
+// Käynnistys
 init();
 </script>
 </body>
