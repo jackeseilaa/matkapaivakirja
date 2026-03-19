@@ -3,12 +3,11 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Päivyri v5.35 - AJOPÄIVÄKIRJA FIX</title>
+    <title>Päivyri v5.36 PRO</title>
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
     <link href="https://fonts.googleapis.com/css?family=Sora:wght@400;700;800&display=swap" rel="stylesheet">
     <style>
-        /* TÄSMÄLLEEN v5.22 TYYLIT */
         :root {--bg: #f8fafc; --text: #0f172a; --ac: #2563eb; --success: #10b981; --cal: #4285f4; }
         body { font-family: 'Sora', sans-serif; background: var(--bg); color: var(--text); margin: 0; padding-bottom: 100px; }
         .tabs { display: flex; background: #fff; border-bottom: 2px solid #e2e8f0; position: sticky; top: 0; z-index: 100; }
@@ -56,12 +55,11 @@
     </div>
 </div>
 
-<div id="p-stats" class="page"><div id="history-ui">Haetaan pilvestä...</div></div>
-
+<div id="p-stats" class="page"><div id="history-ui"></div></div>
 <div id="p-report" class="page"><div id="report-output"></div></div>
 
 <script>
-// TÄMÄ ON SE UUSI PROJEKTI
+// TÄMÄ ON SE OSOITE JOKA PITÄÄ TARKISTAA FIREBASESTA JOS EI TOIMI
 const firebaseConfig = { 
     databaseURL: "https://ajopaivakirja-dcfb1-default-rtdb.europe-west1.firebasedatabase.app" 
 };
@@ -79,13 +77,16 @@ function lataaData() {
             Object.keys(data).forEach(id => {
                 const e = data[id];
                 omatAjot.push(e);
+                const km = (parseFloat(e.ke) || 0) - (parseFloat(e.ks) || 0);
                 h += `<div class="history-item" style="border-left-color:${e.type==='Oy'?'#2563eb':'#10b981'}">
-                    <small>${e.date}</small><br><b>${e.client}</b> (${(e.ke-e.ks).toFixed(1)} km)
+                    <small>${e.date || ''}</small><br><b>${e.client || 'Ajo'}</b> (${km.toFixed(1)} km)
                 </div>`;
             });
         }
-        document.getElementById('history-ui').innerHTML = h || "Arkisto on tyhjä tässä projektissa.";
+        document.getElementById('history-ui').innerHTML = h || "Arkisto on tyhjä.";
         paivitaRaportti();
+    }, (error) => {
+        document.getElementById('history-ui').innerHTML = "Yhteysvirhe: " + error.message;
     });
 }
 
@@ -94,28 +95,30 @@ function tallennaKaikki() {
     const ajo = {
         id: id,
         date: document.getElementById('f-date').value,
-        client: document.getElementById('f-client').value || "Ajo",
-        ks: parseFloat(document.getElementById('f-ks').value) || 0,
-        ke: parseFloat(document.getElementById('f-ke').value) || 0,
+        client: document.getElementById('f-client').value,
+        ks: document.getElementById('f-ks').value,
+        ke: document.getElementById('f-ke').value,
         type: document.getElementById('f-type').value,
-        perdiem: parseFloat(document.getElementById('f-perdiem').value) || 0
+        perdiem: document.getElementById('f-perdiem').value
     };
     db.ref('ajot/' + id).set(ajo).then(() => {
         alert("Tallennettu!");
         showPage('stats');
-    });
+    }).catch(err => alert("Virhe: " + err.message));
 }
 
 function paivitaRaportti() {
     const kuu = new Date().toISOString().substring(0, 7);
     let tkm = 0;
-    omatAjot.filter(a => a.date.startsWith(kuu)).forEach(a => tkm += (a.ke - a.ks));
+    omatAjot.filter(a => a.date && a.date.startsWith(kuu)).forEach(a => {
+        tkm += (parseFloat(a.ke) || 0) - (parseFloat(a.ks) || 0);
+    });
     document.getElementById('report-output').innerHTML = `
         <div class="card">
             <h3>Yhteenveto ${kuu}</h3>
             <div class="total-box">
                 <div class="total-row"><span>Kilometrit:</span><b>${tkm.toFixed(1)} km</b></div>
-                <div class="total-row"><span>Korvaus:</span><b>${(tkm * 0.55).toFixed(2)} €</b></div>
+                <div class="total-row"><span>Korvaus (0.55€):</span><b>${(tkm * 0.55).toFixed(2)}€</b></div>
             </div>
         </div>`;
 }
