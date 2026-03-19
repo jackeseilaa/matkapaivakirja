@@ -3,28 +3,24 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Päivyri v5.24 PRO - PALAUTETTU</title>
+    <title>Päivyri v5.24 - RECOVERY</title>
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
     <link href="https://fonts.googleapis.com/css2?family=Sora:wght@400;700;800&display=swap" rel="stylesheet">
     <style>
-        :root { --bg: #f8fafc; --text: #0f172a; --ac: #2563eb; --success: #10b981; --cal: #4285f4; }
+        :root { --bg: #f8fafc; --text: #0f172a; --ac: #2563eb; --success: #10b981; }
         body { font-family: 'Sora', sans-serif; background: var(--bg); color: var(--text); margin: 0; padding-bottom: 100px; }
         .tabs { display: flex; background: #fff; border-bottom: 2px solid #e2e8f0; position: sticky; top: 0; z-index: 100; }
         .tab { flex: 1; padding: 16px; text-align: center; font-weight: 800; cursor: pointer; color: #64748b; font-size: 10px; text-transform: uppercase; }
         .tab.active { color: var(--ac); border-bottom: 4px solid var(--ac); background: #f1f5f9; }
         .page { display: none; padding: 20px; }
         .page.active { display: block; }
-        .card { background: #fff; padding: 20px; border-radius: 16px; border: 1px solid #e2e8f0; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1); margin-bottom: 20px; }
+        .card { background: #fff; padding: 20px; border-radius: 16px; border: 1px solid #e2e8f0; margin-bottom: 20px; }
         label { display: block; font-size: 10px; font-weight: 800; color: #64748b; margin-bottom: 5px; text-transform: uppercase; }
-        input, select { width: 100%; padding: 12px; border: 2px solid #e2e8f0; border-radius: 10px; font-size: 15px; font-weight: 600; box-sizing: border-box; font-family: inherit; margin-bottom: 12px; }
-        input:focus, select:focus { border-color: var(--ac); outline: none; background: #f8fafc; }
-        .btn-main { background: #000; color: #fff; border: none; padding: 16px; border-radius: 12px; font-weight: 800; width: 100%; cursor: pointer; margin-bottom: 10px; }
-        .btn-cal { background: var(--cal); color: #fff; border: none; padding: 14px; border-radius: 12px; font-weight: 800; width: 100%; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px; margin-bottom: 15px; }
-        .total-box { background: #0f172a; color: #fff; padding: 20px; border-radius: 12px; margin-top: 20px; }
-        .total-row { display: flex; justify-content: space-between; padding: 4px 0; border-bottom: 1px solid rgba(255,255,255,0.1); }
+        input, select { width: 100%; padding: 12px; border: 2px solid #e2e8f0; border-radius: 10px; font-size: 15px; font-weight: 600; box-sizing: border-box; margin-bottom: 12px; }
+        .btn-main { background: #000; color: #fff; border: none; padding: 16px; border-radius: 12px; font-weight: 800; width: 100%; cursor: pointer; }
         .history-item { background: #fff; padding: 15px; border-radius: 14px; margin-bottom: 10px; border: 1px solid #e2e8f0; border-left: 5px solid var(--ac); }
-        .footer { text-align: center; padding: 20px; color: #94a3b8; font-size: 9px; font-weight: 700; text-transform: uppercase; }
+        .total-box { background: #0f172a; color: #fff; padding: 20px; border-radius: 12px; }
     </style>
 </head>
 <body>
@@ -37,7 +33,6 @@
 
 <div id="p-input" class="page active">
     <div class="card">
-        <input type="hidden" id="f-id">
         <label>Toimintatila</label>
         <select id="f-mode" onchange="toggleMode()" class="enter-next">
             <option value="meeting">Tapaaminen (CRM)</option>
@@ -68,33 +63,35 @@
             <option value="25">Osa (25€)</option>
             <option value="54">Koko (54€)</option>
         </select>
-        <button class="btn-cal" onclick="vieKalenteriin()">📅 VIE GOOGLE KALENTERIIN</button>
-        <button class="btn-main" onclick="tallennaKaikki()" style="background: var(--success);">TALLENNA ARKISTOON (ENTER)</button>
+        <button class="btn-main" onclick="tallennaKaikki()" style="background: var(--success);">TALLENNA (ENTER)</button>
     </div>
 </div>
 
-<div id="p-stats" class="page"><div id="history-ui">Ladataan arkistoa pilvestä...</div></div>
+<div id="p-stats" class="page"><div id="history-ui">Ladataan...</div></div>
 <div id="p-report" class="page"><div id="report-output"></div></div>
 
-<div class="footer">Versio 5.24 PRO | Järjestelmä Palautettu Vakaaksi</div>
-
 <script>
-// Firebase-asetukset (Samat kuin aiemmin, data on täällä tallessa)
 const firebaseConfig = { databaseURL: "https://paivuri-6379b-default-rtdb.europe-west1.firebasedatabase.app" };
 firebase.initializeApp(firebaseConfig);
 const db = firebase.database();
 
-let omatAjot = [];
+// 1. LATAA DATA HETI PAIKALLISESTA MUISTISTA (EI VIIVETTÄ)
+let omatAjot = JSON.parse(localStorage.getItem('paivuri_data')) || [];
 
-// HAETAAN DATA FIREBASESTA AINA KUN SIVU LATAUTUU
+// 2. YRITÄ PÄIVITTÄÄ PILVESTÄ TAUSTALLA
 db.ref('ajot').on('value', (snapshot) => {
     const data = snapshot.val();
-    omatAjot = data ? Object.values(data) : [];
-    localStorage.setItem('paivuri_data', JSON.stringify(omatAjot));
+    if (data) {
+        omatAjot = Object.values(data);
+        localStorage.setItem('paivuri_data', JSON.stringify(omatAjot));
+        paivitaKaikki();
+    }
+}, (error) => {
+    console.log("Firebase virhe, käytetään paikallista:");
     paivitaKaikki();
 });
 
-// ENTER-NAVIGAATIO (Ei nuolia, jotta mikään ei mene rikki)
+// ENTER-NAVIGAATIO
 document.addEventListener('keydown', function(e) {
     if (e.key === "Enter") {
         const active = document.activeElement;
@@ -121,52 +118,39 @@ function tallennaKaikki() {
         ks: parseFloat(document.getElementById('f-ks').value) || 0,
         ke: parseFloat(document.getElementById('f-ke').value) || 0,
         type: document.getElementById('f-type').value,
-        perdiem: parseFloat(document.getElementById('f-perdiem').value) || 0,
-        title: document.getElementById('f-title').value || ""
+        perdiem: parseFloat(document.getElementById('f-perdiem').value) || 0
     };
     
-    // Tallennus Firebaseen ja paikallisesti
-    db.ref('ajot/' + id).set(ajo);
+    omatAjot.push(ajo);
+    localStorage.setItem('paivuri_data', JSON.stringify(omatAjot));
+    db.ref('ajot/' + id).set(ajo).catch(e => console.log("Ei pilviyhteyttä, tallennettu vain paikallisesti."));
+    
     resetForm();
+    paivitaKaikki();
     showPage('stats');
 }
 
 function paivitaKaikki() {
     let h = "";
-    // Lajitellaan pvm mukaan
-    const sorted = [...omatAjot].sort((a,b) => b.date.localeCompare(a.date));
-    
+    const sorted = [...omatAjot].sort((a,b) => (b.date || "").localeCompare(a.date || ""));
     sorted.forEach(e => {
-        h += `<div class="history-item"><b>${e.date}</b><br>${e.client} (${(e.ke-e.ks).toFixed(1)} km)</div>`;
+        h += `<div class="history-item"><b>${e.date || '?'}</b><br>${e.client || 'Nimetön'} (${((e.ke||0)-(e.ks||0)).toFixed(1)} km)</div>`;
     });
     document.getElementById('history-ui').innerHTML = h || "Arkisto on tyhjä.";
-
-    // Raportti-osio
+    
+    // Raportti
     const kuu = new Date().toISOString().substring(0, 7);
     let tKm = 0, tOsa = 0, tKoko = 0;
     omatAjot.filter(a => a.date && a.date.startsWith(kuu)).forEach(a => {
-        tKm += (a.ke - a.ks);
+        tKm += ((a.ke||0) - (a.ks||0));
         if(a.perdiem == 25) tOsa++; else if(a.perdiem == 54) tKoko++;
     });
-    
-    document.getElementById('report-output').innerHTML = `
-        <div class="card">
-            <h3>Raportti ${kuu}</h3>
-            <div class="total-box">
-                <div class="total-row"><span>Km (${tKm.toFixed(1)}):</span><b>${(tKm*0.55).toFixed(2)}€</b></div>
-                <div class="total-row"><span>Päivärahat:</span><b>${((tOsa*25)+(tKoko*54)).toFixed(2)}€</b></div>
-                <div class="total-row" style="border:none; font-size:18px; margin-top:10px;"><span>YHTEENSÄ:</span><b>${(tKm*0.55 + tOsa*25 + tKoko*54).toFixed(2)}€</b></div>
-            </div>
-        </div>`;
+    document.getElementById('report-output').innerHTML = `<div class="card"><h3>${kuu}</h3><div class="total-box">Yhteensä: ${(tKm*0.55 + tOsa*25 + tKoko*54).toFixed(2)}€</div></div>`;
 }
 
 function resetForm() {
-    ['f-client','f-title','f-route','f-ks','f-ke'].forEach(id => {
-        const el = document.getElementById(id);
-        if(el) el.value = "";
-    });
+    ['f-client','f-title','f-route','f-ks','f-ke'].forEach(id => document.getElementById(id).value = "");
     document.getElementById('f-date').value = new Date().toISOString().split('T')[0];
-    document.getElementById('f-mode').focus();
 }
 
 function showPage(p) {
@@ -179,12 +163,8 @@ function toggleMode() {
     document.getElementById('crm-fields').style.display = document.getElementById('f-mode').value === 'meeting' ? 'block' : 'none';
 }
 
-function vieKalenteriin() {
-    const pvm = document.getElementById('f-date').value.replace(/-/g, "");
-    window.open(`https://www.google.com/calendar/render?action=TEMPLATE&text=${encodeURIComponent(document.getElementById('f-client').value)}&dates=${pvm}T080000/${pvm}T160000`, '_blank');
-}
-
-// Alustus
+// Käynnistys
+paivitaKaikki();
 resetForm();
 toggleMode();
 </script>
