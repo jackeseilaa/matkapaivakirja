@@ -2,325 +2,91 @@
 <html lang="fi">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Matkapäiväkirja 2026 — Jarmo Aaltonen</title>
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
 <style>
-:root {
-  --bg:       #f0f2f7;
-  --surface:  #ffffff;
-  --surface2: #f7f8fc;
-  --border:   #e2e6f0;
-  --border2:  #cdd2e0;
-  --ink:      #1a1f36;
-  --ink2:     #4a5278;
-  --ink3:     #8b93b5;
-  --oy:       #2563eb;
-  --oy-bg:    #eff4ff;
-  --oy-bd:    #bfcffd;
-  --tmi:      #059669;
-  --tmi-bg:   #ecfdf5;
-  --tmi-bd:   #a7f3d0;
-  --oma:      #7c3aed;
-  --oma-bg:   #f5f3ff;
-  --oma-bd:   #ddd6fe;
-  --muu:      #d97706;
-  --muu-bg:   #fffbeb;
-  --muu-bd:   #fde68a;
-  --pvr:      #dc2626;
-  --pvr-bg:   #fef2f2;
-  --shadow-sm: 0 1px 3px rgba(26,31,54,.08), 0 1px 2px rgba(26,31,54,.06);
-  --r: 10px;
-  --mono: 'JetBrains Mono', monospace;
-  --sans: 'Plus Jakarta Sans', sans-serif;
-}
-
-* { box-sizing: border-box; margin: 0; padding: 0; }
-body { font-family: var(--sans); background: var(--bg); color: var(--ink); min-height: 100vh; overflow-x: hidden; }
-
-/* HEADER */
-header {
-  background: var(--surface);
-  border-bottom: 2px solid var(--border);
-  padding: 0 28px;
-  display: flex;
-  align-items: stretch;
-  position: sticky;
-  top: 0;
-  z-index: 100;
-  box-shadow: var(--shadow-sm);
-}
-.logo-block { display: flex; flex-direction: column; justify-content: center; padding: 14px 24px 14px 0; border-right: 2px solid var(--border); margin-right: 24px; flex-shrink: 0; }
-.logo-title { font-weight: 800; font-size: 16px; color: var(--ink); }
-.logo-sub { font-family: var(--mono); font-size: 9px; color: var(--ink3); letter-spacing: 1.5px; text-transform: uppercase; margin-top: 3px; }
-.version-tag { font-family: var(--mono); font-size: 8px; color: var(--oy); font-weight: 700; margin-top: 2px; }
-
-.header-kpis { display: flex; flex: 1; align-items: stretch; }
-.hkpi { display: flex; flex-direction: column; justify-content: center; padding: 0 20px; border-right: 1px solid var(--border); min-width: 100px; }
-.hkpi-val { font-family: var(--mono); font-weight: 500; font-size: 19px; line-height: 1; }
-.hkpi-lbl { font-size: 9px; color: var(--ink3); text-transform: uppercase; margin-top: 4px; font-weight: 500; }
-
-/* BUTTONS */
-.btn { display: inline-flex; align-items: center; gap: 6px; padding: 8px 16px; border-radius: 8px; border: none; font-size: 12px; font-weight: 600; cursor: pointer; transition: all .15s; white-space: nowrap; }
-.btn-primary { background: var(--oy); color: #fff; }
-.btn-ghost { background: transparent; color: var(--ink2); border: 1.5px solid var(--border2); }
-.btn-del { color: var(--pvr); border: 1.5px solid #fecaca; padding: 4px 8px; font-size: 10px; }
-.btn-edit { color: var(--oy); border: 1.5px solid var(--oy-bd); padding: 4px 8px; font-size: 10px; }
-
-/* MAIN & FORMS */
-.main { max-width: 1500px; margin: 0 auto; padding: 24px 28px; display: flex; flex-direction: column; gap: 20px; }
-.panel { background: var(--surface); border-radius: var(--r); border: 1.5px solid var(--border); box-shadow: var(--shadow-sm); overflow: hidden; }
-.panel-head { display: flex; align-items: center; justify-content: space-between; padding: 14px 20px; border-bottom: 1.5px solid var(--border); background: var(--surface2); }
-.form-grid { padding: 18px 20px; display: grid; grid-template-columns: repeat(auto-fit, minmax(110px, 1fr)); gap: 10px; align-items: end; }
-.fi { display: flex; flex-direction: column; gap: 5px; }
-.fi label { font-size: 9px; font-weight: 700; text-transform: uppercase; color: var(--ink3); }
-.fi input, .fi select { border: 1.5px solid var(--border2); border-radius: 7px; padding: 8px 10px; font-family: var(--mono); font-size: 12px; }
-
-/* CHIPS */
-.chips { display: flex; gap: 5px; }
-.chip { padding: 6px 11px; border-radius: 6px; border: 1.5px solid var(--border2); font-size: 11px; cursor: pointer; background: var(--surface2); }
-.chip.a-oy { border-color: var(--oy); color: var(--oy); background: var(--oy-bg); }
-.chip.a-tmi { border-color: var(--tmi); color: var(--tmi); background: var(--tmi-bg); }
-.chip.a-oma { border-color: var(--oma); color: var(--oma); background: var(--oma-bg); }
-.chip.a-muu { border-color: var(--muu); color: var(--muu); background: var(--muu-bg); }
-
-/* TABLE */
-.tw { overflow-x: auto; }
-table { width: 100%; border-collapse: collapse; min-width: 1200px; }
-th { padding: 10px 14px; text-align: left; font-size: 9px; color: var(--ink3); border-bottom: 1.5px solid var(--border); background: var(--surface2); text-transform: uppercase; }
-td { padding: 10px 14px; font-size: 11px; border-bottom: 1px solid var(--border); font-family: var(--mono); color: var(--ink2); }
-.ra { display: flex; gap: 4px; justify-content: flex-end; opacity: 1; } /* Muutettu näkymään aina */
-.erow { background: #fffbeb !important; }
-
-/* TOAST */
-.toast { position: fixed; bottom: 20px; right: 20px; background: var(--ink); color: #fff; padding: 12px 20px; border-radius: 10px; font-size: 12px; display: none; z-index: 1000; box-shadow: var(--shadow-sm); }
+  body { font-family: sans-serif; background: #f0f2f7; padding: 20px; }
+  .card { background: white; padding: 20px; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
+  table { width: 100%; border-collapse: collapse; margin-top: 20px; }
+  th, td { text-align: left; padding: 10px; border-bottom: 1px solid #eee; }
+  th { background: #f7f8fc; }
+  .tag { padding: 4px 8px; border-radius: 4px; font-size: 0.8em; font-weight: bold; }
+  .oy { background: #eff4ff; color: #2563eb; }
+  .tmi { background: #ecfdf5; color: #059669; }
+  .oma { background: #f5f3ff; color: #7c3aed; }
 </style>
 </head>
 <body>
 
-<header>
-  <div class="logo-block">
-    <div class="logo-title">Matkapäiväkirja 2026</div>
-    <div class="logo-sub">Jarmo Aaltonen</div>
-    <div class="version-tag" id="v-tag">VERSIO 1.0.5</div>
-  </div>
-  <div class="header-kpis">
-    <div class="hkpi"><div class="hkpi-val" id="h-km">0</div><div class="hkpi-lbl">km yhteensä</div></div>
-    <div class="hkpi"><div class="hkpi-val" id="h-eur">0 €</div><div class="hkpi-lbl">km-korvaus</div></div>
-    <div class="hkpi"><div class="hkpi-val" id="h-pvr">0 €</div><div class="hkpi-lbl">päivärahat</div></div>
-  </div>
-  <div style="display:flex; align-items:center; padding-left:20px;">
-    <button class="btn btn-ghost" onclick="exportCSV()">↓ CSV</button>
-  </div>
-</header>
-
-<div class="main">
-  <div class="panel">
-    <div class="panel-head">
-      <div style="font-weight:700; font-size:13px;">
-        <span id="form-lbl">Uusi kirjaus</span>
-        <span id="form-badge" style="margin-left:8px; font-size:9px; background:var(--oy-bg); color:var(--oy); padding:2px 6px; border-radius:4px;">SYÖTÄ</span>
-      </div>
-      <button class="btn btn-ghost" id="cancel-btn" style="display:none" onclick="cancelEdit()">✕ Peruuta</button>
-    </div>
-    <div class="form-grid">
-      <div class="fi"><label>Päivä</label><input type="date" id="f-date"></div>
-      <div class="fi"><label>Lähtö</label><input type="time" id="f-start"></div>
-      <div class="fi"><label>Paluu</label><input type="time" id="f-end"></div>
-      <div class="fi"><label>Alo.km</label><input type="number" id="f-os"></div>
-      <div class="fi"><label>Lop.km</label><input type="number" id="f-oe"></div>
-      <div class="fi" style="grid-column: span 2;"><label>Reitti / selite</label><input type="text" id="f-dest" placeholder="RMK - HKI - RMK"></div>
-      <div class="fi"><label>Tyyppi</label>
-        <div class="chips">
-          <div class="chip a-oy" data-type="Oy" onclick="pickType(this)">Oy</div>
-          <div class="chip" data-type="Tmi" onclick="pickType(this)">Tmi</div>
-          <div class="chip" data-type="Oma" onclick="pickType(this)">Oma</div>
-        </div>
-      </div>
-      <div class="fi"><label>Päiväraha</label>
-        <select id="f-pvr">
-          <option value="0">Ei</option>
-          <option value="25">25€ (osapv)</option>
-          <option value="54">54€ (kokopv)</option>
-        </select>
-      </div>
-      <div class="fi">
-        <button class="btn btn-primary" id="save-btn" onclick="saveEntry()" style="width:100%;">＋ Tallenna</button>
-      </div>
-    </div>
-  </div>
-
-  <div class="panel">
-    <div class="tw">
-      <table>
-        <thead>
-          <tr>
-            <th>Päivä</th>
-            <th>Lähtö</th>
-            <th>Paluu</th>
-            <th>Reitti</th>
-            <th>Tyyppi</th>
-            <th style="text-align:right">km</th>
-            <th style="text-align:right">Yhteensä</th>
-            <th style="text-align:right">Toiminnot</th>
-          </tr>
-        </thead>
-        <tbody id="tbody"></tbody>
-      </table>
-    </div>
-  </div>
+<div class="card">
+  <h2>Ajosuoritteet 2026</h2>
+  <div id="summary"></div>
+  <table id="entryTable">
+    <thead>
+      <tr>
+        <th>Pvm</th>
+        <th>Reitti / Selite</th>
+        <th>Tyyppi</th>
+        <th>Km</th>
+        <th>Päiväraha</th>
+      </tr>
+    </thead>
+    <tbody id="tbody"></tbody>
+  </table>
 </div>
 
-<div class="toast" id="toast"></div>
-
 <script>
-// --- ASETUKSET ---
-const APP_VERSION = "1.0.5"; // Päivitä tätä nostaaksesi versionumeroa
-const KMR = 0.55;
-const KEY = 'mpk2026_v4';
-
-let entries = JSON.parse(localStorage.getItem(KEY) || '[]');
-let editId = null;
-let selType = 'Oy';
-
-// Alustus
-document.addEventListener('DOMContentLoaded', () => {
-  document.getElementById('v-tag').textContent = "VERSIO " + APP_VERSION;
-  document.getElementById('f-date').value = new Date().toISOString().slice(0, 10);
-  af();
-});
-
-function pickType(el) {
-  document.querySelectorAll('.chip').forEach(c => c.className = 'chip');
-  selType = el.dataset.type;
-  el.classList.add('a-' + selType.toLowerCase());
-}
-
-function saveEntry() {
-  const date = document.getElementById('f-date').value;
-  if (!date) { showToast("Valitse päivämäärä!"); return; }
-
-  const os = parseInt(document.getElementById('f-os').value) || 0;
-  const oe = parseInt(document.getElementById('f-oe').value) || 0;
-  const km = (oe > os) ? oe - os : 0;
-
-  const entry = {
-    id: editId || Date.now().toString(),
-    date: date,
-    start: document.getElementById('f-start').value,
-    end: document.getElementById('f-end').value,
-    os: os, oe: oe, km: km,
-    dest: document.getElementById('f-dest').value,
-    type: selType,
-    pvr: parseInt(document.getElementById('f-pvr').value) || 0
-  };
-
-  if (editId) {
-    const idx = entries.findIndex(e => e.id === editId);
-    entries[idx] = entry;
-    showToast("Kirjaus päivitetty ✓");
-  } else {
-    entries.unshift(entry);
-    showToast("Tallennettu ✓");
-  }
-
-  localStorage.setItem(KEY, JSON.stringify(entries));
-  cancelEdit();
-  af();
-}
-
-function editEntry(id) {
-  const e = entries.find(x => x.id === id);
-  if (!e) return;
+// TÄSSÄ ON POIMITTU DATA CSV-TIEDOSTOISTASI
+const entries = [
+  // Tammikuu [cite: 1]
+  { date: "14.01.2026", dest: "RMK - HKI - RMK", type: "Oy", km: 141, pvr: 54, huom: "Taksi" },
+  { date: "15.01.2026", dest: "RMK - HKI - RMK", type: "Oy", km: 141, pvr: 54, huom: "Taksi" },
+  { date: "19.01.2026", dest: "RMK - HKI - RMK", type: "Oy", km: 141, pvr: 54, huom: "Taksi" },
+  { date: "20.01.2026", dest: "RMK - TRE - RMK", type: "Tmi", km: 214, pvr: 25, huom: "Vakuutus" },
+  { date: "23.01.2026", dest: "RMK - HKI - RMK", type: "Oy", km: 141, pvr: 25, huom: "Taksi" },
+  { date: "26.01.2026", dest: "RMK - HKI - RMK", type: "Oy", km: 141, pvr: 54, huom: "Taksi" },
   
-  editId = id;
-  document.getElementById('f-date').value = e.date;
-  document.getElementById('f-start').value = e.start || '';
-  document.getElementById('f-end').value = e.end || '';
-  document.getElementById('f-os').value = e.os || '';
-  document.getElementById('f-oe').value = e.oe || '';
-  document.getElementById('f-dest').value = e.dest || '';
-  document.getElementById('f-pvr').value = e.pvr || 0;
+  // Helmikuu [cite: 2]
+  { date: "02.02.2026", dest: "RMK - HKI - RMK", type: "Oy", km: 142, pvr: 54, huom: "Taksi" },
+  { date: "03.02.2026", dest: "RMK - Nokia Arena, Tre", type: "Tmi", km: 273, pvr: 0, huom: "IF/meklaritilaisuus" },
+  { date: "04.02.2026", dest: "RMK - Padasjoki/Humppi", type: "Tmi", km: 225, pvr: 0, huom: "Agentti" },
+  { date: "09.02.2026", dest: "RMK - HKI - RMK", type: "Oy", km: 142, pvr: 54, huom: "Taksi" },
+  { date: "11.02.2026", dest: "RMK - Heinola", type: "Tmi", km: 233, pvr: 25, huom: "Agentti" },
+  { date: "14.02.2026", dest: "RMK - Messukeskus", type: "Oy", km: 142, pvr: 54, huom: "Venemessut" },
+  { date: "17.02.2026", dest: "RMK - HKI - RMK", type: "Oy", km: 142, pvr: 54, huom: "Taksi" },
   
-  const ch = document.querySelector(`.chips .chip[data-type="${e.type}"]`);
-  if (ch) pickType(ch);
+  // Maaliskuu [cite: 4]
+  { date: "02.03.2026", dest: "Helsinki", type: "Oy", km: 142, pvr: 54, huom: "" },
+  { date: "04.03.2026", dest: "Työajo", type: "Tmi", km: 187, pvr: 0, huom: "" },
+  { date: "05.03.2026", dest: "Agentti-matka", type: "Oma", km: 0, pvr: 54, huom: "" },
+  { date: "11.03.2026", dest: "Lahti / Agentti", type: "Oma", km: 0, pvr: 54, huom: "" }
+];
 
-  document.getElementById('form-lbl').textContent = 'Muokkaa kirjausta';
-  document.getElementById('cancel-btn').style.display = 'inline-flex';
-  document.getElementById('save-btn').textContent = '✓ Päivitä';
-  
-  window.scrollTo({ top: 0, behavior: 'smooth' });
-  af();
+function render() {
+  const tbody = document.getElementById('tbody');
+  let totalKm = 0;
+  let totalPvr = 0;
+
+  entries.forEach(e => {
+    totalKm += e.km;
+    totalPvr += e.pvr;
+    const tr = document.createElement('tr');
+    tr.innerHTML = `
+      <td>${e.date}</td>
+      <td>${e.dest} <br><small style="color:gray">${e.huom}</small></td>
+      <td><span class="tag ${e.type.toLowerCase()}">${e.type}</span></td>
+      <td>${e.km} km</td>
+      <td>${e.pvr} €</td>
+    `;
+    tbody.appendChild(tr);
+  });
+
+  document.getElementById('summary').innerHTML = `
+    <p><strong>Yhteensä:</strong> ${totalKm} km | <strong>Päivärahat:</strong> ${totalPvr} €</p>
+    <hr>
+  `;
 }
 
-function deleteEntry(id) {
-  const e = entries.find(x => x.id === id);
-  if (confirm(`Poistetaanko tapahtuma: ${e.date} ${e.dest}?`)) {
-    entries = entries.filter(x => x.id !== id);
-    localStorage.setItem(KEY, JSON.stringify(entries));
-    af();
-    showToast("Poistettu.");
-  }
-}
-
-function cancelEdit() {
-  editId = null;
-  document.getElementById('form-lbl').textContent = 'Uusi kirjaus';
-  document.getElementById('cancel-btn').style.display = 'none';
-  document.getElementById('save-btn').textContent = '＋ Tallenna';
-  ['f-start','f-end','f-os','f-oe','f-dest'].forEach(id => document.getElementById(id).value = '');
-  af();
-}
-
-function af() {
-  const tb = document.getElementById('tbody');
-  let tKm = 0, tEur = 0, tPvr = 0;
-
-  tb.innerHTML = entries.map(e => {
-    const rowEur = (e.type !== 'Oma') ? (e.km * KMR) : 0;
-    const total = rowEur + (e.pvr || 0);
-    tKm += e.km; tEur += rowEur; tPvr += (e.pvr || 0);
-
-    return `
-      <tr class="${editId === e.id ? 'erow' : ''}">
-        <td style="font-weight:700; color:var(--ink);">${e.date}</td>
-        <td>${e.start || '-'}</td>
-        <td>${e.end || '-'}</td>
-        <td style="max-width:300px; overflow:hidden; text-overflow:ellipsis;">${e.dest || '-'}</td>
-        <td><span style="background:var(--surface2); padding:2px 6px; border-radius:4px; font-size:10px; font-weight:700;">${e.type}</span></td>
-        <td style="text-align:right; font-weight:700;">${e.km} km</td>
-        <td style="text-align:right; color:var(--oy); font-weight:700;">${total.toFixed(2)} €</td>
-        <td>
-          <div class="ra">
-            <button class="btn btn-edit" onclick="editEntry('${e.id}')">Muokkaa</button>
-            <button class="btn btn-del" onclick="deleteEntry('${e.id}')">Poista</button>
-          </div>
-        </td>
-      </tr>`;
-  }).join('');
-
-  document.getElementById('h-km').textContent = tKm;
-  document.getElementById('h-eur').textContent = tEur.toFixed(2) + " €";
-  document.getElementById('h-pvr').textContent = tPvr + " €";
-}
-
-function showToast(msg) {
-  const t = document.getElementById('toast');
-  t.textContent = msg;
-  t.style.display = 'block';
-  setTimeout(() => { t.style.display = 'none'; }, 3000);
-}
-
-function exportCSV() {
-  const h = ['Päivä','Lähtö','Paluu','Reitti','Tyyppi','km','PV-raha'];
-  const rows = entries.map(e => [e.date, e.start, e.end, `"${e.dest}"`, e.type, e.km, e.pvr].join(';'));
-  const blob = new Blob(['\uFEFF' + h.join(';') + '\n' + rows.join('\n')], { type: 'text/csv;charset=utf-8' });
-  const a = document.createElement('a');
-  a.href = URL.createObjectURL(blob);
-  a.download = `Matkapaivakirja_${new Date().toISOString().slice(0,10)}.csv`;
-  a.click();
-}
+render();
 </script>
 
 </body>
