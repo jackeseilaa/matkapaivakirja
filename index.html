@@ -2,80 +2,103 @@
 <html lang="fi">
 <head>
     <meta charset="UTF-8">
-    <title>Päivyri - DATAN ETSINTÄ</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Päivyri v5.24 - FIRESTORE PALAUTUS</title>
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Sora:wght@400;700;800&display=swap" rel="stylesheet">
     <style>
-        body { font-family: 'Sora', sans-serif; padding: 20px; background: #f1f5f9; color: #0f172a; }
-        .box { background: white; padding: 20px; border-radius: 12px; box-shadow: 0 4px 10px rgba(0,0,0,0.1); }
-        .found-item { border-left: 4px solid #2563eb; padding: 10px; margin: 10px 0; background: #f8fafc; font-size: 14px; }
-        .folder-tag { font-size: 10px; background: #e2e8f0; padding: 2px 6px; border-radius: 4px; font-weight: bold; }
-        .status { color: #64748b; font-size: 12px; margin-bottom: 10px; }
-        h2 { margin-top: 0; color: #2563eb; }
+        :root { --bg: #f8fafc; --text: #0f172a; --ac: #2563eb; --success: #10b981; }
+        body { font-family: 'Sora', sans-serif; background: var(--bg); color: var(--text); margin: 0; padding-bottom: 100px; }
+        .tabs { display: flex; background: #fff; border-bottom: 2px solid #e2e8f0; position: sticky; top: 0; z-index: 100; }
+        .tab { flex: 1; padding: 16px; text-align: center; font-weight: 800; cursor: pointer; color: #64748b; font-size: 10px; text-transform: uppercase; }
+        .tab.active { color: var(--ac); border-bottom: 4px solid var(--ac); background: #f1f5f9; }
+        .page { display: none; padding: 20px; }
+        .page.active { display: block; }
+        .card { background: #fff; padding: 20px; border-radius: 16px; border: 1px solid #e2e8f0; margin-bottom: 20px; }
+        .history-item { background: #fff; padding: 15px; border-radius: 14px; margin-bottom: 10px; border-left: 5px solid var(--ac); box-shadow: 0 2px 4px rgba(0,0,0,0.05); }
+        .total-box { background: #0f172a; color: #fff; padding: 20px; border-radius: 12px; }
     </style>
 </head>
 <body>
 
-<div class="box">
-    <h2>Datan etsintä käynnissä...</h2>
-    <div id="status" class="status">Yhdistetään Firebaseen...</div>
-    <div id="results"></div>
+<div class="tabs">
+    <div class="tab active" id="t-input" onclick="showPage('input')">Syöte</div>
+    <div class="tab" id="t-stats" onclick="showPage('stats')">Arkisto</div>
+    <div class="tab" id="t-report" onclick="showPage('report')">Raportit</div>
 </div>
 
+<div id="p-input" class="page active">
+    <div class="card">
+        <h3>Luo uusi kirjaus</h3>
+        <p>Tiedot tallentuvat Firestoreen kansioon: <b>paivuri</b></p>
+        <button onclick="showPage('stats')" style="width:100%; padding:15px; background:var(--ac); color:white; border:none; border-radius:10px; font-weight:bold;">KATSO ARKISTO TÄSTÄ</button>
+    </div>
+</div>
+
+<div id="p-stats" class="page">
+    <h2>Arkisto (Firestore)</h2>
+    <div id="history-ui">Haetaan pilvidataa...</div>
+</div>
+
+<div id="p-report" class="page"><div id="report-output"></div></div>
+
 <script>
-const firebaseConfig = { databaseURL: "https://paivuri-6379b-default-rtdb.europe-west1.firebasedatabase.app" };
+// HUOM: Firestore-konfiguraatio (Käyttää projektia paivuri-6379b)
+const firebaseConfig = { 
+    projectId: "paivuri-6379b",
+    databaseURL: "https://paivuri-6379b-default-rtdb.europe-west1.firebasedatabase.app" 
+};
 firebase.initializeApp(firebaseConfig);
-const db = firebase.database();
+const fs = firebase.firestore();
 
-const resultsDiv = document.getElementById('results');
-const statusDiv = document.getElementById('status');
-
-// ETSITÄÄN KOKO TIETOKANTA (JUURI /)
-db.ref('/').on('value', (snapshot) => {
-    const allData = snapshot.val();
-    resultsDiv.innerHTML = "";
-    
-    if (!allData) {
-        statusDiv.innerText = "Tietokanta on täysin tyhjä (/).";
-        return;
-    }
-
-    statusDiv.innerText = "Tietokannasta löytyi sisältöä. Analysoidaan...";
-    let foundCount = 0;
-
-    // Käydään läpi kaikki pääkansiot (esim. 'ajot', 'data', 'merkinnat')
-    for (let folder in allData) {
-        const folderContent = allData[folder];
+function paivitaArkisto() {
+    // Haetaan kokoelma "paivuri" kuvakaappauksesi mukaan
+    fs.collection("paivuri").orderBy("__name__", "desc").onSnapshot((snapshot) => {
+        let h = "";
+        let tKm = 0;
         
-        if (typeof folderContent === 'object') {
-            // Muutetaan kansion sisältö listaksi
-            const items = Object.values(folderContent);
-            
-            items.forEach(item => {
-                // Tarkistetaan, näyttääkö tämä ajopäiväkirja-merkinnältä
-                if (item && (item.date || item.client || item.ks)) {
-                    foundCount++;
-                    const div = document.createElement('div');
-                    div.className = 'found-item';
-                    div.innerHTML = `
-                        <span class="folder-tag">Kansio: ${folder}</span><br>
-                        <b>PVM:</b> ${item.date || '---'} | <b>Asiakas:</b> ${item.client || '---'}<br>
-                        <small>ID: ${item.id || 'ei id:tä'}</small>
-                    `;
-                    resultsDiv.appendChild(div);
-                }
-            });
+        if (snapshot.empty) {
+            h = "Firestore-kokoelma 'paivuri' on tyhjä.";
         }
-    }
 
-    if (foundCount === 0) {
-        resultsDiv.innerHTML = "<p>Dataa ei tunnistettu. Tietokannassa on jotain, mutta se ei vastaa odotettua muotoa.</p>";
-    } else {
-        statusDiv.innerText = `Löytyi yhteensä ${foundCount} merkintää!`;
-    }
-}, (error) => {
-    statusDiv.innerText = "Virhe yhteydessä: " + error.message;
-});
+        snapshot.forEach((doc) => {
+            const data = doc.data();
+            const pvm = doc.id; // Kuvassasi dokumentin nimi on päivämäärä
+            
+            // Lasketaan kilometrit kuvasi kentistä (ckmr - ckm)
+            const km = (parseFloat(data.ckmr) || 0) - (parseFloat(data.ckm) || 0);
+            tKm += km;
+
+            h += `
+                <div class="history-item">
+                    <b>${pvm}</b><br>
+                    ${data.apkLahto || 'Ajo'} -> ${data.apkAlku || ''}<br>
+                    Matka: ${km.toFixed(1)} km | Tyyppi: ${data.drole || 'Oy'}
+                </div>`;
+        });
+        
+        document.getElementById('history-ui').innerHTML = h;
+        
+        // Päivitä raportti
+        document.getElementById('report-output').innerHTML = `
+            <div class="card">
+                <h3>Yhteenveto</h3>
+                <div class="total-box">Kaikki matkat: ${tKm.toFixed(1)} km</div>
+            </div>`;
+    }, (error) => {
+        document.getElementById('history-ui').innerHTML = "Firestore-virhe: " + error.message;
+    });
+}
+
+function showPage(p) {
+    document.querySelectorAll('.page, .tab').forEach(el => el.classList.remove('active'));
+    document.getElementById('p-' + p).classList.add('active');
+    document.getElementById('t-' + p).classList.add('active');
+}
+
+// Käynnistys
+paivitaArkisto();
 </script>
 </body>
 </html>
