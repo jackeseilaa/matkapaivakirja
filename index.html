@@ -3,27 +3,24 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Päivyri v5.28 PRO - DATABASE FIX</title>
+    <title>Päivyri v5.29 - RECOVERY</title>
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
     <link href="https://fonts.googleapis.com/css2?family=Sora:wght@400;700;800&display=swap" rel="stylesheet">
     <style>
-        :root { --bg: #f8fafc; --text: #0f172a; --ac: #2563eb; --success: #10b981; --cal: #4285f4; }
+        :root { --bg: #f8fafc; --text: #0f172a; --ac: #2563eb; --success: #10b981; }
         body { font-family: 'Sora', sans-serif; background: var(--bg); color: var(--text); margin: 0; padding-bottom: 100px; }
         .tabs { display: flex; background: #fff; border-bottom: 2px solid #e2e8f0; position: sticky; top: 0; z-index: 100; }
         .tab { flex: 1; padding: 16px; text-align: center; font-weight: 800; cursor: pointer; color: #64748b; font-size: 10px; text-transform: uppercase; }
         .tab.active { color: var(--ac); border-bottom: 4px solid var(--ac); background: #f1f5f9; }
         .page { display: none; padding: 20px; }
         .page.active { display: block; }
-        .card { background: #fff; padding: 20px; border-radius: 16px; border: 1px solid #e2e8f0; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1); margin-bottom: 20px; }
+        .card { background: #fff; padding: 20px; border-radius: 16px; border: 1px solid #e2e8f0; margin-bottom: 20px; box-shadow: 0 2px 4px rgba(0,0,0,0.05); }
         label { display: block; font-size: 10px; font-weight: 800; color: #64748b; margin-bottom: 5px; text-transform: uppercase; }
-        input, select { width: 100%; padding: 12px; border: 2px solid #e2e8f0; border-radius: 10px; font-size: 15px; font-weight: 600; box-sizing: border-box; font-family: inherit; margin-bottom: 12px; }
-        .btn-main { background: #000; color: #fff; border: none; padding: 16px; border-radius: 12px; font-weight: 800; width: 100%; cursor: pointer; margin-bottom: 10px; }
-        .diag-box { background: #000; color: #00ff00; padding: 10px; border-radius: 8px; font-family: monospace; font-size: 10px; margin-bottom: 15px; border-left: 4px solid #00ff00; }
-        .history-item { background: #fff; padding: 15px; border-radius: 14px; margin-bottom: 10px; border: 1px solid #e2e8f0; border-left: 5px solid #ccc; }
-        .total-box { background: #0f172a; color: #fff; padding: 20px; border-radius: 12px; margin-top: 20px; }
-        .total-row { display: flex; justify-content: space-between; padding: 4px 0; }
-        .footer { text-align: center; padding: 20px; color: #94a3b8; font-size: 9px; font-weight: 700; text-transform: uppercase; }
+        input, select { width: 100%; padding: 12px; border: 2px solid #e2e8f0; border-radius: 10px; font-size: 15px; font-weight: 600; box-sizing: border-box; margin-bottom: 12px; font-family: inherit; }
+        .btn-main { background: var(--success); color: #fff; border: none; padding: 16px; border-radius: 12px; font-weight: 800; width: 100%; cursor: pointer; }
+        .diag-box { background: #1e293b; color: #38bdf8; padding: 12px; border-radius: 10px; font-family: monospace; font-size: 11px; margin-bottom: 20px; line-height: 1.4; }
+        .history-item { background: #fff; padding: 15px; border-radius: 14px; margin-bottom: 10px; border: 1px solid #e2e8f0; border-left: 5px solid #2563eb; }
     </style>
 </head>
 <body>
@@ -31,7 +28,6 @@
 <div class="tabs">
     <div class="tab active" id="t-input" onclick="showPage('input')">Syöte</div>
     <div class="tab" id="t-stats" onclick="showPage('stats')">Arkisto</div>
-    <div class="tab" id="t-report" onclick="showPage('report')">Raportit</div>
 </div>
 
 <div id="p-input" class="page active">
@@ -39,74 +35,65 @@
         <label>Päivämäärä</label><input type="date" id="f-date">
         <label>Asiakas / Yritys</label><input type="text" id="f-client">
         <div style="display:flex; gap:10px">
-            <div style="flex:1"><label>KM Alku</label><input type="text" id="f-ks"></div>
-            <div style="flex:1"><label>KM Loppu</label><input type="text" id="f-ke"></div>
+            <div style="flex:1"><label>KM Alku</label><input type="text" id="f-ks" placeholder="0"></div>
+            <div style="flex:1"><label>KM Loppu</label><input type="text" id="f-ke" placeholder="0"></div>
         </div>
         <label>Tyyppi</label>
         <select id="f-type"><option value="Oy">Oy</option><option value="Tmi">Tmi</option></select>
-        <button class="btn-main" onclick="tallennaKaikki()" style="background: var(--success);">TALLENNA ARKISTOON</button>
+        <button class="btn-main" onclick="tallenna()">TALLENNA ARKISTOON</button>
     </div>
 </div>
 
 <div id="p-stats" class="page">
-    <div class="diag-box" id="diag-out">> Odotetaan yhteyttä tietokantaan 'paivuri'...</div>
-    <div id="history-ui">Haetaan dataa...</div>
-</div>
-
-<div id="p-report" class="page">
-    <div id="report-output"></div>
+    <div class="diag-box" id="diag-out">Etsitään dataa...</div>
+    <div id="history-ui"></div>
 </div>
 
 <script>
-// KONFIGURAATIO - Käytetään jsailing-projektia
+// VARMA KONFIGURAATIO
 const firebaseConfig = { projectId: "jsailing-6379b" };
 firebase.initializeApp(firebaseConfig);
 
-// TÄRKEÄ KORJAUS: Osoitetaan nimenomaan 'paivuri'-tietokantaan
-const db = firebase.app().firestore("paivuri");
-
-let omatAjot = [];
+// Yritetään yhdistää tietokantaan 'paivuri' (jos se on nimetty tietokanta)
+// Jos tämä rivi kaataa koodin, se johtuu siitä ettei nimettyä kantaa löydy
+let db;
+try {
+    db = firebase.app().firestore("paivuri");
+} catch(e) {
+    console.log("Nimettyä kantaa ei löytynyt, käytetään oletusta");
+    db = firebase.firestore();
+}
 
 function lataaData() {
     const diag = document.getElementById('diag-out');
     
+    // Kokeillaan lukea 'paivuri' kokoelmaa
     db.collection("paivuri").onSnapshot((snapshot) => {
-        diag.innerHTML = `> YHTEYS OK!<br>> Tietokanta: 'paivuri'<br>> Dokumentteja: ${snapshot.size} kpl`;
+        diag.innerHTML = `<b>YHTEYS: OK</b><br>Tietokanta: jsailing-6379b<br>Dokumentteja: ${snapshot.size} kpl`;
         
-        omatAjot = [];
+        if(snapshot.empty) {
+            diag.innerHTML += `<br><span style="color:orange">! Kokoelma 'paivuri' on tyhjä tällä polulla.</span>`;
+        }
+
         let h = "";
-        
         snapshot.forEach((doc) => {
             const d = doc.data();
-            // Muunnetaan teksti numeroiksi (kuvasi perusteella ckm/ckmr on tekstiä)
             const s = parseFloat(String(d.ckm || 0).replace(',','.')) || 0;
             const e = parseFloat(String(d.ckmr || 0).replace(',','.')) || 0;
-            const km = e - s;
-
-            omatAjot.push({
-                date: doc.id,
-                client: d.apkLahto || "Ajo",
-                km: km,
-                type: d.drole || "Oy"
-            });
-        });
-
-        omatAjot.sort((a,b) => b.date.localeCompare(a.date)).forEach(e => {
-            h += `<div class="history-item" style="border-left-color:${e.type==='Oy'?'#2563eb':'#10b981'}">
-                <small>${e.date}</small><br><b>${e.client}</b> (${e.km.toFixed(1)} km)
+            h += `<div class="history-item">
+                <small>${doc.id}</small><br>
+                <b>${d.apkLahto || 'Ajo'}</b> (${(e-s).toFixed(1)} km)
             </div>`;
         });
-        
-        document.getElementById('history-ui').innerHTML = h || "Ei merkintöjä löytynyt.";
-        paivitaRaportti();
+        document.getElementById('history-ui').innerHTML = h;
     }, (error) => {
-        diag.innerHTML = `> VIRHE: ${error.message}`;
+        diag.innerHTML = `<b>VIRHE:</b> ${error.message}`;
     });
 }
 
-function tallennaKaikki() {
+function tallenna() {
     const pvm = document.getElementById('f-date').value;
-    if(!pvm) return alert("Valitse päivämäärä!");
+    if(!pvm) return alert("Pvm puuttuu");
 
     db.collection("paivuri").doc(pvm).set({
         apkLahto: document.getElementById('f-client').value,
@@ -115,24 +102,9 @@ function tallennaKaikki() {
         drole: document.getElementById('f-type').value,
         at: firebase.firestore.FieldValue.serverTimestamp()
     }).then(() => {
-        alert("Tallennettu onnistuneesti!");
+        alert("Tallennettu!");
         showPage('stats');
-    }).catch(err => alert("Tallennusvirhe: " + err.message));
-}
-
-function paivitaRaportti() {
-    const kuu = new Date().toISOString().substring(0, 7);
-    let tKm = 0;
-    omatAjot.filter(a => a.date.startsWith(kuu)).forEach(a => tKm += a.km);
-    
-    document.getElementById('report-output').innerHTML = `
-        <div class="card">
-            <h3>Raportti - ${kuu}</h3>
-            <div class="total-box">
-                <div class="total-row"><span>Kilometrit:</span><b>${tKm.toFixed(1)} km</b></div>
-                <div class="total-row"><span>Korvaus (0.55€):</span><b>${(tKm * 0.55).toFixed(2)}€</b></div>
-            </div>
-        </div>`;
+    }).catch(e => alert("Virhe: " + e.message));
 }
 
 function showPage(p) {
@@ -144,6 +116,5 @@ function showPage(p) {
 document.getElementById('f-date').value = new Date().toISOString().split('T')[0];
 lataaData();
 </script>
-
 </body>
 </html>
