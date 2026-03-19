@@ -3,12 +3,12 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Päivyri v5.70 - Final</title>
+    <title>Päivyri v5.80</title>
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
     <link href="https://fonts.googleapis.com/css2?family=Sora:wght@400;700;800&display=swap" rel="stylesheet">
     <style>
-        :root { --bg: #f8fafc; --text: #0f172a; --ac: #2563eb; --success: #10b981; --cal: #4285f4; }
+        :root { --bg: #f8fafc; --text: #0f172a; --ac: #2563eb; --success: #10b981; }
         body { font-family: 'Sora', sans-serif; background: var(--bg); color: var(--text); margin: 0; padding-bottom: 120px; }
         .tabs { display: flex; background: #fff; border-bottom: 2px solid #e2e8f0; position: sticky; top: 0; z-index: 100; }
         .tab { flex: 1; padding: 16px; text-align: center; font-weight: 800; cursor: pointer; color: #64748b; font-size: 10px; text-transform: uppercase; }
@@ -18,14 +18,12 @@
         .card { background: #fff; padding: 20px; border-radius: 16px; border: 1px solid #e2e8f0; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1); margin-bottom: 20px; }
         label { display: block; font-size: 10px; font-weight: 800; color: #64748b; margin-bottom: 5px; text-transform: uppercase; }
         input, select { width: 100%; padding: 12px; border: 2px solid #e2e8f0; border-radius: 10px; font-size: 15px; font-weight: 600; box-sizing: border-box; font-family: inherit; margin-bottom: 12px; }
-        .btn-main { background: #000; color: #fff; border: none; padding: 16px; border-radius: 12px; font-weight: 800; width: 100%; cursor: pointer; margin-bottom: 10px; }
-        .btn-cal { background: var(--cal); color: #fff; border: none; padding: 14px; border-radius: 12px; font-weight: 800; width: 100%; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px; margin-bottom: 15px; }
+        .btn-main { background: #000; color: #fff; border: none; padding: 16px; border-radius: 12px; font-weight: 800; width: 100%; cursor: pointer; }
         .history-item { background: #fff; padding: 15px; border-radius: 14px; margin-bottom: 10px; border: 1px solid #e2e8f0; border-left: 5px solid #ccc; }
-        .actions { display: flex; gap: 8px; margin-top: 10px; border-top: 1px solid #f1f5f9; padding-top: 8px; }
-        .footer { text-align: center; padding: 20px; color: #94a3b8; font-size: 9px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; position: fixed; bottom: 0; width: 100%; background: var(--bg); }
+        .footer { text-align: center; padding: 20px; color: #94a3b8; font-size: 9px; font-weight: 700; position: fixed; bottom: 0; width: 100%; background: var(--bg); }
     </style>
 </head>
-<body>
+<body onkeypress="checkEnter(event)">
 
 <div class="tabs">
     <div class="tab active" id="t-input" onclick="showPage('input')">Syöte</div>
@@ -36,129 +34,79 @@
 <div id="p-input" class="page active">
     <div class="card">
         <input type="hidden" id="f-id">
-        <label>Toimintatila</label>
-        <select id="f-mode" onchange="toggleMode()">
-            <option value="meeting">Tapaaminen (CRM)</option>
-            <option value="drive">Pelkkä Ajo</option>
-        </select>
         <label>Päivämäärä</label><input type="date" id="f-date">
         <div style="display:flex; gap:10px">
-            <div style="flex:1"><label>Alku</label><input type="time" id="f-start" onchange="laskePaivarahaEhdotus()"></div>
-            <div style="flex:1"><label>Loppu</label><input type="time" id="f-end" onchange="laskePaivarahaEhdotus()"></div>
+            <div style="flex:1"><label>Alku</label><input type="time" id="f-start"></div>
+            <div style="flex:1"><label>Loppu</label><input type="time" id="f-end"></div>
         </div>
-        <div id="crm-fields">
-            <label>Asiakas / Yritys</label><input type="text" id="f-client">
-            <label>Aihe</label><input type="text" id="f-title">
-        </div>
-        <label>Reitti / Osoite</label><input type="text" id="f-route">
+        <label>Asiakas</label><input type="text" id="f-client" placeholder="Enter tallentaa">
+        <label>Reitti</label><input type="text" id="f-route">
         <div style="display:flex; gap:10px">
             <div style="flex:1"><label>KM Alku</label><input type="number" id="f-ks"></div>
             <div style="flex:1"><label>KM Loppu</label><input type="number" id="f-ke"></div>
         </div>
-        <label>Tyyppi</label>
-        <select id="f-type"><option value="Oy">Oy</option><option value="Tmi">Tmi</option><option value="Oma">Oma</option></select>
-        <label>Päiväraha</label>
-        <select id="f-perdiem"><option value="0">Ei PR</option><option value="25">25€</option><option value="54">54€</option></select>
-        <div id="cal-btn-wrap"><button class="btn-cal" onclick="vieKalenteriin()">📅 VIE GOOGLE KALENTERIIN</button></div>
-        <button class="btn-main" onclick="tallennaFirestoreen()" style="background: var(--success);">TALLENNA ARKISTOON</button>
+        <button class="btn-main" onclick="tallennaFirestoreen()" style="background: var(--success); width:100%;">TALLENNA (ENTER)</button>
     </div>
 </div>
 
-<div id="p-stats" class="page"><div id="history-ui">Haetaan pilveä...</div></div>
+<div id="p-stats" class="page"><div id="history-ui">Ladataan arkistoa...</div></div>
 <div id="p-report" class="page"><div id="report-output"></div></div>
 
-<div class="footer">
-    Versio 5.70 PRO | Päivitetty: 19.3.2026 21:30
-</div>
+<div class="footer" id="versio-info">Päivyri v5.80 | Yhteys: Haetaan...</div>
 
 <script>
-// HUOM! SINUN TÄYTYY KOPIOIDA TÄHÄN NE FIREBASE-ASETUKSET (apiKey jne.)
+// TÄRKEÄÄ: Kopioi tähän ne kaksi koodia sieltä Firebase-asetuksista!
 const firebaseConfig = {
-    apiKey: "KOPIOI_TÄHÄN_OMASTA_FIREBASESTA",
+    apiKey: "KOPIOI_TÄHÄN", 
     authDomain: "paivuri-6379b.firebaseapp.com",
     projectId: "paivuri-6379b",
     storageBucket: "paivuri-6379b.appspot.com",
     messagingSenderId: "286198999823",
-    appId: "KOPIOI_TÄHÄN_OMASTA_FIREBASESTA"
+    appId: "KOPIOI_TÄHÄN"
 };
 
-// Käynnistys turvallisesti
-try {
-    firebase.initializeApp(firebaseConfig);
-    var db = firebase.firestore();
-    console.log("Firebase yhteys valmis.");
-} catch (e) {
-    console.error("Firebase virhe:", e);
-    document.getElementById('history-ui').innerHTML = "Yhteysvirhe: Tarkista asetukset.";
+// Alustus
+firebase.initializeApp(firebaseConfig);
+const db = firebase.firestore();
+
+// ENTER-TOIMINTO
+function checkEnter(e) {
+    if (e.key === "Enter") {
+        tallennaFirestoreen();
+    }
 }
 
-let omatAjot = [];
-
 function lataaData() {
-    if(!db) return;
     db.collection("ajot").orderBy("date", "desc").onSnapshot((snapshot) => {
-        omatAjot = [];
         let h = "";
+        let count = 0;
         snapshot.forEach((doc) => {
             const e = doc.data();
-            e.id = doc.id;
-            omatAjot.push(e);
-            const km = (parseFloat(e.ke) || 0) - (parseFloat(e.ks) || 0);
-            h += `<div class="history-item" style="border-left-color:${e.type==='Oy'?'#2563eb':'#10b981'}">
-                <small>${e.date} | ${e.type}</small><br><b>${e.client}</b> (${km.toFixed(1)} km)
-                <div class="actions">
-                    <button onclick="muokkaa('${doc.id}')" style="background:#eff6ff; border:none; padding:5px 10px; border-radius:4px; color:var(--ac); font-weight:800; cursor:pointer">Muokkaa</button>
-                </div>
-            </div>`;
+            const km = (e.ke || 0) - (e.ks || 0);
+            h += `<div class="history-item"><b>${e.date}</b><br>${e.client} (${km.toFixed(1)} km)</div>`;
+            count++;
         });
-        document.getElementById('history-ui').innerHTML = h || "Arkisto on tyhjä pilvessä.";
-        paivitaRaportti();
+        document.getElementById('history-ui').innerHTML = h || "Arkisto on tyhjä.";
+        document.getElementById('versio-info').innerHTML = `Päivyri v5.80 | Arkistossa ${count} ajoa`;
     }, (error) => {
-        document.getElementById('history-ui').innerHTML = "Virhe säännöissä: " + error.message;
+        document.getElementById('versio-info').innerHTML = "VIRHE: " + error.message;
     });
 }
 
 function tallennaFirestoreen() {
-    const id = document.getElementById('f-id').value || "doc_" + Date.now();
+    const id = document.getElementById('f-id').value || "ajo_" + Date.now();
     const ajo = {
         date: document.getElementById('f-date').value,
-        client: document.getElementById('f-client').value || "Ajo",
-        title: document.getElementById('f-title').value || "",
+        client: document.getElementById('f-client').value || "Nimetön",
         route: document.getElementById('f-route').value || "-",
         ks: parseFloat(document.getElementById('f-ks').value) || 0,
-        ke: parseFloat(document.getElementById('f-ke').value) || 0,
-        type: document.getElementById('f-type').value,
-        perdiem: parseFloat(document.getElementById('f-perdiem').value) || 0
+        ke: parseFloat(document.getElementById('f-ke').value) || 0
     };
 
     db.collection("ajot").doc(id).set(ajo).then(() => {
         alert("Tallennettu!");
-        resetForm();
         showPage('stats');
-    }).catch(e => alert("Virhe tallennuksessa: " + e.message));
-}
-
-function muokkaa(id) {
-    const a = omatAjot.find(x => x.id === id);
-    if(!a) return;
-    document.getElementById('f-id').value = id;
-    document.getElementById('f-date').value = a.date;
-    document.getElementById('f-client').value = a.client;
-    document.getElementById('f-title').value = a.title || "";
-    document.getElementById('f-route').value = a.route;
-    document.getElementById('f-ks').value = a.ks;
-    document.getElementById('f-ke').value = a.ke;
-    document.getElementById('f-type').value = a.type;
-    document.getElementById('f-perdiem').value = a.perdiem;
-    showPage('input');
-}
-
-function resetForm() {
-    ['f-id','f-client','f-title','f-route','f-ks','f-ke'].forEach(f => document.getElementById(f).value = "");
-    document.getElementById('f-date').value = new Date().toISOString().split('T')[0];
-    const nyt = new Date();
-    document.getElementById('f-start').value = String(nyt.getHours()).padStart(2, '0') + ":" + String(nyt.getMinutes()).padStart(2, '0');
-    document.getElementById('f-end').value = String((nyt.getHours() + 8) % 24).padStart(2, '0') + ":" + String(nyt.getMinutes()).padStart(2, '0');
+    }).catch(err => alert("Tallennusvirhe: " + err));
 }
 
 function showPage(p) {
@@ -167,32 +115,8 @@ function showPage(p) {
     document.getElementById('t-' + p).classList.add('active');
 }
 
-function toggleMode() {
-    document.getElementById('crm-fields').style.display = document.getElementById('f-mode').value === 'meeting' ? 'block' : 'none';
-}
-
-function laskePaivarahaEhdotus() {
-    const t1 = document.getElementById('f-start').value;
-    const t2 = document.getElementById('f-end').value;
-    if(!t1 || !t2) return;
-    const diff = (new Date("2000-01-01T"+t2) - new Date("2000-01-01T"+t1)) / 3600000;
-    const tunnit = diff < 0 ? diff + 24 : diff;
-    document.getElementById('f-perdiem').value = tunnit >= 10 ? "54" : (tunnit >= 6 ? "25" : "0");
-}
-
-function paivitaRaportti() {
-    const kuu = new Date().toISOString().substring(0, 7);
-    let tkm = 0;
-    omatAjot.filter(a => a.date && a.date.startsWith(kuu)).forEach(a => tkm += (a.ke - a.ks));
-    document.getElementById('report-output').innerHTML = `<div class="card"><h3>Kooste ${kuu}</h3><b>Kilometrit: ${tkm.toFixed(1)} km</b></div>`;
-}
-
-function vieKalenteriin() {
-    const pvm = document.getElementById('f-date').value.replace(/-/g, "");
-    window.open(`https://www.google.com/calendar/render?action=TEMPLATE&text=${encodeURIComponent(document.getElementById('f-client').value)}&location=${encodeURIComponent(document.getElementById('f-route').value)}`, '_blank');
-}
-
-resetForm();
+// Asetetaan pvm valmiiksi
+document.getElementById('f-date').value = new Date().toISOString().split('T')[0];
 lataaData();
 </script>
 </body>
