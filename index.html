@@ -8,78 +8,48 @@
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
     <link href="https://fonts.googleapis.com/css2?family=Sora:wght@400;700;800&display=swap" rel="stylesheet">
     <style>
-        /* VAALEA TEEMA & VAHVAT KONTRASTIT */
         :root { 
-            --bg: #ffffff; 
-            --sur: #f1f5f9; 
-            --text: #0f172a; 
-            --mu: #475569; 
-            --ac: #2563eb; /* Kirkas sininen */
-            --tmi: #059669; /* Kirkas vihreä */
-            --border: #cbd5e1;
+            --bg: #ffffff; --sur: #f8fafc; --text: #000000; --mu: #475569; 
+            --ac: #2563eb; --tmi: #059669; --border: #000000; 
         }
-        
         body { font-family: 'Sora', sans-serif; background: var(--bg); color: var(--text); margin: 0; padding: 0; }
         
-        /* Välilehdet - Vahva erottuvuus */
-        .tabs { display: flex; background: var(--text); position: sticky; top: 0; z-index: 10; }
-        .tab { flex: 1; padding: 18px; text-align: center; font-weight: 800; font-size: 14px; cursor: pointer; color: #94a3b8; text-transform: uppercase; }
-        .tab.active { color: #ffffff; border-bottom: 4px solid var(--ac); }
+        /* Välilehdet - Musta tausta, valkoinen teksti */
+        .tabs { display: flex; background: #000000; position: sticky; top: 0; z-index: 10; }
+        .tab { flex: 1; padding: 20px; text-align: center; font-weight: 800; font-size: 14px; cursor: pointer; color: #94a3b8; text-transform: uppercase; }
+        .tab.active { color: #ffffff; border-bottom: 5px solid var(--ac); }
         
         .page { display: none; padding: 20px; animation: fadeIn 0.2s; }
         .page.active { display: block; }
-        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
 
-        /* Lomake pystysuunnassa */
+        /* Lomake - Vahvat reunat */
         .form-row { margin-bottom: 20px; }
-        .form-row label { display: block; font-size: 12px; color: var(--text); text-transform: uppercase; margin-bottom: 6px; font-weight: 800; letter-spacing: 0.5px; }
+        .form-row label { display: block; font-size: 13px; color: #000; text-transform: uppercase; margin-bottom: 6px; font-weight: 800; }
         .input-group { display: flex; gap: 10px; }
-        
         input, select { 
-            background: #ffffff; border: 2px solid var(--border); color: var(--text); 
-            padding: 14px; border-radius: 10px; font-size: 16px; width: 100%; box-sizing: border-box; 
-            font-weight: 600;
+            background: #ffffff; border: 2px solid var(--border); color: #000; 
+            padding: 14px; border-radius: 8px; font-size: 16px; width: 100%; box-sizing: border-box; font-weight: 700;
         }
-        input:focus { border-color: var(--ac); outline: none; background: #f8fafc; }
         
-        /* Tallenna-nappi - Erittäin näkyvä */
         .btn-save { 
-            background: var(--ac); color: white; border: none; padding: 20px; 
-            border-radius: 12px; font-weight: 800; width: 100%; font-size: 18px; 
-            margin-top: 10px; cursor: pointer; box-shadow: 0 4px 12px rgba(37, 99, 235, 0.3);
+            background: #000; color: #fff; border: none; padding: 22px; 
+            border-radius: 12px; font-weight: 800; width: 100%; font-size: 18px; cursor: pointer;
         }
 
-        /* Viimeisin syöttö - Korostettu laatikko */
-        .last-box { 
-            background: #f8fafc; padding: 18px; border-radius: 12px; margin-top: 25px; 
-            border: 2px dashed var(--ac); color: var(--text);
-        }
-        .last-box h4 { margin: 0 0 8px 0; font-size: 11px; color: var(--ac); font-weight: 800; }
-
-        /* Koosteet-sivun kortit */
+        /* Koosteet */
         .stat-card { 
-            background: var(--sur); padding: 20px; border-radius: 15px; margin-bottom: 15px; 
-            border: 2px solid var(--border); 
+            background: #fff; padding: 20px; border-radius: 12px; margin-bottom: 15px; 
+            border: 3px solid #000; 
         }
-        .stat-card.oy { border-left: 8px solid var(--ac); }
-        .stat-card.tmi { border-left: 8px solid var(--tmi); }
-        .stat-card h3 { margin: 0; font-size: 13px; color: var(--mu); font-weight: 700; }
-        .stat-card .val { font-size: 32px; font-weight: 800; margin-top: 5px; color: var(--text); }
-        
-        /* Historialista */
+        .stat-card.oy { border-color: var(--ac); }
+        .stat-card.tmi { border-color: var(--tmi); }
+        .stat-card h3 { margin: 0; font-size: 14px; font-weight: 800; }
+        .stat-card .val { font-size: 34px; font-weight: 900; margin-top: 5px; }
+
         .entry-item { 
-            background: white; padding: 15px; border-radius: 12px; margin-bottom: 10px; 
-            display: flex; justify-content: space-between; align-items: center; 
-            border: 1px solid var(--border); box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+            background: #fff; padding: 15px; border-radius: 10px; margin-bottom: 10px; 
+            border: 2px solid #e2e8f0; display: flex; justify-content: space-between; align-items: center;
         }
-        .entry-info div:first-child { font-size: 12px; color: var(--ac); font-weight: 700; }
-        .entry-info div:nth-child(2) { font-weight: 800; font-size: 15px; margin: 2px 0; }
-        
-        .btn-cal { 
-            padding: 10px 15px; border-radius: 8px; border: 2px solid var(--ac); 
-            background: white; color: var(--ac); font-size: 13px; font-weight: 800; cursor: pointer;
-        }
-        .btn-cal.synced { border-color: var(--border); color: var(--mu); background: var(--sur); }
     </style>
 </head>
 <body>
@@ -91,91 +61,71 @@
 
 <div id="page-input" class="page active">
     <div class="form-row">
-        <label>Päivämäärä ja Kellonajat</label>
+        <label>Pvm ja Kellonajat</label>
         <div class="input-group">
             <input type="date" id="f-date">
             <input type="time" id="f-start" value="07:00">
             <input type="time" id="f-end" value="17:00">
         </div>
     </div>
-
-    <div class="form-row">
-        <label>Mittarilukemat (Alku / Loppu)</label>
+    <div class="form-row"><label>Mittari (Alku / Loppu)</label>
         <div class="input-group">
-            <input type="number" id="f-km-start" placeholder="Alku km">
-            <input type="number" id="f-km-end" placeholder="Loppu km">
+            <input type="number" id="f-km-start"><input type="number" id="f-km-end">
         </div>
     </div>
-
-    <div class="form-row">
-        <label>Otsikko (Esim. Taksi 142)</label>
-        <input type="text" id="f-title" placeholder="Mikä ajo?">
+    <div class="form-row"><label>Otsikko / Tapahtuma</label><input type="text" id="f-title"></div>
+    <div class="form-row"><label>Reitti / Paikka</label><input type="text" id="f-route"></div>
+    <div class="form-row"><label>Tyyppi</label>
+        <select id="f-type"><option value="Oy">Oy (Matkalasku)</option><option value="Tmi">Tmi (Vähennys)</option></select>
     </div>
-
-    <div class="form-row">
-        <label>Paikkatieto</label>
-        <input type="text" id="f-loc" placeholder="Esim. Hki / Tmi">
-    </div>
-
-    <div class="form-row">
-        <label>Reitti (Mistä - Mihin)</label>
-        <input type="text" id="f-route" placeholder="Esim. RMK - HKI - RMK">
-    </div>
-
-    <div class="form-row">
-        <label>Tyyppi</label>
-        <select id="f-type">
-            <option value="Oy">Oy (Matkalasku)</option>
-            <option value="Tmi">Tmi (Verovähennys)</option>
-            <option value="Oma">Oma ajo</option>
-        </select>
-    </div>
-
-    <button class="btn-save" onclick="tallennaAjo()">TALLENNA PILVEEN</button>
-
+    <button class="btn-save" onclick="tallennaAjo()">TALLENNA AJOPÄIVÄKIRJAAN</button>
     <div id="last-entry-ui"></div>
 </div>
 
 <div id="page-stats" class="page">
     <div id="summary-ui"></div>
-    <div style="margin-top:25px" id="history-ui"></div>
+    <div id="history-ui"></div>
 </div>
 
 <script>
-// --- FIREBASE JA DATA ---
-const firebaseConfig = {
-    // KORVAA NÄMÄ OMILLA TIEDOILLASI FIREBASE CONSOLESTA
-    apiKey: "AIzaSy...", 
-    databaseURL: "https://paivuri-xxxx.firebasedatabase.app",
-    projectId: "paivuri-xxxx"
-};
-
+const firebaseConfig = { /* OMA CONFIGISI */ };
 firebase.initializeApp(firebaseConfig);
 const db = firebase.database();
 
-// HISTORIADATA TIEDOSTOISTASI (Tammikuu-Maaliskuu 2026)
+// TÄYSI DATA CSV-TIEDOSTOISTASI
 const initialData = [
-    { id: 1736834400, date: "2026-01-14", title: "Taksi 141", loc: "HKI", route: "RMK-HKI-RMK", start: "05:30", end: "16:30", ks: 507425, ke: 507566, type: "Oy", calSynced: true },
-    { id: 1738476000, date: "2026-02-02", title: "Taksi 142", loc: "HKI", route: "RMK-HKI-RMK", start: "06:30", end: "19:30", ks: 509551, ke: 509692, type: "Oy", calSynced: true },
-    { id: 1738562400, date: "2026-02-03", title: "Vakuutus", loc: "Tre", route: "RMK-TRE-RMK", start: "08:00", end: "16:00", ks: 509692, ke: 509965, type: "Tmi", calSynced: true },
-    { id: 1740895200, date: "2026-03-02", title: "Taksi 142", loc: "HKI", route: "RMK-HKI-RMK", start: "05:00", end: "18:00", ks: 513079, ke: 513221, type: "Oy", calSynced: true },
-    { id: 1741672800, date: "2026-03-11", title: "Agentti", loc: "Lahti", route: "RMK-LAHTI-RMK", start: "07:20", end: "17:30", ks: 514458, ke: 514610, type: "Tmi", calSynced: true }
+    // TAMMIKUU
+    { id: 101, date: "2026-01-12", title: "Taksi 141", route: "RMK-HKI-RMK", start: "05:30", end: "16:30", ks: 507284, ke: 507425, type: "Oy" },
+    { id: 102, date: "2026-01-14", title: "Taksi 141", route: "RMK-HKI-RMK", start: "05:30", end: "16:30", ks: 507425, ke: 507566, type: "Oy" },
+    { id: 103, date: "2026-01-19", title: "Taksi 141", route: "RMK-HKI-RMK", start: "07:30", end: "19:00", ks: 507566, ke: 507707, type: "Oy" },
+    { id: 104, date: "2026-01-20", title: "Vakuutus", route: "RMK-TRE-RMK", start: "10:30", end: "17:00", ks: 507707, ke: 507921, type: "Tmi" },
+    // HELMIKUU
+    { id: 201, date: "2026-02-02", title: "Taksi 142", route: "RMK-HKI-RMK", start: "06:30", end: "19:30", ks: 509551, ke: 509692, type: "Oy" },
+    { id: 202, date: "2026-02-03", title: "Vakuutus", route: "RMK-TRE-RMK", start: "08:00", end: "16:00", ks: 509692, ke: 509965, type: "Tmi" },
+    { id: 203, date: "2026-02-09", title: "Taksi 142", route: "RMK-HKI-RMK", start: "05:30", end: "18:00", ks: 511002, ke: 511144, type: "Oy" },
+    { id: 204, date: "2026-02-12", title: "Venemessut", route: "RMK-HKI-RMK", start: "09:00", end: "19:30", ks: 511630, ke: 511771, type: "Oy" },
+    { id: 205, date: "2026-02-17", title: "Taksi 142", route: "RMK-HKI-RMK", start: "05:50", end: "18:00", ks: 512019, ke: 512161, type: "Oy" },
+    { id: 206, date: "2026-02-18", title: "Taksi 142", route: "RMK-HKI-RMK", start: "04:50", end: "18:00", ks: 512161, ke: 512303, type: "Oy" },
+    // MAALISKUU
+    { id: 301, date: "2026-03-02", title: "Taksi 142", route: "RMK-HKI-RMK", start: "05:00", end: "18:00", ks: 513079, ke: 513221, type: "Oy" },
+    { id: 302, date: "2026-03-04", title: "Vakuutus", route: "RMK-TRE-RMK", start: "09:00", end: "16:00", ks: 513221, ke: 513408, type: "Tmi" },
+    { id: 303, date: "2026-03-11", title: "Agentti", route: "RMK-LAHTI-RMK", start: "07:20", end: "17:30", ks: 514458, ke: 514610, type: "Tmi" }
 ];
 
 let entries = [];
 
 function init() {
     document.getElementById('f-date').value = new Date().toISOString().split('T')[0];
-    
-    db.ref('ajot').on('value', (snapshot) => {
-        const data = snapshot.val();
-        if (!data) {
-            // Ladataan alkuperäinen data vain kerran
-            initialData.forEach(item => db.ref('ajot/' + item.id).set(item));
-        } else {
+    db.ref('ajot').on('value', (snap) => {
+        const data = snap.val();
+        if (!data) { initialData.forEach(d => db.ref('ajot/' + d.id).set(d)); }
+        else {
             entries = Object.values(data).sort((a,b) => b.id - a.id);
             render();
-            paivitaOletukset();
+            if(entries.length > 0) {
+                document.getElementById('f-km-start').value = entries[0].ke;
+                document.getElementById('f-km-end').value = entries[0].ke;
+            }
         }
     });
 }
@@ -185,82 +135,39 @@ function switchTab(i) {
     document.querySelectorAll('.page').forEach((p, idx) => p.classList.toggle('active', idx === i));
 }
 
-function paivitaOletukset() {
-    if(entries.length > 0) {
-        const uusin = entries[0];
-        document.getElementById('f-km-start').value = uusin.ke;
-        document.getElementById('f-km-end').value = uusin.ke;
-        document.getElementById('last-entry-ui').innerHTML = `
-            <div class="last-box">
-                <h4>VIIMEISIN TALLENNUS</h4>
-                <div style="font-weight:800; font-size:16px">${uusin.title}</div>
-                <div style="font-size:13px; color:var(--mu)">${uusin.date} • ${uusin.ke - uusin.ks} km • ${uusin.type}</div>
-            </div>`;
-    }
-}
-
 function tallennaAjo() {
     const id = Date.now();
     const ajo = {
-        id: id,
-        date: document.getElementById('f-date').value,
-        start: document.getElementById('f-start').value,
-        end: document.getElementById('f-end').value,
-        ks: parseFloat(document.getElementById('f-km-start').value) || 0,
-        ke: parseFloat(document.getElementById('f-km-end').value) || 0,
-        title: document.getElementById('f-title').value || "Ajo",
-        loc: document.getElementById('f-loc').value,
-        route: document.getElementById('f-route').value,
-        type: document.getElementById('f-type').value,
-        calSynced: false
+        id: id, date: document.getElementById('f-date').value,
+        start: document.getElementById('f-start').value, end: document.getElementById('f-end').value,
+        ks: parseFloat(document.getElementById('f-km-start').value), ke: parseFloat(document.getElementById('f-km-end').value),
+        title: document.getElementById('f-title').value, route: document.getElementById('f-route').value,
+        type: document.getElementById('f-type').value
     };
-    db.ref('ajot/' + id).set(ajo).then(() => {
-        alert("Tieto tallennettu pilveen!");
-        document.getElementById('f-title').value = "";
-    });
+    db.ref('ajot/' + id).set(ajo).then(() => { alert("Tallennettu!"); });
 }
 
 function render() {
-    let oySum = 0, tmiSum = 0;
-    let histHtml = '<h4 style="margin-bottom:15px; color:var(--mu)">HISTORIA</h4>';
-    
+    let oy = 0, tmi = 0;
+    let html = '<h2 style="border-bottom:3px solid #000">HISTORIA</h2>';
     entries.forEach(e => {
         const km = e.ke - e.ks;
         const [h1, m1] = e.start.split(':').map(Number);
-        const [h2, m2] = e.end.split(':').map(Number);
-        const tunnit = (h2 + m2/60) - (h1 + m1/60);
-        const pr = tunnit >= 10 ? 54 : (tunnit >= 6 ? 25 : 0);
+        const [h2, m2] = (e.end || "00:00").split(':').map(Number);
+        const hrs = (h2 + m2/60) - (h1 + m1/60);
+        const pr = hrs >= 10 ? 54 : (hrs >= 6 ? 25 : 0);
         const total = (km * 0.55) + pr;
+        if(e.type === 'Oy') oy += total; else tmi += total;
 
-        if(e.type === 'Oy') oySum += total;
-        if(e.type === 'Tmi') tmiSum += total;
-
-        histHtml += `
-            <div class="entry-item">
-                <div class="entry-info">
-                    <div>${e.date} • ${e.type}</div>
-                    <div>${e.title}</div>
-                    <div style="font-size:12px; color:var(--mu); font-weight:600">${km} km | ${pr}€ PR | ${total.toFixed(2)}€</div>
-                </div>
-                <button class="btn-cal ${e.calSynced?'synced':''}" onclick="vieKalenteriin(${e.id})">
-                    ${e.calSynced ? 'Viety ✓' : 'GCal'}
-                </button>
-            </div>`;
+        html += `<div class="entry-item">
+            <div><b>${e.date}</b><br>${e.title}<br><small>${e.route} (${km}km)</small></div>
+            <div style="text-align:right"><b>${total.toFixed(2)}€</b><br><small>${e.type}</small></div>
+        </div>`;
     });
-
     document.getElementById('summary-ui').innerHTML = `
-        <div class="stat-card oy"><h3>OY MATKALASKUT (2026)</h3><div class="val">${oySum.toFixed(2)} €</div></div>
-        <div class="stat-card tmi"><h3>TMI LISÄVÄHENNYS (2026)</h3><div class="val">${tmiSum.toFixed(2)} €</div></div>
-    `;
-    document.getElementById('history-ui').innerHTML = histHtml;
-}
-
-function vieKalenteriin(id) {
-    const e = entries.find(x => x.id == id);
-    const d = e.date.replace(/-/g,'');
-    const url = `https://www.google.com/calendar/render?action=TEMPLATE&text=${encodeURIComponent(e.title)}&dates=${d}T${e.start.replace(':','')}00Z/${d}T${e.end.replace(':','')}00Z&details=${encodeURIComponent(e.route)}`;
-    window.open(url, '_blank');
-    db.ref('ajot/' + id).update({ calSynced: true });
+        <div class="stat-card oy"><h3>OY YHTEENSÄ 2026</h3><div class="val">${oy.toFixed(2)} €</div></div>
+        <div class="stat-card tmi"><h3>TMI YHTEENSÄ 2026</h3><div class="val">${tmi.toFixed(2)} €</div></div>`;
+    document.getElementById('history-ui').innerHTML = html;
 }
 
 init();
