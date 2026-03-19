@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Päivyri v5.24 - FIRESTORE PALAUTUS</title>
+    <title>Päivyri v5.24 - FIRESTORE VAKAA</title>
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
     <link href="https://fonts.googleapis.com/css2?family=Sora:wght@400;700;800&display=swap" rel="stylesheet">
@@ -16,7 +16,10 @@
         .page { display: none; padding: 20px; }
         .page.active { display: block; }
         .card { background: #fff; padding: 20px; border-radius: 16px; border: 1px solid #e2e8f0; margin-bottom: 20px; }
-        .history-item { background: #fff; padding: 15px; border-radius: 14px; margin-bottom: 10px; border-left: 5px solid var(--ac); box-shadow: 0 2px 4px rgba(0,0,0,0.05); }
+        label { display: block; font-size: 10px; font-weight: 800; color: #64748b; margin-bottom: 5px; text-transform: uppercase; }
+        input, select { width: 100%; padding: 12px; border: 2px solid #e2e8f0; border-radius: 10px; font-size: 15px; font-weight: 600; box-sizing: border-box; margin-bottom: 12px; }
+        .btn-main { background: #000; color: #fff; border: none; padding: 16px; border-radius: 12px; font-weight: 800; width: 100%; cursor: pointer; }
+        .history-item { background: #fff; padding: 15px; border-radius: 14px; margin-bottom: 10px; border: 1px solid #e2e8f0; border-left: 5px solid var(--ac); }
         .total-box { background: #0f172a; color: #fff; padding: 20px; border-radius: 12px; }
     </style>
 </head>
@@ -30,65 +33,82 @@
 
 <div id="p-input" class="page active">
     <div class="card">
-        <h3>Luo uusi kirjaus</h3>
-        <p>Tiedot tallentuvat Firestoreen kansioon: <b>paivuri</b></p>
-        <button onclick="showPage('stats')" style="width:100%; padding:15px; background:var(--ac); color:white; border:none; border-radius:10px; font-weight:bold;">KATSO ARKISTO TÄSTÄ</button>
+        <label>Asiakas / Lähtö</label><input type="text" id="f-client" class="nav-f">
+        <label>Päivämäärä</label><input type="date" id="f-date" class="nav-f">
+        <div style="display:flex; gap:10px">
+            <div style="flex:1"><label>KM Alku</label><input type="number" id="f-ks" class="nav-f"></div>
+            <div style="flex:1"><label>KM Loppu</label><input type="number" id="f-ke" class="nav-f"></div>
+        </div>
+        <label>Tyyppi</label>
+        <select id="f-type" class="nav-f">
+            <option value="Oy">Oy</option>
+            <option value="Tmi">Tmi</option>
+        </select>
+        <button class="btn-main" onclick="tallennaFirestoreen()" style="background: var(--success);">TALLENNA (ENTER)</button>
     </div>
 </div>
 
 <div id="p-stats" class="page">
-    <h2>Arkisto (Firestore)</h2>
-    <div id="history-ui">Haetaan pilvidataa...</div>
+    <h2>Arkisto (Pilvi)</h2>
+    <div id="history-ui">Haetaan dataa...</div>
 </div>
 
 <div id="p-report" class="page"><div id="report-output"></div></div>
 
 <script>
-// HUOM: Firestore-konfiguraatio (Käyttää projektia paivuri-6379b)
-const firebaseConfig = { 
-    projectId: "paivuri-6379b",
-    databaseURL: "https://paivuri-6379b-default-rtdb.europe-west1.firebasedatabase.app" 
-};
+// ASETUKSET KUVAKAAPPAUKSESI MUKAAN
+const firebaseConfig = { projectId: "paivuri-6379b" };
 firebase.initializeApp(firebaseConfig);
-const fs = firebase.firestore();
+const db = firebase.firestore();
 
-function paivitaArkisto() {
-    // Haetaan kokoelma "paivuri" kuvakaappauksesi mukaan
-    fs.collection("paivuri").orderBy("__name__", "desc").onSnapshot((snapshot) => {
+// HAETAAN DATA FIRESTORESTA
+function lataaData() {
+    db.collection("paivuri").onSnapshot((querySnapshot) => {
         let h = "";
         let tKm = 0;
-        
-        if (snapshot.empty) {
-            h = "Firestore-kokoelma 'paivuri' on tyhjä.";
-        }
+        let dataLista = [];
 
-        snapshot.forEach((doc) => {
-            const data = doc.data();
-            const pvm = doc.id; // Kuvassasi dokumentin nimi on päivämäärä
-            
-            // Lasketaan kilometrit kuvasi kentistä (ckmr - ckm)
-            const km = (parseFloat(data.ckmr) || 0) - (parseFloat(data.ckm) || 0);
+        querySnapshot.forEach((doc) => {
+            const d = doc.data();
+            const pvm = doc.id; // Kuvassasi ID on päivämäärä
+            const km = (parseFloat(d.ckmr) || 0) - (parseFloat(d.ckm) || 0);
             tKm += km;
-
-            h += `
-                <div class="history-item">
-                    <b>${pvm}</b><br>
-                    ${data.apkLahto || 'Ajo'} -> ${data.apkAlku || ''}<br>
-                    Matka: ${km.toFixed(1)} km | Tyyppi: ${data.drole || 'Oy'}
-                </div>`;
+            
+            dataLista.push({pvm, client: d.apkLahto || 'Ajo', km});
         });
-        
-        document.getElementById('history-ui').innerHTML = h;
-        
-        // Päivitä raportti
-        document.getElementById('report-output').innerHTML = `
-            <div class="card">
-                <h3>Yhteenveto</h3>
-                <div class="total-box">Kaikki matkat: ${tKm.toFixed(1)} km</div>
-            </div>`;
-    }, (error) => {
-        document.getElementById('history-ui').innerHTML = "Firestore-virhe: " + error.message;
+
+        // Lajittelu uusimman mukaan
+        dataLista.sort((a,b) => b.pvm.localeCompare(a.pvm)).forEach(e => {
+            h += `<div class="history-item"><b>${e.pvm}</b><br>${e.client} (${e.km.toFixed(1)} km)</div>`;
+        });
+
+        document.getElementById('history-ui').innerHTML = h || "Ei merkintöjä.";
+        document.getElementById('report-output').innerHTML = `<div class="card"><h3>Yhteensä: ${tKm.toFixed(1)} km</h3></div>`;
     });
+}
+
+function tallennaFirestoreen() {
+    const pvm = document.getElementById('f-date').value;
+    if(!pvm) return alert("Päivämäärä puuttuu!");
+
+    // Tallennetaan kuvakaappauksesi mukaisilla kenttänimillä
+    db.collection("paivuri").doc(pvm).set({
+        apkLahto: document.getElementById('f-client').value,
+        ckm: document.getElementById('f-ks').value,
+        ckmr: document.getElementById('f-ke').value,
+        drole: document.getElementById('f-type').value,
+        at: firebase.firestore.FieldValue.serverTimestamp()
+    }).then(() => {
+        resetForm();
+        showPage('stats');
+    });
+}
+
+function resetForm() {
+    document.getElementById('f-client').value = "";
+    document.getElementById('f-ks').value = "";
+    document.getElementById('f-ke').value = "";
+    document.getElementById('f-date').value = new Date().toISOString().split('T')[0];
 }
 
 function showPage(p) {
@@ -98,7 +118,8 @@ function showPage(p) {
 }
 
 // Käynnistys
-paivitaArkisto();
+resetForm();
+lataaData();
 </script>
 </body>
 </html>
