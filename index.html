@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Päivyri v5.24 - Firestore Recovery</title>
+    <title>Päivyri v5.24 PRO - FIRESTORE</title>
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
     <link href="https://fonts.googleapis.com/css2?family=Sora:wght@400;700;800&display=swap" rel="stylesheet">
@@ -17,10 +17,10 @@
         .page.active { display: block; }
         .card { background: #fff; padding: 20px; border-radius: 16px; border: 1px solid #e2e8f0; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1); margin-bottom: 20px; }
         label { display: block; font-size: 10px; font-weight: 800; color: #64748b; margin-bottom: 5px; text-transform: uppercase; }
-        input, select { width: 100%; padding: 12px; border: 2px solid #e2e8f0; border-radius: 10px; font-size: 15px; font-weight: 600; box-sizing: border-box; font-family: inherit; margin-bottom: 12px; }
-        input:focus, select:focus { border-color: var(--ac); outline: none; background: #eff6ff; }
-        .btn-main { background: #000; color: #fff; border: none; padding: 16px; border-radius: 12px; font-weight: 800; width: 100%; cursor: pointer; margin-top: 10px; }
-        .history-item { background: #fff; padding: 15px; border-radius: 14px; margin-bottom: 10px; border: 1px solid #e2e8f0; border-left: 5px solid var(--ac); }
+        input, select { width: 100%; padding: 12px; border: 2px solid #e2e8f0; border-radius: 10px; font-size: 15px; font-weight: 600; box-sizing: border-box; font-family: inherit; margin-bottom: 12px; transition: border-color 0.2s; }
+        input:focus, select:focus { border-color: var(--ac); outline: none; background: #f8fafc; }
+        .btn-main { background: #000; color: #fff; border: none; padding: 16px; border-radius: 12px; font-weight: 800; width: 100%; cursor: pointer; margin-bottom: 10px; }
+        .history-item { background: #fff; padding: 15px; border-radius: 14px; margin-bottom: 10px; border: 1px solid #e2e8f0; border-left: 5px solid #ccc; }
         .total-box { background: #0f172a; color: #fff; padding: 20px; border-radius: 12px; margin-top: 20px; }
         .total-row { display: flex; justify-content: space-between; padding: 4px 0; border-bottom: 1px solid rgba(255,255,255,0.1); }
         .footer { text-align: center; padding: 20px; color: #94a3b8; font-size: 9px; font-weight: 700; text-transform: uppercase; }
@@ -36,8 +36,21 @@
 
 <div id="p-input" class="page active">
     <div class="card">
+        <label>Toimintatila</label>
+        <select id="f-mode" onchange="toggleMode()" class="nav-f">
+            <option value="meeting">Tapaaminen (CRM)</option>
+            <option value="drive">Pelkkä Ajo</option>
+        </select>
         <label>Päivämäärä</label><input type="date" id="f-date" class="nav-f">
-        <label>Asiakas / Kohde</label><input type="text" id="f-client" class="nav-f" placeholder="Esim. Yritys Oy">
+        <div style="display:flex; gap:10px">
+            <div style="flex:1"><label>Alku</label><input type="time" id="f-start" class="nav-f"></div>
+            <div style="flex:1"><label>Loppu</label><input type="time" id="f-end" class="nav-f"></div>
+        </div>
+        <div id="crm-fields">
+            <label>Asiakas / Yritys</label><input type="text" id="f-client" class="nav-f">
+            <label>Aihe</label><input type="text" id="f-title" class="nav-f">
+        </div>
+        <label>Reitti / Osoite</label><input type="text" id="f-route" class="nav-f">
         <div style="display:flex; gap:10px">
             <div style="flex:1"><label>KM Alku</label><input type="number" id="f-ks" class="nav-f"></div>
             <div style="flex:1"><label>KM Loppu</label><input type="number" id="f-ke" class="nav-f"></div>
@@ -49,112 +62,90 @@
         </select>
         <label>Päiväraha</label>
         <select id="f-perdiem" class="nav-f last-f">
-            <option value="ei">Ei PR</option>
-            <option value="osa">Osa (25€)</option>
-            <option value="koko">Koko (54€)</option>
+            <option value="0">Ei PR</option>
+            <option value="25">Osa (25€)</option>
+            <option value="54">Koko (54€)</option>
         </select>
-        <button class="btn-main" onclick="tallennaFirestoreen()" style="background: var(--success);">TALLENNA ARKISTOON (ENTER)</button>
+        <button class="btn-main" onclick="tallennaKaikki()" style="background: var(--success);">TALLENNA (ENTER)</button>
     </div>
 </div>
 
-<div id="p-stats" class="page"><div id="history-ui">Ladataan dataa pilvestä...</div></div>
+<div id="p-stats" class="page"><div id="history-ui">Haetaan arkistoa...</div></div>
 <div id="p-report" class="page"><div id="report-output"></div></div>
 
-<div class="footer">Versio 5.24 - FIRESTORE RECOVERY | 19.3.2026</div>
+<div class="footer">v5.24 Recovery | Firestore Connected</div>
 
 <script>
-// ASETUKSET FIRESTORELLE
+// --- TÄRKEÄT FIRESTORE-ASETUKSET ---
 const firebaseConfig = { projectId: "paivuri-6379b" };
 firebase.initializeApp(firebaseConfig);
 const db = firebase.firestore();
 
 let omatAjot = [];
 
-// 1. HAETAAN DATA FIRESTORESTA (Kokoelma: paivuri)
+// 1. DATA PALAUTUU TÄSTÄ (Kuvasi mukaisilla kentillä)
 function lataaData() {
     db.collection("paivuri").onSnapshot((snapshot) => {
         omatAjot = [];
         let h = "";
-        
         snapshot.forEach((doc) => {
             const d = doc.data();
-            const pvm = doc.id; // Dokumentin ID on päivämäärä
-            
-            // Lasketaan km kuvasi kentistä ckmr ja ckm
+            const pvm = doc.id;
+            // Käytetään kuvasi mukaisia nimiä: ckmr ja ckm
             const km = (parseFloat(d.ckmr) || 0) - (parseFloat(d.ckm) || 0);
-            
-            omatAjot.push({
-                pvm: pvm,
-                client: d.apkLahto || 'Ajo',
-                km: km,
-                type: d.drole || 'Oy',
-                dieta: d.dieta || 'ei'
-            });
+            omatAjot.push({ pvm, client: d.apkLahto || 'Ajo', km, type: d.drole || 'Oy' });
         });
-
-        // Lajitellaan pvm mukaan
+        
         omatAjot.sort((a,b) => b.pvm.localeCompare(a.pvm)).forEach(e => {
             h += `<div class="history-item"><b>${e.pvm}</b><br>${e.client} (${e.km.toFixed(1)} km)</div>`;
         });
-
-        document.getElementById('history-ui').innerHTML = h || "Ei merkintöjä.";
+        document.getElementById('history-ui').innerHTML = h || "Arkisto on tyhjä.";
         paivitaRaportti();
     });
 }
 
-// 2. TALLENNUS FIRESTOREEN (Kuvasi mukaisilla kentillä)
-function tallennaFirestoreen() {
+// 2. TALLENNUS FIRESTOREEN
+function tallennaKaikki() {
     const pvm = document.getElementById('f-date').value;
-    if(!pvm) return alert("Valitse päivämäärä!");
-
+    if(!pvm) return alert("Pvm!");
+    
+    // Tallennetaan kuvasi mukaisessa muodossa
     db.collection("paivuri").doc(pvm).set({
         apkLahto: document.getElementById('f-client').value,
         ckm: document.getElementById('f-ks').value,
         ckmr: document.getElementById('f-ke').value,
         drole: document.getElementById('f-type').value,
-        dieta: document.getElementById('f-perdiem').value,
         at: firebase.firestore.FieldValue.serverTimestamp()
     }).then(() => {
         resetForm();
         showPage('stats');
-    }).catch(e => alert("Virhe: " + e.message));
+    });
 }
 
-function paivitaRaportti() {
-    const kuu = new Date().toISOString().substring(0, 7);
-    let tKm = 0;
-    omatAjot.filter(a => a.pvm.startsWith(kuu)).forEach(a => tKm += a.km);
-    
-    document.getElementById('report-output').innerHTML = `
-        <div class="card">
-            <h3>Yhteenveto ${kuu}</h3>
-            <div class="total-box">
-                <div class="total-row"><span>Km yhteensä:</span><b>${tKm.toFixed(1)} km</b></div>
-                <div class="total-row"><span>Korvaus (0.55€):</span><b>${(tKm * 0.55).toFixed(2)} €</b></div>
-            </div>
-        </div>`;
-}
-
-// ENTER-NAVIGAATIO
+// Enter-navigaatio (v5.23 tyyliin)
 document.addEventListener('keydown', (e) => {
     if (e.key === "Enter") {
         const active = document.activeElement;
         const fields = Array.from(document.querySelectorAll('.nav-f'));
         const idx = fields.indexOf(active);
-        if (idx > -1 && idx < fields.length - 1) {
-            e.preventDefault();
-            fields[idx + 1].focus();
-        } else if (active.classList.contains('last-f')) {
-            tallennaFirestoreen();
-        }
+        if (active.classList.contains('last-f')) { tallennaKaikki(); }
+        else if (idx > -1 && idx < fields.length - 1) { e.preventDefault(); fields[idx + 1].focus(); }
     }
 });
 
+function paivitaRaportti() {
+    const kuu = new Date().toISOString().substring(0, 7);
+    let tKm = 0;
+    omatAjot.filter(a => a.pvm.startsWith(kuu)).forEach(a => tKm += a.km);
+    document.getElementById('report-output').innerHTML = `<div class="card"><h3>${kuu}</h3><div class="total-box">Yhteensä: ${(tKm * 0.55).toFixed(2)}€</div></div>`;
+}
+
 function resetForm() {
-    ['f-client','f-ks','f-ke'].forEach(id => document.getElementById(id).value = "");
+    ['f-client', 'f-title', 'f-route', 'f-ks', 'f-ke'].forEach(id => document.getElementById(id).value = "");
     document.getElementById('f-date').value = new Date().toISOString().split('T')[0];
 }
 
+function toggleMode() { document.getElementById('crm-fields').style.display = document.getElementById('f-mode').value === 'meeting' ? 'block' : 'none'; }
 function showPage(p) {
     document.querySelectorAll('.page, .tab').forEach(el => el.classList.remove('active'));
     document.getElementById('p-' + p).classList.add('active');
@@ -163,6 +154,7 @@ function showPage(p) {
 
 // Käynnistys
 resetForm();
+toggleMode();
 lataaData();
 </script>
 </body>
