@@ -3,14 +3,13 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Päivyri v5.60 - LOPULLINEN FIX</title>
+    <title>Päivyri v5.70 - Final</title>
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
     <link href="https://fonts.googleapis.com/css2?family=Sora:wght@400;700;800&display=swap" rel="stylesheet">
     <style>
-        /* TÄSMÄLLEEN v5.22 TYYLIT */
         :root { --bg: #f8fafc; --text: #0f172a; --ac: #2563eb; --success: #10b981; --cal: #4285f4; }
-        body { font-family: 'Sora', sans-serif; background: var(--bg); color: var(--text); margin: 0; padding-bottom: 100px; }
+        body { font-family: 'Sora', sans-serif; background: var(--bg); color: var(--text); margin: 0; padding-bottom: 120px; }
         .tabs { display: flex; background: #fff; border-bottom: 2px solid #e2e8f0; position: sticky; top: 0; z-index: 100; }
         .tab { flex: 1; padding: 16px; text-align: center; font-weight: 800; cursor: pointer; color: #64748b; font-size: 10px; text-transform: uppercase; }
         .tab.active { color: var(--ac); border-bottom: 4px solid var(--ac); background: #f1f5f9; }
@@ -23,8 +22,7 @@
         .btn-cal { background: var(--cal); color: #fff; border: none; padding: 14px; border-radius: 12px; font-weight: 800; width: 100%; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px; margin-bottom: 15px; }
         .history-item { background: #fff; padding: 15px; border-radius: 14px; margin-bottom: 10px; border: 1px solid #e2e8f0; border-left: 5px solid #ccc; }
         .actions { display: flex; gap: 8px; margin-top: 10px; border-top: 1px solid #f1f5f9; padding-top: 8px; }
-        .total-box { background: #0f172a; color: #fff; padding: 20px; border-radius: 12px; margin-top: 20px; }
-        .total-row { display: flex; justify-content: space-between; padding: 4px 0; }
+        .footer { text-align: center; padding: 20px; color: #94a3b8; font-size: 9px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; position: fixed; bottom: 0; width: 100%; background: var(--bg); }
     </style>
 </head>
 <body>
@@ -69,23 +67,35 @@
 <div id="p-stats" class="page"><div id="history-ui">Haetaan pilveä...</div></div>
 <div id="p-report" class="page"><div id="report-output"></div></div>
 
+<div class="footer">
+    Versio 5.70 PRO | Päivitetty: 19.3.2026 21:30
+</div>
+
 <script>
-// LIITÄ TÄHÄN FIREBASE-ASETUKSET (Project Settings -> Your Apps)
+// HUOM! SINUN TÄYTYY KOPIOIDA TÄHÄN NE FIREBASE-ASETUKSET (apiKey jne.)
 const firebaseConfig = {
-    apiKey: "AIza...", 
+    apiKey: "KOPIOI_TÄHÄN_OMASTA_FIREBASESTA",
     authDomain: "paivuri-6379b.firebaseapp.com",
     projectId: "paivuri-6379b",
     storageBucket: "paivuri-6379b.appspot.com",
     messagingSenderId: "286198999823",
-    appId: "1:286198999823:web:..."
+    appId: "KOPIOI_TÄHÄN_OMASTA_FIREBASESTA"
 };
 
-firebase.initializeApp(firebaseConfig);
-const db = firebase.firestore();
+// Käynnistys turvallisesti
+try {
+    firebase.initializeApp(firebaseConfig);
+    var db = firebase.firestore();
+    console.log("Firebase yhteys valmis.");
+} catch (e) {
+    console.error("Firebase virhe:", e);
+    document.getElementById('history-ui').innerHTML = "Yhteysvirhe: Tarkista asetukset.";
+}
 
 let omatAjot = [];
 
 function lataaData() {
+    if(!db) return;
     db.collection("ajot").orderBy("date", "desc").onSnapshot((snapshot) => {
         omatAjot = [];
         let h = "";
@@ -101,8 +111,10 @@ function lataaData() {
                 </div>
             </div>`;
         });
-        document.getElementById('history-ui').innerHTML = h || "Arkisto on tyhjä.";
+        document.getElementById('history-ui').innerHTML = h || "Arkisto on tyhjä pilvessä.";
         paivitaRaportti();
+    }, (error) => {
+        document.getElementById('history-ui').innerHTML = "Virhe säännöissä: " + error.message;
     });
 }
 
@@ -123,7 +135,7 @@ function tallennaFirestoreen() {
         alert("Tallennettu!");
         resetForm();
         showPage('stats');
-    }).catch(e => alert("Virhe: " + e));
+    }).catch(e => alert("Virhe tallennuksessa: " + e.message));
 }
 
 function muokkaa(id) {
@@ -141,13 +153,22 @@ function muokkaa(id) {
     showPage('input');
 }
 
-function asetaNykyinenAika() {
+function resetForm() {
+    ['f-id','f-client','f-title','f-route','f-ks','f-ke'].forEach(f => document.getElementById(f).value = "");
+    document.getElementById('f-date').value = new Date().toISOString().split('T')[0];
     const nyt = new Date();
-    const tunnit = String(nyt.getHours()).padStart(2, '0');
-    const minuutit = String(nyt.getMinutes()).padStart(2, '0');
-    document.getElementById('f-start').value = `${tunnit}:${minuutit}`;
-    const loppuTunnit = String((nyt.getHours() + 8) % 24).padStart(2, '0');
-    document.getElementById('f-end').value = `${loppuTunnit}:${minuutit}`;
+    document.getElementById('f-start').value = String(nyt.getHours()).padStart(2, '0') + ":" + String(nyt.getMinutes()).padStart(2, '0');
+    document.getElementById('f-end').value = String((nyt.getHours() + 8) % 24).padStart(2, '0') + ":" + String(nyt.getMinutes()).padStart(2, '0');
+}
+
+function showPage(p) {
+    document.querySelectorAll('.page, .tab').forEach(el => el.classList.remove('active'));
+    document.getElementById('p-' + p).classList.add('active');
+    document.getElementById('t-' + p).classList.add('active');
+}
+
+function toggleMode() {
+    document.getElementById('crm-fields').style.display = document.getElementById('f-mode').value === 'meeting' ? 'block' : 'none';
 }
 
 function laskePaivarahaEhdotus() {
@@ -163,36 +184,12 @@ function paivitaRaportti() {
     const kuu = new Date().toISOString().substring(0, 7);
     let tkm = 0;
     omatAjot.filter(a => a.date && a.date.startsWith(kuu)).forEach(a => tkm += (a.ke - a.ks));
-    document.getElementById('report-output').innerHTML = `
-        <div class="card">
-            <h3>Kooste ${kuu}</h3>
-            <div class="total-box">
-                <div class="total-row"><span>Kilometrit:</span><b>${tkm.toFixed(1)} km</b></div>
-                <div class="total-row"><span>Korvaus:</span><b>${(tkm * 0.55).toFixed(2)} €</b></div>
-            </div>
-        </div>`;
-}
-
-function resetForm() {
-    ['f-id','f-client','f-title','f-route','f-ks','f-ke'].forEach(f => document.getElementById(f).value = "");
-    document.getElementById('f-date').value = new Date().toISOString().split('T')[0];
-    asetaNykyinenAika();
-}
-
-function showPage(p) {
-    document.querySelectorAll('.page, .tab').forEach(el => el.classList.remove('active'));
-    document.getElementById('p-' + p).classList.add('active');
-    document.getElementById('t-' + p).classList.add('active');
-}
-
-function toggleMode() {
-    document.getElementById('crm-fields').style.display = document.getElementById('f-mode').value === 'meeting' ? 'block' : 'none';
+    document.getElementById('report-output').innerHTML = `<div class="card"><h3>Kooste ${kuu}</h3><b>Kilometrit: ${tkm.toFixed(1)} km</b></div>`;
 }
 
 function vieKalenteriin() {
     const pvm = document.getElementById('f-date').value.replace(/-/g, "");
-    const url = `https://www.google.com/calendar/render?action=TEMPLATE&text=${encodeURIComponent(document.getElementById('f-client').value)}&location=${encodeURIComponent(document.getElementById('f-route').value)}`;
-    window.open(url, '_blank');
+    window.open(`https://www.google.com/calendar/render?action=TEMPLATE&text=${encodeURIComponent(document.getElementById('f-client').value)}&location=${encodeURIComponent(document.getElementById('f-route').value)}`, '_blank');
 }
 
 resetForm();
