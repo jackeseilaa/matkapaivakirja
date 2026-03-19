@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Päivyri v5.2 PRO</title>
+    <title>Päivyri v5.3 PRO</title>
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
     <link href="https://fonts.googleapis.com/css2?family=Sora:wght@400;700;800&display=swap" rel="stylesheet">
@@ -32,6 +32,7 @@
         .btn-main { background: #000; color: #fff; border: none; padding: 16px; border-radius: 12px; font-weight: 800; width: 100%; cursor: pointer; margin-bottom: 10px; }
         .btn-sub { background: #f1f5f9; color: #475569; border: none; padding: 12px; border-radius: 10px; font-weight: 700; width: 100%; cursor: pointer; margin-top: 5px; }
         .btn-cal { background: #2563eb; color: #fff; border: none; padding: 16px; border-radius: 12px; font-weight: 800; width: 100%; cursor: pointer; margin-bottom: 10px; }
+        .btn-csv { background: #475569; color: #fff; border: none; padding: 12px; border-radius: 10px; font-weight: 700; width: 100%; cursor: pointer; margin-bottom: 20px; }
         .history-item { background: #fff; padding: 15px; border-radius: 14px; margin-bottom: 10px; border: 1px solid #e2e8f0; border-left: 5px solid #ccc; }
         .history-item.Oy { border-left-color: var(--ac); }
         .history-item.Tmi { border-left-color: var(--success); }
@@ -40,7 +41,7 @@
         .report-table th, .report-table td { border: 1px solid #000; padding: 8px; text-align: left; }
         
         @media print {
-            .tabs, .btn-main, .btn-sub, .btn-cal, .filter-grid, .form-group, #history-ui { display: none !important; }
+            .tabs, .btn-main, .btn-sub, .btn-cal, .btn-csv, .filter-grid, .form-group, #history-ui { display: none !important; }
             body { background: white; }
             .page { display: block !important; padding: 0; }
             #p-report { display: block !important; }
@@ -94,6 +95,7 @@
 </div>
 
 <div id="p-stats" class="page">
+    <button class="btn-csv" onclick="vieCSV()">📥 LATAA CSV (Kuluva vuosi)</button>
     <div class="form-group"><label>Valitse Kuukausi</label><input type="month" id="filter-month" onchange="paivitaNakyma()"></div>
     <div class="filter-grid">
         <button class="filter-btn active" data-type="Oy" onclick="vaihdaTyyppi('Oy')">OY</button>
@@ -120,7 +122,6 @@ const KM_HINTA = 0.55;
 let valittuTyyppi = 'Oy';
 let omatAjot = JSON.parse(localStorage.getItem('paivuri_data')) || [];
 
-// Alustava historiadata
 const ALKUHISTORIA = [
     { id: "j1", date: "2026-01-12", title: "Taksi", route: "RMK-HKI-RMK", ks: 507284, ke: 507425, type: "Oy", perdiem: 54, start: "07:30", end: "19:00" },
     { id: "j2", date: "2026-01-14", title: "Taksi", route: "RMK-HKI-RMK", ks: 507425, ke: 507566, type: "Oy", perdiem: 54, start: "07:30", end: "18:30" },
@@ -152,14 +153,48 @@ function init() {
     paivitaNakyma();
 }
 
+function vieCSV() {
+    const kuluvaVuosi = new Date().getFullYear().toString();
+    let kaikki = hankiKaikkiData().filter(a => a.date.startsWith("2026")); // Pakotettu 2026 raporttiin
+    
+    let csv = "\uFEFF"; // UTF-8 BOM Exceliä varten
+    csv += "Pvm;Tyyppi;Kohde;Reitti;Lähtö;Paluu;KM Alku;KM Loppu;KM;PV-Raha;Yhteensä\n";
+
+    kaikki.forEach(a => {
+        const km = (a.ke - a.ks) || 0;
+        const raha = (km * KM_HINTA) + (parseFloat(a.perdiem) || 0);
+        const rivi = [
+            a.date, a.type, a.title, a.route, a.start, a.end, a.ks, a.ke, km, a.perdiem + "€", raha.toFixed(2) + "€"
+        ].join(";");
+        csv += rivi + "\n";
+    });
+
+    const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+    const link = document.createElement("a");
+    const url = URL.createObjectURL(blob);
+    link.setAttribute("href", url);
+    link.setAttribute("download", `Ajopaivakirja_2026.csv`);
+    link.style.visibility = 'hidden';
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+}
+
+function hankiKaikkiData() {
+    let kaikki = [...ALKUHISTORIA];
+    omatAjot.forEach(o => {
+        const idx = kaikki.findIndex(k => k.id === o.id);
+        if(idx > -1) kaikki[idx] = o; else kaikki.push(o);
+    });
+    return kaikki;
+}
+
 function paivitaKalenteriin() {
     const d = document.getElementById('f-date').value;
     const title = document.getElementById('f-title').value || "Ajo";
     const start = document.getElementById('f-start').value.replace(":","");
     const end = document.getElementById('f-end').value.replace(":","");
     const dateStr = d.replace(/-/g, "");
-    
-    // Luodaan Google Calendar URL
     const url = `https://www.google.com/calendar/render?action=TEMPLATE&text=${encodeURIComponent(title)}&dates=${dateStr}T${start}00/${dateStr}T${end}00&details=${encodeURIComponent(document.getElementById('f-route').value)}`;
     window.open(url, '_blank');
 }
@@ -215,12 +250,7 @@ function tallennaMatka() {
 
 function paivitaNakyma() {
     const month = document.getElementById('filter-month').value;
-    let kaikki = [...ALKUHISTORIA];
-    omatAjot.forEach(o => {
-        const idx = kaikki.findIndex(k => k.id === o.id);
-        if(idx > -1) kaikki[idx] = o; else kaikki.push(o);
-    });
-
+    const kaikki = hankiKaikkiData();
     const suodatetut = kaikki.filter(a => a.date.startsWith(month) && a.type === valittuTyyppi);
     suodatetut.sort((a,b) => b.date.localeCompare(a.date));
 
@@ -263,7 +293,7 @@ function luoRaportti(ajot, month, tyyppi, kokonaissumma) {
 }
 
 function muokkaa(id) {
-    const a = [...ALKUHISTORIA, ...omatAjot].find(x => x.id == id);
+    const a = hankiKaikkiData().find(x => x.id == id);
     if(!a) return;
     document.getElementById('f-id').value = a.id;
     document.getElementById('f-date').value = a.date;
