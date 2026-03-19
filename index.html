@@ -2,90 +2,80 @@
 <html lang="fi">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Päivyri v5.24 - EMERGENCY RECOVERY</title>
+    <title>Päivyri - DATAN ETSINTÄ</title>
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
     <style>
-        body { font-family: sans-serif; padding: 20px; background: #eee; }
-        .card { background: white; padding: 20px; border-radius: 10px; box-shadow: 0 2px 5px rgba(0,0,0,0.2); }
-        .item { padding: 10px; border-bottom: 1px solid #ccc; background: #fff; margin-top: 5px; }
-        button { padding: 10px; width: 100%; margin-top: 10px; cursor: pointer; font-weight: bold; }
-        #debug { font-size: 10px; color: red; margin-top: 20px; }
+        body { font-family: 'Sora', sans-serif; padding: 20px; background: #f1f5f9; color: #0f172a; }
+        .box { background: white; padding: 20px; border-radius: 12px; box-shadow: 0 4px 10px rgba(0,0,0,0.1); }
+        .found-item { border-left: 4px solid #2563eb; padding: 10px; margin: 10px 0; background: #f8fafc; font-size: 14px; }
+        .folder-tag { font-size: 10px; background: #e2e8f0; padding: 2px 6px; border-radius: 4px; font-weight: bold; }
+        .status { color: #64748b; font-size: 12px; margin-bottom: 10px; }
+        h2 { margin-top: 0; color: #2563eb; }
     </style>
 </head>
 <body>
 
-<div class="card">
-    <h2>Päivyri Arkisto</h2>
-    <div id="history-ui">Ladataan tietoja...</div>
-    <hr>
-    <button onclick="lisaaTesti()" style="background: #e2e8f0;">LISÄÄ TESTIMERKINTÄ</button>
-    <button onclick="tyhjennaNaytto()" style="font-size: 10px;">Päivitä näkymä</button>
+<div class="box">
+    <h2>Datan etsintä käynnissä...</h2>
+    <div id="status" class="status">Yhdistetään Firebaseen...</div>
+    <div id="results"></div>
 </div>
 
-<div id="debug"></div>
-
 <script>
-// Firebase-asetukset
 const firebaseConfig = { databaseURL: "https://paivuri-6379b-default-rtdb.europe-west1.firebasedatabase.app" };
 firebase.initializeApp(firebaseConfig);
 const db = firebase.database();
 
-function log(msg) { document.getElementById('debug').innerHTML += msg + "<br>"; }
+const resultsDiv = document.getElementById('results');
+const statusDiv = document.getElementById('status');
 
-// 1. Haetaan paikallinen data heti
-let omatAjot = JSON.parse(localStorage.getItem('paivuri_data')) || [];
-log("Paikallisia rivejä löytyi: " + omatAjot.length);
+// ETSITÄÄN KOKO TIETOKANTA (JUURI /)
+db.ref('/').on('value', (snapshot) => {
+    const allData = snapshot.val();
+    resultsDiv.innerHTML = "";
+    
+    if (!allData) {
+        statusDiv.innerText = "Tietokanta on täysin tyhjä (/).";
+        return;
+    }
 
-// 2. Kuunnellaan pilveä
-db.ref('ajot').on('value', (snapshot) => {
-    const data = snapshot.val();
-    log("Pilvestä saatiin vastaus.");
-    if (data) {
-        omatAjot = Object.values(data);
-        localStorage.setItem('paivuri_data', JSON.stringify(omatAjot));
-        log("Pilvirivejä löytyi: " + omatAjot.length);
-        paivitaNaytto();
+    statusDiv.innerText = "Tietokannasta löytyi sisältöä. Analysoidaan...";
+    let foundCount = 0;
+
+    // Käydään läpi kaikki pääkansiot (esim. 'ajot', 'data', 'merkinnat')
+    for (let folder in allData) {
+        const folderContent = allData[folder];
+        
+        if (typeof folderContent === 'object') {
+            // Muutetaan kansion sisältö listaksi
+            const items = Object.values(folderContent);
+            
+            items.forEach(item => {
+                // Tarkistetaan, näyttääkö tämä ajopäiväkirja-merkinnältä
+                if (item && (item.date || item.client || item.ks)) {
+                    foundCount++;
+                    const div = document.createElement('div');
+                    div.className = 'found-item';
+                    div.innerHTML = `
+                        <span class="folder-tag">Kansio: ${folder}</span><br>
+                        <b>PVM:</b> ${item.date || '---'} | <b>Asiakas:</b> ${item.client || '---'}<br>
+                        <small>ID: ${item.id || 'ei id:tä'}</small>
+                    `;
+                    resultsDiv.appendChild(div);
+                }
+            });
+        }
+    }
+
+    if (foundCount === 0) {
+        resultsDiv.innerHTML = "<p>Dataa ei tunnistettu. Tietokannassa on jotain, mutta se ei vastaa odotettua muotoa.</p>";
     } else {
-        log("Pilvi on tyhjä.");
-        paivitaNaytto();
+        statusDiv.innerText = `Löytyi yhteensä ${foundCount} merkintää!`;
     }
 }, (error) => {
-    log("VIRHE: " + error.message);
+    statusDiv.innerText = "Virhe yhteydessä: " + error.message;
 });
-
-function paivitaNaytto() {
-    let h = "";
-    if (omatAjot.length === 0) {
-        h = "Ei dataa löytynyt mistään.";
-    } else {
-        omatAjot.sort((a,b) => (b.date || "").localeCompare(a.date || "")).forEach(e => {
-            h += `<div class="item"><b>${e.date || 'Ei pvm'}</b>: ${e.client || 'Ajo'} (${(e.ke - e.ks) || 0} km)</div>`;
-        });
-    }
-    document.getElementById('history-ui').innerHTML = h;
-}
-
-function lisaaTesti() {
-    const id = "test_" + Date.now();
-    const testiAjo = {
-        id: id,
-        date: new Date().toISOString().split('T')[0],
-        client: "TESTI-AJO",
-        ks: 0,
-        ke: 10,
-        perdiem: 0
-    };
-    db.ref('ajot/' + id).set(testiAjo)
-        .then(() => alert("Testi tallennettu pilveen!"))
-        .catch(e => alert("Tallennusvirhe: " + e.message));
-}
-
-function tyhjennaNaytto() { location.reload(); }
-
-// Ensimmäinen ajo
-paivitaNaytto();
 </script>
 </body>
 </html>
